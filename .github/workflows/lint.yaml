@@ -26,6 +26,9 @@ jobs:
           rustup run nightly cargo install cargo-udeps
           cargo +nightly udeps
   spell_check:
+    permissions:
+      contents: read
+      pull-requests: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3.1.0
