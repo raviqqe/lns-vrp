@@ -1,4 +1,4 @@
-# Vehicle Routing Problem (VRP) solver
+# vrp
 
 Vehicle Routing Problem (VRP) solver
 
