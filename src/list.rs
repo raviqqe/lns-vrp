@@ -1,15 +1,15 @@
 use alloc::boxed::Box;
-use core::{alloc::Allocator, ptr::write};
+use core::{alloc::Allocator, fmt::Debug, ptr::write};
 
 ///  "Leaked" persistent linked list.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct List<'a, T, A: Allocator + 'a> {
     first: Option<&'a Inner<'a, T>>,
     last: Option<&'a Inner<'a, T>>,
     allocator: A,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 struct Inner<'a, T> {
     value: T,
     previous: Option<&'a Self>,
@@ -47,24 +47,39 @@ impl<'a, T, A: Allocator + Clone + 'a> List<'a, T, A> {
 
     pub fn push_back(&self, value: T) -> Self
     where
-        T: Clone,
+        T: Clone + Debug,
     {
-        let last = Some(if let Some(last) = self.last {
+        if let Some(last) = self.last {
             let previous = self.clone_inner(last);
             let last = self.create_inner(value, None, None);
 
             unsafe { Self::link(previous, last) };
 
-            last
+            Self {
+                first: if self.is_singleton() {
+                    Some(previous)
+                } else {
+                    self.first
+                },
+                last: Some(last),
+                allocator: self.allocator.clone(),
+            }
         } else {
-            self.create_inner(value, None, None)
-        })
-        .map(|value| &*value);
+            let last = Some(&*self.create_inner(value, None, None));
 
-        Self {
-            first: self.first.or(last),
-            last,
-            allocator: self.allocator.clone(),
+            Self {
+                first: last,
+                last,
+                allocator: self.allocator.clone(),
+            }
+        }
+    }
+
+    fn is_singleton(&self) -> bool {
+        if let (Some(first), Some(last)) = (self.first, self.last) {
+            first as *const _ == last
+        } else {
+            false
         }
     }
 
