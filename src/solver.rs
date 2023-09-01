@@ -1,3 +1,5 @@
 pub trait Solver {
-    fn solve() -> foo {}
+    fn solve(&self) -> foo {
+        foo
+    }
 }
