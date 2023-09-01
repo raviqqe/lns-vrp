@@ -4,7 +4,7 @@ extern crate alloc;
 extern crate core;
 
 mod context;
-mod cost;
+pub mod cost;
 mod location;
 mod problem;
 mod route;

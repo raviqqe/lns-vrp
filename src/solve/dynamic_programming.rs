@@ -49,7 +49,7 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
         // TODO Validate routes in a general way.
         .filter(|routes| routes.iter().map(Vector::len).sum::<usize>() == stop_count)
         .min_by(|one, other| {
-            OrderedFloat(self.cost_calculator.calculate(one)).cmp(&OrderedFloat(self.calculate_cost(other)))
+            OrderedFloat(self.cost_calculator.calculate(*one)).cmp(&OrderedFloat(self.cost_calculator.calculate(*other)))
         })
         .map(|routes| {
             Problem::new(
@@ -65,10 +65,10 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{Location, Route};
+    use crate::{cost::DistanceCostCalculator, Location, Route};
 
     fn solve(problem: &Problem) -> Option<Problem> {
-        DynamicProgrammingSolver::new().solve(&problem)
+        DynamicProgrammingSolver::new(DistanceCostCalculator::new()).solve(problem)
     }
 
     #[test]
