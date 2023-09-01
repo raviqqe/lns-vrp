@@ -1,15 +1,20 @@
 mod route;
 
-use crate::{Problem, Route};
+use crate::Problem;
 use core::{
     alloc::Allocator,
     hash::{Hash, Hasher},
 };
+use route::Route;
 use std::collections::{hash_map::DefaultHasher, HashMap};
 
 pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem) -> Option<Problem> {
-    let mut states = HashMap::<u64, Problem>::new();
-    let _locations = problem.routes().iter().flat_map(Route::stops);
+    let mut states = HashMap::<u64, Vec<Route>>::new();
+    let initial = problem.routes().map(|_| Route::new());
+
+    states.insert();
+
+    let _locations = problem.routes().iter().flat_map(crate::Route::stops);
 
     states.insert(hash(problem), problem.clone());
 
@@ -20,10 +25,10 @@ pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem) -> Option<
     None
 }
 
-fn hash(problem: &Problem) -> u64 {
+fn hash(routes: &[Route]) -> u64 {
     let mut hasher = DefaultHasher::new();
 
-    problem.hash(&mut hasher);
+    routes.hash(&mut hasher);
 
     hasher.finish()
 }

@@ -1,16 +1,14 @@
 use crate::Stop;
 use im::Vector;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Route {
     stops: Vector<Stop>,
 }
 
 impl Route {
-    pub fn new(stops: &[Stop]) -> Self {
-        Self {
-            stops: Vector::from_iter(stops.iter().cloned()),
-        }
+    pub fn new() -> Self {
+        Self::default()
     }
 
     pub fn stops(&self) -> &Vector<Stop> {
