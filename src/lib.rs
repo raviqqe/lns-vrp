@@ -4,10 +4,10 @@ extern crate alloc;
 extern crate core;
 
 mod context;
-pub mod dp;
 mod location;
 mod problem;
 mod route;
+pub mod solve;
 mod stop;
 mod utility;
 mod vehicle;
