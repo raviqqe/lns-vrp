@@ -2,43 +2,57 @@ use crate::{utility::calculate_route_cost, Problem, Stop};
 use im_rc::{HashSet, Vector};
 use ordered_float::OrderedFloat;
 
-// TODO Reason no solution.
-pub fn solve(problem: &Problem) -> Option<Problem> {
-    let mut states = HashSet::<Vector<Vector<Stop>>>::new();
-    let initial = problem
-        .routes()
-        .map(|_| Default::default())
-        .collect::<Vector<_>>();
+use super::solver::Solver;
 
-    states.insert(initial);
+pub struct DynamicProgrammingSolver {}
 
-    let stop_count = problem.routes().flat_map(crate::Route::stops).count();
-
-    for stop in problem.routes().flat_map(crate::Route::stops) {
-        let mut new_states = HashSet::new();
-
-        for routes in &states {
-            for (index, stops) in routes.iter().enumerate() {
-                let mut stops = stops.clone();
-                stops.push_back(stop.clone());
-
-                let mut routes = routes.clone();
-                routes.set(index, stops);
-
-                // TODO Validate a route.
-                new_states.insert(routes);
-            }
-        }
-
-        states = new_states;
+impl DynamicProgrammingSolver {
+    pub fn new() -> Self {
+        Self {}
     }
 
-    states
+    fn calculate_cost(&self, routes: &Vector<Vector<Stop>>) -> f64 {
+        routes.iter().map(calculate_route_cost).sum()
+    }
+}
+
+impl Solver for DynamicProgrammingSolver {
+    fn solve(&self, problem: &Problem) -> Option<Problem> {
+        let mut states = HashSet::<Vector<Vector<Stop>>>::new();
+        let initial = problem
+            .routes()
+            .map(|_| Default::default())
+            .collect::<Vector<_>>();
+
+        states.insert(initial);
+
+        let stop_count = problem.routes().flat_map(crate::Route::stops).count();
+
+        for stop in problem.routes().flat_map(crate::Route::stops) {
+            let mut new_states = HashSet::new();
+
+            for routes in &states {
+                for (index, stops) in routes.iter().enumerate() {
+                    let mut stops = stops.clone();
+                    stops.push_back(stop.clone());
+
+                    let mut routes = routes.clone();
+                    routes.set(index, stops);
+
+                    // TODO Validate a route.
+                    new_states.insert(routes);
+                }
+            }
+
+            states = new_states;
+        }
+
+        states
         .iter()
         // TODO Validate routes in a general way.
         .filter(|routes| routes.iter().map(Vector::len).sum::<usize>() == stop_count)
         .min_by(|one, other| {
-            OrderedFloat(calculate_cost(one)).cmp(&OrderedFloat(calculate_cost(other)))
+            OrderedFloat(self.calculate_cost(one)).cmp(&OrderedFloat(self.calculate_cost(other)))
         })
         .map(|routes| {
             Problem::new(
@@ -48,16 +62,17 @@ pub fn solve(problem: &Problem) -> Option<Problem> {
                     .collect(),
             )
         })
-}
-
-fn calculate_cost(routes: &Vector<Vector<Stop>>) -> f64 {
-    routes.iter().map(calculate_route_cost).sum()
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{Location, Route};
+
+    fn solve(problem: &Problem) -> Option<Problem> {
+        DynamicProgrammingSolver::new().solve(&problem)
+    }
 
     #[test]
     fn do_nothing() {
