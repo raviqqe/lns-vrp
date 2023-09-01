@@ -1,3 +1,3 @@
 mod calculator;
 
-pub use calculator::{CostCalculator, DistanceCostCalculator};
+pub use calculator::{CostCalculator, DeliveryCostCalculator, DistanceCostCalculator};

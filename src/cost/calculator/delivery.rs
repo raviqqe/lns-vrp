@@ -9,13 +9,16 @@ use geo::GeodesicDistance;
 pub struct DeliveryCostCalculator {
     delivery_count: usize,
     missed_delivery_cost: f64,
+    // Meters to cost
+    distance_unit_cost: f64,
 }
 
 impl DeliveryCostCalculator {
-    pub fn new(delivery_count: usize, missed_delivery_cost: f64) -> Self {
+    pub fn new(delivery_count: usize, missed_delivery_cost: f64, distance_unit_cost: f64) -> Self {
         Self {
             delivery_count,
             missed_delivery_cost,
+            distance_unit_cost,
         }
     }
 
@@ -60,6 +63,7 @@ impl CostCalculator for DeliveryCostCalculator {
             cost += self.calculate_route(stops);
         }
 
-        cost + (self.delivery_count - delivery_count) as f64 * self.missed_delivery_cost
+        cost * self.distance_unit_cost
+            + (self.delivery_count - delivery_count) as f64 * self.missed_delivery_cost
     }
 }

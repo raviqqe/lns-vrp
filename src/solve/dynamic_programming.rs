@@ -60,10 +60,10 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{cost::DistanceCostCalculator, Location, Route};
+    use crate::{cost::DeliveryCostCalculator, Location, Route};
 
     fn solve(problem: &Problem) -> Option<Problem> {
-        DynamicProgrammingSolver::new(DistanceCostCalculator::new()).solve(problem)
+        DynamicProgrammingSolver::new(DeliveryCostCalculator::new()).solve(problem)
     }
 
     #[test]
