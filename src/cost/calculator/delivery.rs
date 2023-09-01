@@ -43,13 +43,23 @@ impl DeliveryCostCalculator {
 impl CostCalculator for DeliveryCostCalculator {
     fn calculate<'a>(
         &self,
-        routes: impl IntoIterator<Item = impl IntoIterator<Item = &'a Stop>>,
+        routes: impl IntoIterator<
+            Item = impl IntoIterator<
+                Item = &'a Stop,
+                IntoIter = impl ExactSizeIterator<Item = &'a Stop>,
+            >,
+        >,
     ) -> f64 {
-        routes
-            .into_iter()
-            .map(|route| self.calculate_route(route))
-            .sum()
-            + (self.delivery_count - routes.into_iter().flat_map(|stops| stops.len()).sum()) as f64
-                * self.missed_delivery_cost
+        let mut cost = 0.0;
+        let mut delivery_count = 0;
+
+        for stops in routes {
+            let stops = stops.into_iter();
+
+            delivery_count += stops.len();
+            cost += self.calculate_route(stops);
+        }
+
+        cost + (self.delivery_count - delivery_count) as f64 * self.missed_delivery_cost
     }
 }
