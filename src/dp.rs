@@ -7,7 +7,7 @@ use core::{
 };
 use std::collections::{hash_map::DefaultHasher, HashMap};
 
-pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem<A>) -> Option<Problem<A>> {
+pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem) -> Option<Problem> {
     let mut states = HashMap::<u64, Problem<_>>::new();
     let _locations = problem.routes().iter().flat_map(Route::stops);
 
@@ -20,7 +20,7 @@ pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem<A>) -> Opti
     None
 }
 
-fn hash<A: Allocator + Hash + Clone>(problem: &Problem<A>) -> u64 {
+fn hash<A: Allocator + Hash + Clone>(problem: &Problem) -> u64 {
     let mut hasher = DefaultHasher::new();
 
     problem.hash(&mut hasher);
