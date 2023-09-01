@@ -23,8 +23,6 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
 
         states.insert(initial);
 
-        let _stop_count = problem.routes().flat_map(Route::stops).count();
-
         for stop in problem.routes().flat_map(Route::stops) {
             let mut new_states = HashSet::new();
 
