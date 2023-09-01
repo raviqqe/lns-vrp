@@ -1,5 +1,5 @@
 use crate::{utility::calculate_route_cost, Problem, Stop};
-use im::{HashSet, Vector};
+use im_rc::{HashSet, Vector};
 use ordered_float::OrderedFloat;
 
 // TODO Reason no solution.
