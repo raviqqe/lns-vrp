@@ -48,3 +48,13 @@ pub fn solve(problem: &Problem) -> Option<Problem> {
 fn calculate_cost(routes: &Vector<Vector<Stop>>) -> f64 {
     routes.iter().map(calculate_route_cost).sum()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn solve_nothing() {
+        assert_eq!(solve(&Problem::new(vec![])), Some(Problem::new(vec![])));
+    }
+}
