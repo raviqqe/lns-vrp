@@ -137,6 +137,47 @@ mod tests {
         );
     }
 
+    mod push_front {
+        use super::*;
+        use pretty_assertions::assert_eq;
+
+        #[test]
+        fn one() {
+            assert_eq!(
+                &List::new(Global)
+                    .push_front(1)
+                    .into_iter()
+                    .collect::<Vec<_>>(),
+                &[&1]
+            );
+        }
+
+        #[test]
+        fn two() {
+            assert_eq!(
+                &List::new(Global)
+                    .push_front(1)
+                    .push_front(2)
+                    .into_iter()
+                    .collect::<Vec<_>>(),
+                &[&2, &1]
+            );
+        }
+
+        #[test]
+        fn three() {
+            assert_eq!(
+                &List::new(Global)
+                    .push_front(1)
+                    .push_front(2)
+                    .push_front(3)
+                    .into_iter()
+                    .collect::<Vec<_>>(),
+                &[&3, &2, &1]
+            );
+        }
+    }
+
     mod push_back {
         use super::*;
         use pretty_assertions::assert_eq;
@@ -171,47 +212,6 @@ mod tests {
                     .push_back(1)
                     .push_back(2)
                     .push_back(3)
-                    .into_iter()
-                    .collect::<Vec<_>>(),
-                &[&1, &2, &3]
-            );
-        }
-    }
-
-    mod push_front {
-        use super::*;
-        use pretty_assertions::assert_eq;
-
-        #[test]
-        fn one() {
-            assert_eq!(
-                &List::new(Global)
-                    .push_front(1)
-                    .into_iter()
-                    .collect::<Vec<_>>(),
-                &[&1]
-            );
-        }
-
-        #[test]
-        fn two() {
-            assert_eq!(
-                &List::new(Global)
-                    .push_front(1)
-                    .push_front(2)
-                    .into_iter()
-                    .collect::<Vec<_>>(),
-                &[&1, &2]
-            );
-        }
-
-        #[test]
-        fn three() {
-            assert_eq!(
-                &List::new(Global)
-                    .push_front(1)
-                    .push_front(2)
-                    .push_front(3)
                     .into_iter()
                     .collect::<Vec<_>>(),
                 &[&1, &2, &3]
