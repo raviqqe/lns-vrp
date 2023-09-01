@@ -1,9 +1,7 @@
-#![no_std]
 #![feature(allocator_api)]
 
 extern crate alloc;
-#[cfg(test)]
-extern crate std;
+extern crate core;
 
 mod context;
 pub mod dp;
