@@ -12,6 +12,6 @@ impl<'a, A: Allocator + Clone + 'a> Route<'a, A> {
     }
 
     pub fn stops(&self) -> impl Iterator<Item = &Stop> {
-        self.stops.clone()
+        self.stops.into_iter()
     }
 }
