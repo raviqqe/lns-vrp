@@ -1,9 +1,14 @@
-///  "Leaked" persistent linked list.
-pub struct List<'a, T>(Option<&'a Inner<'a, T>>);
+use alloc::alloc::Allocator;
 
-struct Inner<'a, T> {
+///  "Leaked" persistent linked list.
+pub struct List<'a, T, A: Allocator + 'a >{
+    value: Option<&'a Inner<'a, T,  A>>
+    allocator: A,
+}
+
+struct Inner<'a, T, A: Allocator + 'a> {
     value: T,
-    previous: Option<&'a List<'a, T>>,
+    previous: Option<&'a List<'a, T, A>>,
     next: Option<&'a List<'a, T>>,
 }
 
@@ -18,5 +23,13 @@ impl<'a, T> List<'a, T> {
             previous: Some(self),
             next: None,
         }))
+    }
+
+    pub fn push_back(&self, value: T) -> Self {
+        Self(Some(Box::leak(Box::new_in(Inner {
+            value,
+            previous: Some(self),
+            next: None,
+        }))))
     }
 }
