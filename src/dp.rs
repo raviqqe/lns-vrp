@@ -1,9 +1,8 @@
 use crate::{utility::calculate_route_cost, Problem, Stop};
-use core::{alloc::Allocator, hash::Hash};
 use im::{HashSet, Vector};
 use ordered_float::OrderedFloat;
 
-pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem) -> Option<Problem> {
+pub fn solve(problem: &Problem) -> Option<Problem> {
     let mut states = HashSet::<Vector<Vector<Stop>>>::new();
     let initial = problem
         .routes()
