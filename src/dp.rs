@@ -1,3 +1,5 @@
+mod route;
+
 use crate::{Problem, Route};
 use core::{
     alloc::Allocator,
