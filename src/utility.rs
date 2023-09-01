@@ -1,4 +1,5 @@
 use crate::{Location, Stop};
+use geo::GeodesicDistance;
 
 pub fn calculate_route_cost<'a>(stops: impl IntoIterator<Item = &'a Stop>) -> f64 {
     let mut cost = 0.0;
@@ -19,6 +20,5 @@ pub fn calculate_route_segment_cost(one: &Stop, other: &Stop) -> f64 {
 }
 
 pub fn calculate_distance(one: &Location, other: &Location) -> f64 {
-    ((one.latitude() - other.latitude()).powi(2) + (one.latitude() - other.latitude()).powi(2))
-        .sqrt()
+    one.as_point().geodesic_distance(other.as_point())
 }
