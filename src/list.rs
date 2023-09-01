@@ -70,10 +70,36 @@ impl<'a, T, A: Allocator + 'a> Iterator for List<'a, T, A> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use alloc::alloc::Global;
+    use alloc::{alloc::Global, vec::Vec};
 
     #[test]
-    fn new() {
-        List::<(), _>::new(Global);
+    fn create_empty() {
+        assert_eq!(
+            &List::<(), _>::new(Global).into_iter().collect::<Vec<_>>(),
+            &[] as &[&()]
+        );
+    }
+
+    #[test]
+    fn push_back() {
+        assert_eq!(
+            &List::new(Global)
+                .push_back(42)
+                .into_iter()
+                .collect::<Vec<_>>(),
+            &[&42]
+        );
+    }
+
+    #[test]
+    fn push_back_two() {
+        assert_eq!(
+            &List::new(Global)
+                .push_back(1)
+                .push_back(2)
+                .into_iter()
+                .collect::<Vec<_>>(),
+            &[&42]
+        );
     }
 }
