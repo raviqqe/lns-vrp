@@ -99,7 +99,7 @@ mod tests {
                 .push_back(2)
                 .into_iter()
                 .collect::<Vec<_>>(),
-            &[&42]
+            &[&1, &2]
         );
     }
 }
