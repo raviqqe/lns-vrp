@@ -1,1 +1,3 @@
-{ "words": ["reinterpretcat", "rustfmt", "clippy", "bumpalo", "hasher"] }
+{
+  "words": ["reinterpretcat", "rustfmt", "clippy", "bumpalo", "hasher", "powi"]
+}
