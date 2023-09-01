@@ -1,5 +1,5 @@
-use crate::Route;
+use crate::{Context, Route};
 
-pub fn solve(_routes: &[&mut Route]) -> bool {
+pub fn solve(context: &Context, _routes: &[&mut Route<'a, A>]) -> bool {
     todo!()
 }

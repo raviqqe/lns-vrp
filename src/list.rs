@@ -1,4 +1,5 @@
-use alloc::{alloc::Allocator, boxed::Box};
+use alloc::boxed::Box;
+use core::alloc::Allocator;
 
 ///  "Leaked" persistent linked list.
 #[derive(Clone, Copy, Debug)]

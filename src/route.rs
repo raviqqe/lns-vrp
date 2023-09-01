@@ -1,12 +1,13 @@
 use crate::{List, Stop};
+use core::alloc::Allocator;
 
 #[derive(Clone, Debug)]
-pub struct Route {
-    stops: List<Stop>,
+pub struct Route<'a, A: Allocator + 'a> {
+    stops: List<'a, Stop, A>,
 }
 
-impl Route {
-    pub fn new(stops: Vec<Stop>) -> Self {
+impl<'a, A: Allocator + 'a> Route<'a, A> {
+    pub fn new(stops: List<'a, Stop, A>) -> Self {
         Self { stops }
     }
 
