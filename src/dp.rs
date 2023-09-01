@@ -1,30 +1,30 @@
 mod route;
 
 use crate::Problem;
-use core::{
-    alloc::Allocator,
-    hash::{Hash, Hasher},
-};
+use core::{alloc::Allocator, hash::Hash};
 use ordered_float::OrderedFloat;
 use route::Route;
-use std::collections::{hash_map::DefaultHasher, HashMap};
+use std::collections::HashMap;
 
 pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem) -> Option<Problem> {
-    // If hashes collide, let's have a party for it.
-    let mut states = HashMap::<u64, (Vec<Route>, f64)>::new();
+    let mut states = HashMap::<Vec<Route>, f64>::new();
     let initial = problem.routes().map(|_| Route::new()).collect::<Vec<_>>();
 
-    states.insert(hash(&initial), initial);
+    states.insert(initial, 0.0);
 
-    let locations = problem.routes().flat_map(crate::Route::stops);
+    for location in problem.routes().flat_map(crate::Route::stops) {
+        let new_states = HashMap::<(), ()>::new();
 
-    for _state in &states {
-        let _new_states = HashMap::<(), ()>::new();
+        for (routes, cost) in &states {
+            for route in routes {
+                todo!();
+            }
+        }
     }
 
     states
-        .values()
-        .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
+        .iter()
+        .min_by(|(_, &one), (_, &other)| OrderedFloat(one).cmp(&OrderedFloat(other)))
         .map(|(routes, _)| {
             Problem::new(
                 routes
@@ -33,12 +33,4 @@ pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem) -> Option<
                     .collect(),
             )
         })
-}
-
-fn hash(routes: &[Route]) -> u64 {
-    let mut hasher = DefaultHasher::new();
-
-    routes.hash(&mut hasher);
-
-    hasher.finish()
 }
