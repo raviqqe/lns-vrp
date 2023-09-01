@@ -62,8 +62,16 @@ mod tests {
     use super::*;
     use crate::{cost::DeliveryCostCalculator, Location, Route};
 
+    const DISTANCE_UNIT_COST: f64 = 1.0;
+    const MISSED_DELIVERY_COST: f64 = 1e9;
+
     fn solve(problem: &Problem) -> Option<Problem> {
-        DynamicProgrammingSolver::new(DeliveryCostCalculator::new()).solve(problem)
+        DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
+            problem.routes().flat_map(|route| route.stops()).count(),
+            MISSED_DELIVERY_COST,
+            DISTANCE_UNIT_COST,
+        ))
+        .solve(problem)
     }
 
     #[test]
