@@ -1,6 +1,5 @@
 use crate::Stop;
 use im::Vector;
-use std::alloc::Allocator;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Route {
@@ -19,7 +18,7 @@ impl Route {
     }
 }
 
-impl<A: Allocator> From<Route> for crate::Route<A> {
+impl From<Route> for crate::Route {
     fn from(route: Route) -> Self {
         Self::new(route.stops.into_iter().collect())
     }
