@@ -1,5 +1,5 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, Problem, Stop};
+use crate::{cost::CostCalculator, Problem, Stop, Route};
 use im_rc::{HashSet, Vector};
 use ordered_float::OrderedFloat;
 
@@ -23,9 +23,9 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
 
         states.insert(initial);
 
-        let _stop_count = problem.routes().flat_map(crate::Route::stops).count();
+        let _stop_count = problem.routes().flat_map(Route::stops).count();
 
-        for stop in problem.routes().flat_map(crate::Route::stops) {
+        for stop in problem.routes().flat_map(Route::stops) {
             let mut new_states = HashSet::new();
 
             for routes in &states {
@@ -52,7 +52,7 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
                 Problem::new(
                     routes
                         .iter()
-                        .map(|stops| crate::Route::new(stops.iter().cloned().collect()))
+                        .map(|stops| Route::new(stops.iter().cloned().collect()))
                         .collect(),
                 )
             })
