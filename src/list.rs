@@ -71,6 +71,7 @@ impl<'a, T, A: Allocator + 'a> Iterator for List<'a, T, A> {
 mod tests {
     use super::*;
     use alloc::{alloc::Global, vec::Vec};
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn create_empty() {
