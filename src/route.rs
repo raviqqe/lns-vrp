@@ -1,12 +1,14 @@
-use crate::stop::Stop;
+use crate::Stop;
+use alloc::collections::LinkedList;
+use core::alloc::Allocator;
 
 #[derive(Clone, Debug)]
-pub struct Route {
-    stops: Vec<Stop>,
+pub struct Route<A: Allocator> {
+    stops: LinkedList<Stop, A>,
 }
 
-impl Route {
-    pub fn new(stops: Vec<Stop>) -> Self {
+impl<A: Allocator> Route<A> {
+    pub fn new(stops: LinkedList<Stop, A>) -> Self {
         Self { stops }
     }
 
