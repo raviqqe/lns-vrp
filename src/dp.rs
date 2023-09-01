@@ -9,6 +9,7 @@ use route::Route;
 use std::collections::{hash_map::DefaultHasher, HashMap};
 
 pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem) -> Option<Problem> {
+    // If hashes collide, let's have a party for it.
     let mut states = HashMap::<u64, Vec<Route>>::new();
     let initial = problem.routes().map(|_| Route::new());
 
