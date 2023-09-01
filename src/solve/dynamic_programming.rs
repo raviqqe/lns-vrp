@@ -24,7 +24,7 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
         states.insert(initial);
 
         for stop in problem.routes().flat_map(Route::stops) {
-            let mut new_states = HashSet::new();
+            let mut new_states = states.clone();
 
             for routes in &states {
                 for (index, stops) in routes.iter().enumerate() {
