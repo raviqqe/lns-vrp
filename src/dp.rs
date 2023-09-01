@@ -1,4 +1,4 @@
-use crate::{Problem, Stop};
+use crate::{utility::calculate_route_cost, Problem, Stop};
 use core::{alloc::Allocator, hash::Hash};
 use im::{HashSet, Vector};
 use ordered_float::OrderedFloat;
@@ -47,5 +47,5 @@ pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem) -> Option<
 }
 
 fn calculate_cost(routes: &Vector<Vector<Stop>>) -> f64 {
-    0.0
+    routes.iter().map(calculate_route_cost).sum()
 }
