@@ -6,12 +6,12 @@ pub struct Route<'a, A: Allocator + 'a> {
     stops: List<'a, Stop, A>,
 }
 
-impl<'a, A: Allocator + 'a> Route<'a, A> {
+impl<'a, A: Allocator + Clone + 'a> Route<'a, A> {
     pub fn new(stops: List<'a, Stop, A>) -> Self {
         Self { stops }
     }
 
     pub fn stops(&self) -> impl Iterator<Item = &Stop> {
-        self.stops.iter()
+        self.stops.clone()
     }
 }
