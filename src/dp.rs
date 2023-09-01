@@ -15,7 +15,7 @@ pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem) -> Option<
 
     states.insert(hash(&initial), initial);
 
-    let _locations = problem.routes().iter().flat_map(crate::Route::stops);
+    let locations = problem.routes().flat_map(crate::Route::stops);
 
     states.insert(hash(problem), problem.clone());
 
