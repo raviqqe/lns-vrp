@@ -5,6 +5,8 @@ edition = "2021"
 
 [dependencies]
 bumpalo = "3.13.0"
+im = "15.1.0"
+ordered-float = "3.9.1"
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"

@@ -2,7 +2,7 @@ use crate::Stop;
 use alloc::collections::LinkedList;
 use core::alloc::Allocator;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Route<A: Allocator> {
     stops: LinkedList<Stop, A>,
 }

@@ -1,6 +1,6 @@
 use crate::location::Location;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Stop {
     location: Location,
 }
