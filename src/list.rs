@@ -1,5 +1,5 @@
 use alloc::boxed::Box;
-use core::alloc::Allocator;
+use core::{alloc::Allocator, ptr::write};
 
 ///  "Leaked" persistent linked list.
 #[derive(Clone, Copy, Debug)]
@@ -34,8 +34,7 @@ impl<'a, T, A: Allocator + Clone + 'a> List<'a, T, A> {
                 let next = self.clone_inner(first);
                 let first = self.create_inner(value, None, None);
 
-                next.previous = Some(first);
-                first.next = Some(next);
+                unsafe { Self::link(first, next) };
 
                 first
             } else {
@@ -54,9 +53,9 @@ impl<'a, T, A: Allocator + Clone + 'a> List<'a, T, A> {
             first: self.first,
             last: Some(if let Some(last) = self.last {
                 let previous = self.clone_inner(last);
-                let last = self.create_inner(value, Some(previous), None);
+                let last = self.create_inner(value, None, None);
 
-                previous.next = Some(last);
+                unsafe { Self::link(previous, last) };
 
                 last
             } else {
@@ -64,6 +63,14 @@ impl<'a, T, A: Allocator + Clone + 'a> List<'a, T, A> {
             }),
             allocator: self.allocator.clone(),
         }
+    }
+
+    /// # Safety
+    ///
+    /// Two nodes must be newly allocated by a list's allocator.
+    unsafe fn link(one: *mut Inner<'a, T>, other: *mut Inner<'a, T>) {
+        write(&mut (*one).next, Some(&*other));
+        write(&mut (*other).previous, Some(&*one));
     }
 
     fn create_inner(
