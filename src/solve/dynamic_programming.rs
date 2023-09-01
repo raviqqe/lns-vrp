@@ -1,5 +1,5 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, Problem, Stop, Route};
+use crate::{cost::CostCalculator, Problem, Route, Stop};
 use im_rc::{HashSet, Vector};
 use ordered_float::OrderedFloat;
 
