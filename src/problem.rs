@@ -11,7 +11,7 @@ impl Problem {
         Self { routes }
     }
 
-    pub fn routes(&self) -> &[Route] {
-        &self.routes
+    pub fn routes(&self) -> impl Iterator<Item = &Route> {
+        self.routes.iter()
     }
 }
