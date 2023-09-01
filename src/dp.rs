@@ -2,6 +2,7 @@ use crate::{utility::calculate_route_cost, Problem, Stop};
 use im::{HashSet, Vector};
 use ordered_float::OrderedFloat;
 
+// TODO Reason no solution.
 pub fn solve(problem: &Problem) -> Option<Problem> {
     let mut states = HashSet::<Vector<Vector<Stop>>>::new();
     let initial = problem
