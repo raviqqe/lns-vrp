@@ -1,6 +1,6 @@
-use crate::{Context, Route};
+use crate::{Context, Problem};
 use core::alloc::Allocator;
 
-pub fn solve<'a, A: Allocator + 'a>(context: &Context<A>, _routes: &[&mut Route<A>]) -> bool {
+pub fn solve<'a, A: Allocator + 'a>(_context: &Context<A>, _problem: &Problem<A>) -> bool {
     todo!()
 }
