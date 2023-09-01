@@ -23,7 +23,7 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
 
         states.insert(initial);
 
-        let stop_count = problem.routes().flat_map(crate::Route::stops).count();
+        let _stop_count = problem.routes().flat_map(crate::Route::stops).count();
 
         for stop in problem.routes().flat_map(crate::Route::stops) {
             let mut new_states = HashSet::new();
@@ -45,20 +45,17 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
         }
 
         states
-        .iter()
-        // TODO Validate routes in a general way.
-        .filter(|routes| routes.iter().map(Vector::len).sum::<usize>() == stop_count)
-        .min_by(|one, other| {
-            OrderedFloat(self.cost_calculator.calculate(*one)).cmp(&OrderedFloat(self.cost_calculator.calculate(*other)))
-        })
-        .map(|routes| {
-            Problem::new(
-                routes
-                    .iter()
-                    .map(|stops| crate::Route::new(stops.iter().cloned().collect()))
-                    .collect(),
-            )
-        })
+            .iter()
+            .map(|routes| (routes, self.cost_calculator.calculate(routes)))
+            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
+            .map(|(routes, _)| {
+                Problem::new(
+                    routes
+                        .iter()
+                        .map(|stops| crate::Route::new(stops.iter().cloned().collect()))
+                        .collect(),
+                )
+            })
     }
 }
 
