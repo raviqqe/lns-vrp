@@ -1,21 +1,19 @@
 use super::solver::Solver;
-use crate::{cost::calculate_route_cost, Problem, Stop};
+use crate::{cost::CostCalculator, Problem, Stop};
 use im_rc::{HashSet, Vector};
 use ordered_float::OrderedFloat;
 
-pub struct DynamicProgrammingSolver {}
+pub struct DynamicProgrammingSolver<C: CostCalculator> {
+    cost_calculator: C,
+}
 
-impl DynamicProgrammingSolver {
-    pub fn new() -> Self {
-        Self {}
-    }
-
-    fn calculate_cost(&self, routes: &Vector<Vector<Stop>>) -> f64 {
-        routes.iter().map(calculate_route_cost).sum()
+impl<C: CostCalculator> DynamicProgrammingSolver<C> {
+    pub fn new(cost_calculator: C) -> Self {
+        Self { cost_calculator }
     }
 }
 
-impl Solver for DynamicProgrammingSolver {
+impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
     fn solve(&self, problem: &Problem) -> Option<Problem> {
         let mut states = HashSet::<Vector<Vector<Stop>>>::new();
         let initial = problem
@@ -51,7 +49,7 @@ impl Solver for DynamicProgrammingSolver {
         // TODO Validate routes in a general way.
         .filter(|routes| routes.iter().map(Vector::len).sum::<usize>() == stop_count)
         .min_by(|one, other| {
-            OrderedFloat(self.calculate_cost(one)).cmp(&OrderedFloat(self.calculate_cost(other)))
+            OrderedFloat(self.cost_calculator.calculate(one)).cmp(&OrderedFloat(self.calculate_cost(other)))
         })
         .map(|routes| {
             Problem::new(
