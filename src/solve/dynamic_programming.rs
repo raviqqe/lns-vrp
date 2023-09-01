@@ -1,8 +1,7 @@
+use super::solver::Solver;
 use crate::{utility::calculate_route_cost, Problem, Stop};
 use im_rc::{HashSet, Vector};
 use ordered_float::OrderedFloat;
-
-use super::solver::Solver;
 
 pub struct DynamicProgrammingSolver {}
 
