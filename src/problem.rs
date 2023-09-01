@@ -1,18 +1,17 @@
 use crate::Route;
 use alloc::vec::Vec;
-use core::alloc::Allocator;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub struct Problem<A: Allocator + Clone> {
-    routes: Vec<Route<A>, A>,
+pub struct Problem {
+    routes: Vec<Route>,
 }
 
-impl<A: Allocator + Clone> Problem<A> {
-    pub fn new(routes: Vec<Route<A>, A>) -> Self {
+impl Problem {
+    pub fn new(routes: Vec<Route>) -> Self {
         Self { routes }
     }
 
-    pub fn routes(&self) -> &[Route<A>] {
+    pub fn routes(&self) -> &[Route] {
         &self.routes
     }
 }
