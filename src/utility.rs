@@ -15,10 +15,10 @@ pub fn calculate_route_cost<'a>(stops: impl IntoIterator<Item = &'a Stop>) -> f6
 }
 
 pub fn calculate_route_segment_cost(one: &Stop, other: &Stop) -> f64 {
-    calculate_distance_cost(one.location(), other.location())
+    calculate_distance(one.location(), other.location())
 }
 
-pub fn calculate_distance_cost(one: &Location, other: &Location) -> f64 {
+pub fn calculate_distance(one: &Location, other: &Location) -> f64 {
     ((one.latitude() - other.latitude()).powi(2) + (one.latitude() - other.latitude()).powi(2))
         .sqrt()
 }
