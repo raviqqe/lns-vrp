@@ -52,9 +52,19 @@ fn calculate_cost(routes: &Vector<Vector<Stop>>) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{Location, Route};
 
     #[test]
-    fn solve_nothing() {
-        assert_eq!(solve(&Problem::new(vec![])), Some(Problem::new(vec![])));
+    fn nothing() {
+        let problem = Problem::new(vec![]);
+
+        assert_eq!(solve(&problem), Some(problem));
+    }
+
+    #[test]
+    fn one_stop() {
+        let problem = Problem::new(vec![Route::new(vec![Stop::new(Location::new(0.0, 0.0))])]);
+
+        assert_eq!(solve(&problem), Some(problem));
     }
 }
