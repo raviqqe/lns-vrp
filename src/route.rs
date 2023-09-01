@@ -1,8 +1,8 @@
-use crate::stop::Stop;
+use crate::{List, Stop};
 
 #[derive(Clone, Debug)]
 pub struct Route {
-    stops: Vec<Stop>,
+    stops: List<Stop>,
 }
 
 impl Route {

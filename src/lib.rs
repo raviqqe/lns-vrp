@@ -10,7 +10,4 @@ mod route;
 mod stop;
 mod vehicle;
 
-pub use self::location::Location;
-pub use self::route::Route;
-pub use self::stop::Stop;
-pub use self::vehicle::Vehicle;
+pub use self::{list::List, location::Location, route::Route, stop::Stop, vehicle::Vehicle};
