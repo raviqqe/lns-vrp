@@ -8,7 +8,7 @@ pub struct Location(Point);
 
 impl Location {
     pub fn new(longitude: f64, latitude: f64) -> Self {
-        Self(Point::new(longitude.into(), latitude.into()))
+        Self(Point::new(longitude, latitude))
     }
 
     pub fn as_point(&self) -> &Point {
@@ -16,9 +16,9 @@ impl Location {
     }
 }
 
-impl Into<Point> for Location {
-    fn into(self) -> Point {
-        self.0
+impl From<Location> for Point {
+    fn from(val: Location) -> Self {
+        val.0
     }
 }
 
