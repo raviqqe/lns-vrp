@@ -1,5 +1,6 @@
 use super::CostCalculator;
 use crate::Stop;
+use geo::GeodesicDistance;
 
 pub struct DistanceCostCalculator {}
 
