@@ -4,35 +4,35 @@ use core::alloc::Allocator;
 ///  "Leaked" persistent linked list.
 #[derive(Clone, Copy, Debug)]
 pub struct List<'a, T, A: Allocator + 'a> {
-    value: Option<&'a Inner<'a, T, A>>,
+    inner: Option<&'a Inner<'a, T>>,
     allocator: A,
 }
 
 #[derive(Debug)]
-struct Inner<'a, T, A: Allocator + 'a> {
+struct Inner<'a, T> {
     value: T,
-    previous: Option<&'a List<'a, T, A>>,
-    next: Option<&'a List<'a, T, A>>,
+    previous: Option<&'a Self>,
+    next: Option<&'a Self>,
 }
 
 impl<'a, T, A: Allocator + Clone + 'a> List<'a, T, A> {
     pub fn new(allocator: A) -> Self {
         Self {
-            value: None,
+            inner: None,
             allocator,
         }
     }
 
     pub fn push_front(&self, value: T) -> Self {
         Self {
-            value: Some(self.create_inner(value, Some(self), None)),
+            inner: Some(self.create_inner(value, self.inner, None)),
             allocator: self.allocator.clone(),
         }
     }
 
     pub fn push_back(&self, value: T) -> Self {
         Self {
-            value: Some(self.create_inner(value, None, Some(self))),
+            inner: Some(self.create_inner(value, None, self.inner)),
             allocator: self.allocator.clone(),
         }
     }
@@ -40,9 +40,9 @@ impl<'a, T, A: Allocator + Clone + 'a> List<'a, T, A> {
     fn create_inner(
         &self,
         value: T,
-        previous: Option<&'a List<'a, T, A>>,
-        next: Option<&'a List<'a, T, A>>,
-    ) -> &'a Inner<'a, T, A> {
+        previous: Option<&'a Inner<'a, T>>,
+        next: Option<&'a Inner<'a, T>>,
+    ) -> &'a Inner<'a, T> {
         Box::leak(Box::new_in(
             Inner {
                 value,
@@ -51,5 +51,18 @@ impl<'a, T, A: Allocator + Clone + 'a> List<'a, T, A> {
             },
             self.allocator.clone(),
         ))
+    }
+}
+
+impl<'a, T, A: Allocator + 'a> Iterator for List<'a, T, A> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(inner) = self.inner {
+            self.inner = inner.next;
+            return Some(&inner.value);
+        }
+
+        None
     }
 }
