@@ -49,18 +49,21 @@ impl<'a, T, A: Allocator + Clone + 'a> List<'a, T, A> {
     where
         T: Clone,
     {
+        let last = Some(if let Some(last) = self.last {
+            let previous = self.clone_inner(last);
+            let last = self.create_inner(value, None, None);
+
+            unsafe { Self::link(previous, last) };
+
+            last
+        } else {
+            self.create_inner(value, None, None)
+        })
+        .map(|value| &*value);
+
         Self {
-            first: self.first,
-            last: Some(if let Some(last) = self.last {
-                let previous = self.clone_inner(last);
-                let last = self.create_inner(value, None, None);
-
-                unsafe { Self::link(previous, last) };
-
-                last
-            } else {
-                self.create_inner(value, None, None)
-            }),
+            first: self.first.or(last),
+            last,
             allocator: self.allocator.clone(),
         }
     }
