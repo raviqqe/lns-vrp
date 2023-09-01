@@ -66,3 +66,14 @@ impl<'a, T, A: Allocator + 'a> Iterator for List<'a, T, A> {
         None
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use alloc::alloc::Global;
+
+    #[test]
+    fn new() {
+        List::<(), _>::new(Global);
+    }
+}
