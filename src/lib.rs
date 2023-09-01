@@ -11,4 +11,6 @@ mod route;
 mod stop;
 mod vehicle;
 
-pub use self::{list::List, location::Location, route::Route, stop::Stop, vehicle::Vehicle};
+pub use self::{
+    context::Context, list::List, location::Location, route::Route, stop::Stop, vehicle::Vehicle,
+};
