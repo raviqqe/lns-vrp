@@ -7,12 +7,9 @@ extern crate std;
 
 mod context;
 pub mod dp;
-mod list;
 mod location;
 mod route;
 mod stop;
 mod vehicle;
 
-pub use self::{
-    context::Context, list::List, location::Location, route::Route, stop::Stop, vehicle::Vehicle,
-};
+pub use self::{context::Context, location::Location, route::Route, stop::Stop, vehicle::Vehicle};

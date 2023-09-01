@@ -1,17 +1,18 @@
-use crate::{List, Stop};
+use crate::Stop;
+use alloc::collections::LinkedList;
 use core::alloc::Allocator;
 
 #[derive(Clone, Debug)]
-pub struct Route<'a, A: Allocator + 'a> {
-    stops: List<'a, Stop, A>,
+pub struct Route<A: Allocator> {
+    stops: LinkedList<Stop, A>,
 }
 
-impl<'a, A: Allocator + Clone + 'a> Route<'a, A> {
-    pub fn new(stops: List<'a, Stop, A>) -> Self {
+impl<A: Allocator> Route<A> {
+    pub fn new(stops: LinkedList<Stop, A>) -> Self {
         Self { stops }
     }
 
     pub fn stops(&self) -> impl Iterator<Item = &Stop> {
-        self.stops.into_iter()
+        self.stops.iter()
     }
 }
