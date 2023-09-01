@@ -9,6 +9,7 @@ mod location;
 mod problem;
 mod route;
 mod stop;
+mod utility;
 mod vehicle;
 
 pub use self::{

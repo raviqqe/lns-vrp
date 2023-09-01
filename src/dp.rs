@@ -1,23 +1,30 @@
-mod route;
-
-use crate::Problem;
+use crate::{Problem, Stop};
 use core::{alloc::Allocator, hash::Hash};
+use im::{HashSet, Vector};
 use ordered_float::OrderedFloat;
-use route::Route;
-use std::collections::HashMap;
 
 pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem) -> Option<Problem> {
-    let mut states = HashMap::<Vec<Route>, f64>::new();
-    let initial = problem.routes().map(|_| Route::new()).collect::<Vec<_>>();
+    let mut states = HashSet::<Vector<Vector<Stop>>>::new();
+    let initial = problem
+        .routes()
+        .map(|_| Default::default())
+        .collect::<Vector<_>>();
 
-    states.insert(initial, 0.0);
+    states.insert(initial);
 
-    for location in problem.routes().flat_map(crate::Route::stops) {
-        let new_states = HashMap::new();
+    for stop in problem.routes().flat_map(crate::Route::stops) {
+        let mut new_states = HashSet::new();
 
-        for (routes, cost) in &states {
-            for route in routes {
-                todo!();
+        for routes in &states {
+            for (index, stops) in routes.iter().enumerate() {
+                let mut stops = stops.clone();
+                stops.push_back(stop.clone());
+
+                let mut routes = routes.clone();
+                routes.set(index, stops);
+
+                // TODO Validate a route.
+                new_states.insert(routes);
             }
         }
 
@@ -26,13 +33,19 @@ pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem) -> Option<
 
     states
         .iter()
-        .min_by(|(_, &one), (_, &other)| OrderedFloat(one).cmp(&OrderedFloat(other)))
-        .map(|(routes, _)| {
+        .min_by(|one, other| {
+            OrderedFloat(calculate_cost(one)).cmp(&OrderedFloat(calculate_cost(other)))
+        })
+        .map(|routes| {
             Problem::new(
                 routes
                     .iter()
-                    .map(|route| crate::Route::new(route.stops().iter().cloned().collect()))
+                    .map(|stops| crate::Route::new(stops.iter().cloned().collect()))
                     .collect(),
             )
         })
+}
+
+fn calculate_cost(routes: &Vector<Vector<Stop>>) -> f64 {
+    0.0
 }
