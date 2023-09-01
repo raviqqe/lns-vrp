@@ -13,13 +13,15 @@ pub fn solve<'a, A: Allocator + Hash + Clone + 'a>(problem: &Problem) -> Option<
     states.insert(initial, 0.0);
 
     for location in problem.routes().flat_map(crate::Route::stops) {
-        let new_states = HashMap::<(), ()>::new();
+        let new_states = HashMap::new();
 
         for (routes, cost) in &states {
             for route in routes {
                 todo!();
             }
         }
+
+        states = new_states;
     }
 
     states
