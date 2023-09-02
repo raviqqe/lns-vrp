@@ -3,17 +3,21 @@ use crate::{cost::CostCalculator, Problem, Route, Stop};
 use im_rc::{HashSet, Vector};
 use ordered_float::OrderedFloat;
 
-pub struct BranchAndBoundSolver<C: CostCalculator> {
+/// Dynamic programming solver.
+///
+/// Note that it doesn't use any dynamic programming if you don't provide a cost
+/// function that returns infinity.
+pub struct DynamicProgrammingSolver<C: CostCalculator> {
     cost_calculator: C,
 }
 
-impl<C: CostCalculator> BranchAndBoundSolver<C> {
+impl<C: CostCalculator> DynamicProgrammingSolver<C> {
     pub fn new(cost_calculator: C) -> Self {
         Self { cost_calculator }
     }
 }
 
-impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
+impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
     fn solve(&self, problem: &Problem) -> Option<Problem> {
         let mut states = HashSet::<Vector<Vector<Stop>>>::new();
         let initial = problem
@@ -68,7 +72,7 @@ mod tests {
     const QUADRATIC_DISTANCE_COST: f64 = 1e-9;
 
     fn solve(problem: &Problem) -> Option<Problem> {
-        BranchAndBoundSolver::new(DeliveryCostCalculator::new(
+        DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
             problem.routes().flat_map(|route| route.stops()).count(),
             MISSED_DELIVERY_COST,
             DISTANCE_COST,
