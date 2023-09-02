@@ -25,12 +25,9 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
         states.insert(routes, cost);
 
         for stop in problem.routes().flat_map(Route::stops) {
-            let mut new_states = HashMap::new();
+            let mut new_states = states.clone();
 
-            for (initial_routes, cost) in &states {
-                let mut routes = initial_routes.clone();
-                let mut cost = *cost;
-
+            for (initial_routes, upper_bound) in &states {
                 for (index, stops) in initial_routes.iter().enumerate() {
                     let new_routes = {
                         let mut stops = stops.clone();
@@ -40,17 +37,12 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
                         routes.set(index, stops);
                         routes
                     };
-                    let new_cost = self.cost_calculator.calculate(&new_routes);
+                    let lower_bound = self.cost_calculator.calculate_lower_bound(&new_routes);
 
-                    // TODO Check finity of a cost?
-
-                    if new_cost < cost {
-                        cost = new_cost;
-                        routes = new_routes;
+                    if lower_bound < upper_bound {
+                        new_states.insert(routes, cost);
                     }
                 }
-
-                new_states.insert(routes, cost);
             }
 
             states = new_states;
