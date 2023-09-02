@@ -3,7 +3,7 @@ use crate::{cost::CostCalculator, Problem, Route, Stop};
 use im_rc::{HashSet, Vector};
 use ordered_float::OrderedFloat;
 
-/// Dyanmic programming solver.
+/// Dynamic programming solver.
 ///
 /// Note that it doesn't use any dynamic programming if you don't provide a cost
 /// function that returns infinity.
