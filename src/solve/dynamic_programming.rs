@@ -67,14 +67,16 @@ mod tests {
     use super::*;
     use crate::{cost::DeliveryCostCalculator, Location, Route};
 
-    const DISTANCE_UNIT_COST: f64 = 1.0;
+    const DISTANCE_COST: f64 = 1.0;
     const MISSED_DELIVERY_COST: f64 = 1e9;
+    const QUADRATIC_DISTANCE_COST: f64 = 1e-9;
 
     fn solve(problem: &Problem) -> Option<Problem> {
         DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
             problem.routes().flat_map(|route| route.stops()).count(),
             MISSED_DELIVERY_COST,
-            DISTANCE_UNIT_COST,
+            DISTANCE_COST,
+            QUADRATIC_DISTANCE_COST,
         ))
         .solve(problem)
     }
@@ -112,5 +114,22 @@ mod tests {
         ])]);
 
         assert_eq!(solve(&problem), Some(problem));
+    }
+
+    #[test]
+    fn even_workload() {
+        let problem = Problem::new(vec![
+            Route::new(vec![
+                Stop::new(Location::new(0.0, 0.0)),
+                Stop::new(Location::new(1.0, 0.0)),
+                Stop::new(Location::new(2.0, 0.0)),
+            ]),
+            Route::new(vec![]),
+        ]);
+
+        assert!(solve(&problem)
+            .unwrap()
+            .routes()
+            .all(|route| route.stops().len() < 3));
     }
 }
