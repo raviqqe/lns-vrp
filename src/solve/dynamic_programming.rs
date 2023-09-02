@@ -38,8 +38,9 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
                     let mut routes = routes.clone();
                     routes.set(index, stops);
 
-                    // TODO Validate a route.
-                    new_states.insert(routes);
+                    if self.cost_calculator.calculate(&routes).is_finite() {
+                        new_states.insert(routes);
+                    }
                 }
             }
 
