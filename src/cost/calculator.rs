@@ -13,4 +13,16 @@ pub trait CostCalculator {
             >,
         >,
     ) -> f64;
+
+    fn calculate_lower_bound<'a>(
+        &self,
+        routes: impl IntoIterator<
+            Item = impl IntoIterator<
+                Item = &'a Stop,
+                IntoIter = impl ExactSizeIterator<Item = &'a Stop>,
+            >,
+        >,
+    ) -> f64 {
+        self.calculate(routes)
+    }
 }

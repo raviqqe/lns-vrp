@@ -26,6 +26,11 @@ impl DeliveryCostCalculator {
             quadratic_distance_cost,
         }
     }
+
+    fn calculate_route_distance_cost<'a>(&self, stops: impl IntoIterator<Item = &'a Stop>) -> f64 {
+        let route_cost = calculate_route(stops);
+        route_cost + route_cost.powi(2) * self.quadratic_distance_cost
+    }
 }
 
 impl CostCalculator for DeliveryCostCalculator {
@@ -45,13 +50,27 @@ impl CostCalculator for DeliveryCostCalculator {
             let stops = stops.into_iter();
 
             delivery_count += stops.len();
-
-            let route_cost = calculate_route(stops);
-            cost += route_cost + route_cost.powi(2) * self.quadratic_distance_cost;
+            cost += self.calculate_route_distance_cost(stops);
         }
 
         cost * self.distance_cost
             + (self.delivery_count - delivery_count) as f64 * self.missed_delivery_cost
+    }
+
+    fn calculate_lower_bound<'a>(
+        &self,
+        routes: impl IntoIterator<
+            Item = impl IntoIterator<
+                Item = &'a Stop,
+                IntoIter = impl ExactSizeIterator<Item = &'a Stop>,
+            >,
+        >,
+    ) -> f64 {
+        routes
+            .into_iter()
+            .map(|stops| self.calculate_route_distance_cost(stops))
+            .sum::<f64>()
+            * self.distance_cost
     }
 }
 
