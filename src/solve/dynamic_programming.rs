@@ -3,6 +3,10 @@ use crate::{cost::CostCalculator, Problem, Route, Stop};
 use im_rc::{HashSet, Vector};
 use ordered_float::OrderedFloat;
 
+/// Dynamic programming solver.
+///
+/// Note that it doesn't use any dynamic programming if you don't provide a cost
+/// function that returns infinity.
 pub struct DynamicProgrammingSolver<C: CostCalculator> {
     cost_calculator: C,
 }
@@ -34,8 +38,9 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
                     let mut routes = routes.clone();
                     routes.set(index, stops);
 
-                    // TODO Validate a route.
-                    new_states.insert(routes);
+                    if self.cost_calculator.calculate(&routes).is_finite() {
+                        new_states.insert(routes);
+                    }
                 }
             }
 
