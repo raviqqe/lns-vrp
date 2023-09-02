@@ -1,8 +1,25 @@
 use criterion::{criterion_group, criterion_main, Bencher, Criterion};
-use vrp::solve::DynamicProgrammingSolver;
+use vrp::{
+    cost::DeliveryCostCalculator, solve::DynamicProgrammingSolver, Location, Problem, Route, Stop,
+};
+
+const DISTANCE_COST: f64 = 1.0;
+const MISSED_DELIVERY_COST: f64 = 1e9;
+const QUADRATIC_DISTANCE_COST: f64 = 1e-9;
 
 fn delivery(bencher: &mut Bencher) {
-    let solver = DynamicProgrammingSolver::new();
+    let problem = Problem::new(vec![Route::new(vec![
+        Stop::new(Location::new(0.0, 0.0)),
+        Stop::new(Location::new(1.0, 0.0)),
+    ])]);
+
+    let solver = DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
+        problem.routes().flat_map(|route| route.stops()).count(),
+        MISSED_DELIVERY_COST,
+        DISTANCE_COST,
+        QUADRATIC_DISTANCE_COST,
+    ));
+
     bencher.iter(|| {
         let mut map = HashMap::new();
 
