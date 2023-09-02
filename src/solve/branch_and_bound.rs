@@ -16,13 +16,13 @@ impl<C: CostCalculator> BranchAndBoundSolver<C> {
 impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
     fn solve(&self, problem: &Problem) -> Option<Problem> {
         let mut states = HashMap::<Vector<Vector<Stop>>, f64>::new();
-        let initial = problem
+        let routes = problem
             .routes()
             .map(|_| Default::default())
             .collect::<Vector<_>>();
 
-        let cost = self.cost_calculator.calculate(&initial);
-        states.insert(initial, cost);
+        let cost = self.cost_calculator.calculate(&routes);
+        states.insert(routes, cost);
 
         for stop in problem.routes().flat_map(Route::stops) {
             let mut new_states = HashMap::new();
