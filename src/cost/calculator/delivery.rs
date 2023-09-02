@@ -1,6 +1,5 @@
 use super::CostCalculator;
-use crate::Stop;
-use geo::GeodesicDistance;
+use crate::{cost::distance::calculate_route, Stop};
 
 /// Delivery VRP cost calculator.
 ///
@@ -21,26 +20,6 @@ impl DeliveryCostCalculator {
             distance_unit_cost,
         }
     }
-
-    fn calculate_route<'a>(&self, stops: impl IntoIterator<Item = &'a Stop>) -> f64 {
-        let mut cost = 0.0;
-        let mut stops = stops.into_iter();
-
-        if let Some(mut previous) = stops.next() {
-            for stop in stops {
-                cost += self.calculate_segment(previous, stop);
-                previous = stop;
-            }
-        }
-
-        cost
-    }
-
-    fn calculate_segment(&self, one: &Stop, other: &Stop) -> f64 {
-        one.location()
-            .as_point()
-            .geodesic_distance(other.location().as_point())
-    }
 }
 
 impl CostCalculator for DeliveryCostCalculator {
@@ -60,7 +39,7 @@ impl CostCalculator for DeliveryCostCalculator {
             let stops = stops.into_iter();
 
             delivery_count += stops.len();
-            cost += self.calculate_route(stops);
+            cost += calculate_route(stops);
         }
 
         cost * self.distance_unit_cost
