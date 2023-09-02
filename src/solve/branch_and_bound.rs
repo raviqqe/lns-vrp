@@ -38,7 +38,8 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
                     let lower_bound = self.cost_calculator.calculate_lower_bound(&routes);
 
                     if lower_bound < *upper_bound {
-                        new_states.insert(routes, lower_bound);
+                        let cost = self.cost_calculator.calculate(&routes);
+                        new_states.insert(routes, cost);
                     }
                 }
             }
