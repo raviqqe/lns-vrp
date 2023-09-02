@@ -1,6 +1,8 @@
 use criterion::{criterion_group, criterion_main, Bencher, Criterion};
 use vrp::{
-    cost::DeliveryCostCalculator, solve::DynamicProgrammingSolver, Location, Problem, Route, Stop,
+    cost::DeliveryCostCalculator,
+    solve::{DynamicProgrammingSolver, Solver},
+    Location, Problem, Route, Stop,
 };
 
 const DISTANCE_COST: f64 = 1.0;
@@ -21,13 +23,7 @@ fn delivery(bencher: &mut Bencher) {
     ));
 
     bencher.iter(|| {
-        let mut map = HashMap::new();
-
-        for key in &keys {
-            map = map.clone();
-
-            map.insert(key, key);
-        }
+        solver.solve(&problem);
     });
 }
 
