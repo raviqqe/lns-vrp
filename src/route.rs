@@ -10,7 +10,7 @@ impl Route {
         Self { stops }
     }
 
-    pub fn stops(&self) -> impl Iterator<Item = &Stop> {
+    pub fn stops(&self) -> impl ExactSizeIterator<Item = &Stop> {
         self.stops.iter()
     }
 }

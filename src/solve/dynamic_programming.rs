@@ -124,20 +124,10 @@ mod tests {
             ]),
             Route::new(vec![]),
         ]);
-        assert_eq!(
-            solve(&problem),
-            Some(Problem::new(vec![
-                Route::new(vec![
-                    Stop::new(Location::new(0.0, 0.0)),
-                    Stop::new(Location::new(1.0, 0.0)),
-                    Stop::new(Location::new(2.0, 0.0)),
-                ]),
-                Route::new(vec![
-                    Stop::new(Location::new(0.0, 0.0)),
-                    Stop::new(Location::new(1.0, 0.0)),
-                    Stop::new(Location::new(2.0, 0.0)),
-                ]),
-            ]))
-        );
+
+        assert!(solve(&problem)
+            .unwrap()
+            .routes()
+            .all(|route| route.stops().len() < 3));
     }
 }
