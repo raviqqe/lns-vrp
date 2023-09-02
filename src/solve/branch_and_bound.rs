@@ -29,14 +29,12 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
 
             for (routes, upper_bound) in &states {
                 for (index, stops) in routes.iter().enumerate() {
-                    let routes = {
-                        let mut stops = stops.clone();
-                        stops.push_back(stop.clone());
+                    let mut stops = stops.clone();
+                    stops.push_back(stop.clone());
 
-                        let mut routes = routes.clone();
-                        routes.set(index, stops);
-                        routes
-                    };
+                    let mut routes = routes.clone();
+                    routes.set(index, stops);
+
                     let lower_bound = self.cost_calculator.calculate_lower_bound(&routes);
 
                     if lower_bound < *upper_bound {
