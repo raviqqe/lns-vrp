@@ -1,4 +1,5 @@
 use criterion::{criterion_group, criterion_main, Bencher, Criterion};
+use rand::random;
 use vrp::{
     cost::DeliveryCostCalculator,
     solve::{DynamicProgrammingSolver, Solver},
@@ -8,6 +9,10 @@ use vrp::{
 const DISTANCE_COST: f64 = 1.0;
 const MISSED_DELIVERY_COST: f64 = 1e9;
 const QUADRATIC_DISTANCE_COST: f64 = 1e-9;
+
+fn random_longitude() -> f64 {
+    0.1 * random::<f64>()
+}
 
 fn delivery(bencher: &mut Bencher) {
     let problem = Problem::new(vec![Route::new(vec![
