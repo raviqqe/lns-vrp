@@ -7,7 +7,7 @@ use vrp::{
 };
 
 const STOP_COUNT: usize = 10;
-const VEHICLE_COUNT: usize = 2;
+const VEHICLE_COUNT: usize = 3;
 
 const DISTANCE_COST: f64 = 1.0;
 const MISSED_DELIVERY_COST: f64 = 1e9;
