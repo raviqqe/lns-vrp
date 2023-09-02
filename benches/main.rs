@@ -22,10 +22,16 @@ fn random_location() -> Location {
 }
 
 fn delivery(bencher: &mut Bencher) {
-    let problem = Problem::new(vec![Route::new(vec![
-        Stop::new(Location::new(0.0, 0.0)),
-        Stop::new(Location::new(1.0, 0.0)),
-    ])]);
+    let problem = Problem::new(
+        [Route::new(
+            (0..STOP_COUNT)
+                .map(|_| Stop::new(random_location()))
+                .collect(),
+        )]
+        .into_iter()
+        .chain((1..VEHICLE_COUNT).map(|_| Route::new(vec![])))
+        .collect(),
+    );
 
     let solver = DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
         problem.routes().flat_map(|route| route.stops()).count(),
