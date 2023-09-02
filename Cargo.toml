@@ -11,3 +11,4 @@ ordered-float = "3.9.1"
 [dev-dependencies]
 criterion = "0.5.1"
 pretty_assertions = "1.4.0"
+rand = "0.8.5"
