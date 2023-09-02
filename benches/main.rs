@@ -14,6 +14,10 @@ fn random_longitude() -> f64 {
     0.1 * random::<f64>()
 }
 
+fn random_location() -> Location {
+    Location::new(random_longitude(), 0.0)
+}
+
 fn delivery(bencher: &mut Bencher) {
     let problem = Problem::new(vec![Route::new(vec![
         Stop::new(Location::new(0.0, 0.0)),
