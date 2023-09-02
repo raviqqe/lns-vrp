@@ -54,3 +54,5 @@ impl CostCalculator for DeliveryCostCalculator {
             + (self.delivery_count - delivery_count) as f64 * self.missed_delivery_cost
     }
 }
+
+// TODO Add tests if a cost calculator trait is stable.
