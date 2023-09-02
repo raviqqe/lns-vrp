@@ -116,18 +116,16 @@ mod tests {
 
     #[test]
     fn even_workload() {
+        let problem = Problem::new(vec![
+            Route::new(vec![
+                Stop::new(Location::new(0.0, 0.0)),
+                Stop::new(Location::new(1.0, 0.0)),
+                Stop::new(Location::new(2.0, 0.0)),
+            ]),
+            Route::new(vec![]),
+        ]);
         assert_eq!(
-            solve(&Problem::new(vec![
-                Route::new(vec![
-                    Stop::new(Location::new(0.0, 0.0)),
-                    Stop::new(Location::new(1.0, 0.0)),
-                    Stop::new(Location::new(2.0, 0.0)),
-                ]),
-                Route::new(vec![
-                    Stop::new(Location::new(1.0, 0.0)),
-                    Stop::new(Location::new(2.0, 0.0)),
-                ]),
-            ])),
+            solve(&problem),
             Some(Problem::new(vec![
                 Route::new(vec![
                     Stop::new(Location::new(0.0, 0.0)),
