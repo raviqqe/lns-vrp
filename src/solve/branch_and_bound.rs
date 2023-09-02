@@ -1,6 +1,6 @@
 use super::solver::Solver;
 use crate::{cost::CostCalculator, Problem, Route, Stop};
-use im_rc::{HashSet, Vector};
+use im_rc::{HashMap, Vector};
 use ordered_float::OrderedFloat;
 
 pub struct BranchAndBoundSolver<C: CostCalculator> {
@@ -15,29 +15,40 @@ impl<C: CostCalculator> BranchAndBoundSolver<C> {
 
 impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
     fn solve(&self, problem: &Problem) -> Option<Problem> {
-        let mut states = HashSet::<Vector<Vector<Stop>>>::new();
+        let mut states = HashMap::<Vector<Vector<Stop>>, f64>::new();
         let initial = problem
             .routes()
             .map(|_| Default::default())
             .collect::<Vector<_>>();
 
-        states.insert(initial);
+        let cost = self.cost_calculator.calculate(&initial);
+        states.insert(initial, cost);
 
         for stop in problem.routes().flat_map(Route::stops) {
-            let mut new_states = states.clone();
+            let mut new_states = HashMap::new();
 
-            for routes in &states {
-                for (index, stops) in routes.iter().enumerate() {
+            for (routes, cost) in &states {
+                let mut routes = routes.clone();
+                let mut cost = *cost;
+
+                for (index, stops) in routes.clone().iter().enumerate() {
                     let mut stops = stops.clone();
                     stops.push_back(stop.clone());
 
-                    let mut routes = routes.clone();
-                    routes.set(index, stops);
+                    let mut new_routes = routes.clone();
+                    new_routes.set(index, stops);
 
-                    if self.cost_calculator.calculate(&routes).is_finite() {
-                        new_states.insert(routes);
+                    let new_cost = self.cost_calculator.calculate(&new_routes);
+
+                    // TODO Check finity of a cost?
+
+                    if new_cost < cost {
+                        cost = new_cost;
+                        routes = new_routes;
                     }
                 }
+
+                new_states.insert(routes, cost);
             }
 
             states = new_states;
@@ -45,8 +56,7 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
 
         states
             .iter()
-            .map(|routes| (routes, self.cost_calculator.calculate(routes)))
-            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
+            .min_by(|(_, &one), (_, &other)| OrderedFloat(one).cmp(&OrderedFloat(other)))
             .map(|(routes, _)| {
                 Problem::new(
                     routes
