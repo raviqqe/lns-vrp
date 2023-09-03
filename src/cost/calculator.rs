@@ -1,28 +1,12 @@
 mod delivery;
 
-use crate::Stop;
+use crate::Solution;
 pub use delivery::DeliveryCostCalculator;
 
 pub trait CostCalculator {
-    fn calculate<'a>(
-        &self,
-        routes: impl IntoIterator<
-            Item = impl IntoIterator<
-                Item = &'a Stop,
-                IntoIter = impl ExactSizeIterator<Item = &'a Stop>,
-            >,
-        >,
-    ) -> f64;
+    fn calculate(&self, solution: &Solution) -> f64;
 
-    fn calculate_lower_bound<'a>(
-        &self,
-        routes: impl IntoIterator<
-            Item = impl IntoIterator<
-                Item = &'a Stop,
-                IntoIter = impl ExactSizeIterator<Item = &'a Stop>,
-            >,
-        >,
-    ) -> f64 {
-        self.calculate(routes)
+    fn calculate_lower_bound(&self, solution: &Solution) -> f64 {
+        self.calculate(solution)
     }
 }

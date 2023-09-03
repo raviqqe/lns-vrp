@@ -1,6 +1,5 @@
-use crate::Problem;
+use crate::{Problem, Solution};
 
 pub trait Solver {
-    // TODO Reason no solution.
-    fn solve(&self, problem: &Problem) -> Option<Problem>;
+    fn solve(&self, problem: &Problem) -> Solution;
 }

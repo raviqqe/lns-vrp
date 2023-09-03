@@ -1,7 +1,7 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, Problem, Route, Stop};
-use im_rc::{HashMap, Vector};
+use crate::{cost::CostCalculator, Problem, Solution};
 use ordered_float::OrderedFloat;
+use std::collections::BTreeMap;
 
 pub struct BranchAndBoundSolver<C: CostCalculator> {
     cost_calculator: C,
@@ -14,65 +14,58 @@ impl<C: CostCalculator> BranchAndBoundSolver<C> {
 }
 
 impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
-    fn solve(&self, problem: &Problem) -> Option<Problem> {
-        let mut states = HashMap::<Vector<Vector<Stop>>, f64>::new();
-        let routes = problem
-            .routes()
-            .map(|_| Default::default())
-            .collect::<Vector<_>>();
+    fn solve(&self, problem: &Problem) -> Solution {
+        let mut solutions = BTreeMap::<Solution, f64>::new();
+        let routes = Solution::new(
+            problem
+                .vehicles()
+                .iter()
+                .map(|_| Default::default())
+                .collect(),
+        );
 
         let cost = self.cost_calculator.calculate(&routes);
-        states.insert(routes, cost);
+        solutions.insert(routes, cost);
 
-        for stop in problem.routes().flat_map(Route::stops) {
-            let mut new_states = states.clone();
+        for stop_index in 0..problem.stops().len() {
+            let mut new_states = solutions.clone();
 
-            for (routes, upper_bound) in &states {
-                for (index, stops) in routes.iter().enumerate() {
-                    let mut stops = stops.clone();
-                    stops.push_back(stop.clone());
-
-                    let mut routes = routes.clone();
-                    routes.set(index, stops);
-
-                    let lower_bound = self.cost_calculator.calculate_lower_bound(&routes);
+            for (solution, upper_bound) in &solutions {
+                for vehicle_index in 0..solution.routes().len() {
+                    let solution = solution.add_stop(vehicle_index, stop_index);
+                    let lower_bound = self.cost_calculator.calculate_lower_bound(&solution);
 
                     if lower_bound < *upper_bound {
-                        let cost = self.cost_calculator.calculate(&routes);
-                        new_states.insert(routes, cost);
+                        let cost = self.cost_calculator.calculate(&solution);
+                        new_states.insert(solution, cost);
                     }
                 }
             }
 
-            states = new_states;
+            solutions = new_states;
         }
 
-        states
-            .iter()
-            .min_by(|(_, &one), (_, &other)| OrderedFloat(one).cmp(&OrderedFloat(other)))
-            .map(|(routes, _)| {
-                Problem::new(
-                    routes
-                        .iter()
-                        .map(|stops| Route::new(stops.iter().cloned().collect()))
-                        .collect(),
-                )
-            })
+        solutions
+            .into_iter()
+            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
+            .expect("at least one solution")
+            .0
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{cost::DeliveryCostCalculator, Location, Route};
+    use crate::{cost::DeliveryCostCalculator, Location, Stop, Vehicle};
 
     const DISTANCE_COST: f64 = 1.0;
     const MISSED_DELIVERY_COST: f64 = 1e9;
     const QUADRATIC_DISTANCE_COST: f64 = 1e-9;
 
-    fn solve(problem: &Problem) -> Option<Problem> {
+    fn solve(problem: &Problem) -> Solution {
         BranchAndBoundSolver::new(DeliveryCostCalculator::new(
-            problem.routes().flat_map(|route| route.stops()).count(),
+            problem,
+            problem.stops().len(),
             MISSED_DELIVERY_COST,
             DISTANCE_COST,
             QUADRATIC_DISTANCE_COST,
@@ -82,53 +75,59 @@ mod tests {
 
     #[test]
     fn do_nothing() {
-        let problem = Problem::new(vec![]);
+        let problem = Problem::new(vec![Vehicle::new()], vec![]);
 
-        assert_eq!(solve(&problem), Some(problem));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![]]));
     }
 
     #[test]
     fn keep_one_stop() {
-        let problem = Problem::new(vec![Route::new(vec![Stop::new(Location::new(0.0, 0.0))])]);
+        let problem = Problem::new(
+            vec![Vehicle::new()],
+            vec![Stop::new(Location::new(0.0, 0.0))],
+        );
 
-        assert_eq!(solve(&problem), Some(problem));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0]]));
     }
 
     #[test]
     fn keep_two_stops() {
-        let problem = Problem::new(vec![Route::new(vec![
-            Stop::new(Location::new(0.0, 0.0)),
-            Stop::new(Location::new(1.0, 0.0)),
-        ])]);
+        let problem = Problem::new(
+            vec![Vehicle::new()],
+            vec![
+                Stop::new(Location::new(0.0, 0.0)),
+                Stop::new(Location::new(1.0, 0.0)),
+            ],
+        );
 
-        assert_eq!(solve(&problem), Some(problem));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1]]));
     }
 
     #[test]
     fn keep_three_stops() {
-        let problem = Problem::new(vec![Route::new(vec![
-            Stop::new(Location::new(0.0, 0.0)),
-            Stop::new(Location::new(1.0, 0.0)),
-            Stop::new(Location::new(2.0, 0.0)),
-        ])]);
+        let problem = Problem::new(
+            vec![Vehicle::new()],
+            vec![
+                Stop::new(Location::new(0.0, 0.0)),
+                Stop::new(Location::new(1.0, 0.0)),
+                Stop::new(Location::new(2.0, 0.0)),
+            ],
+        );
 
-        assert_eq!(solve(&problem), Some(problem));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1, 2]]));
     }
 
     #[test]
     fn even_workload() {
-        let problem = Problem::new(vec![
-            Route::new(vec![
+        let problem = Problem::new(
+            vec![Vehicle::new(), Vehicle::new()],
+            vec![
                 Stop::new(Location::new(0.0, 0.0)),
                 Stop::new(Location::new(1.0, 0.0)),
                 Stop::new(Location::new(2.0, 0.0)),
-            ]),
-            Route::new(vec![]),
-        ]);
+            ],
+        );
 
-        assert!(solve(&problem)
-            .unwrap()
-            .routes()
-            .all(|route| route.stops().len() < 3));
+        assert!(solve(&problem).routes().iter().all(|stops| stops.len() < 3));
     }
 }

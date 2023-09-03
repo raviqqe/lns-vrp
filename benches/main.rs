@@ -3,7 +3,7 @@ use rand::random;
 use vrp::{
     cost::DeliveryCostCalculator,
     solve::{BranchAndBoundSolver, DynamicProgrammingSolver, Solver},
-    Location, Problem, Route, Stop,
+    Location, Problem, Stop, Vehicle,
 };
 
 const STOP_COUNT: usize = 11;
@@ -23,20 +23,17 @@ fn random_location() -> Location {
 
 fn random_problem() -> Problem {
     Problem::new(
-        [Route::new(
-            (0..STOP_COUNT)
-                .map(|_| Stop::new(random_location()))
-                .collect(),
-        )]
-        .into_iter()
-        .chain((1..VEHICLE_COUNT).map(|_| Route::new(vec![])))
-        .collect(),
+        (0..VEHICLE_COUNT).map(|_| Vehicle::new()).collect(),
+        (0..STOP_COUNT)
+            .map(|_| Stop::new(random_location()))
+            .collect(),
     )
 }
 
 fn create_cost_calculator(problem: &Problem) -> DeliveryCostCalculator {
     DeliveryCostCalculator::new(
-        problem.routes().flat_map(|route| route.stops()).count(),
+        problem,
+        problem.stops().len(),
         MISSED_DELIVERY_COST,
         DISTANCE_COST,
         QUADRATIC_DISTANCE_COST,
@@ -47,14 +44,14 @@ fn dynamic_programming(bencher: &mut Bencher) {
     let problem = random_problem();
     let solver = DynamicProgrammingSolver::new(create_cost_calculator(&problem));
 
-    bencher.iter(|| solver.solve(&problem).unwrap());
+    bencher.iter(|| solver.solve(&problem));
 }
 
 fn branch_and_bound(bencher: &mut Bencher) {
     let problem = random_problem();
     let solver = BranchAndBoundSolver::new(create_cost_calculator(&problem));
 
-    bencher.iter(|| solver.solve(&problem).unwrap());
+    bencher.iter(|| solver.solve(&problem));
 }
 
 fn benchmark(criterion: &mut Criterion) {
