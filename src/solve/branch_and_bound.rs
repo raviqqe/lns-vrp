@@ -1,5 +1,5 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, Problem, Solution};
+use crate::{cost::CostCalculator, problem::BaseProblem, Solution};
 use ordered_float::OrderedFloat;
 use std::collections::BTreeMap;
 
@@ -14,12 +14,10 @@ impl<C: CostCalculator> BranchAndBoundSolver<C> {
 }
 
 impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
-    fn solve(&mut self, problem: &Problem) -> Solution {
+    fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         let mut solutions = BTreeMap::new();
         let routes = Solution::new(
-            problem
-                .vehicles()
-                .iter()
+            (0..problem.vehicle_count())
                 .map(|_| Default::default())
                 .collect(),
         );
@@ -27,7 +25,7 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
         let cost = self.cost_calculator.calculate(&routes);
         solutions.insert(routes, cost);
 
-        for stop_index in 0..problem.stops().len() {
+        for stop_index in 0..problem.stop_count() {
             let mut new_states = solutions.clone();
 
             for (solution, upper_bound) in &solutions {
@@ -58,14 +56,14 @@ mod tests {
     use super::*;
     use crate::{
         cost::{DeliveryCostCalculator, DistanceCostCalculator},
-        Location, Stop, Vehicle,
+        Location, SimpleProblem, Stop, Vehicle,
     };
 
     const DISTANCE_COST: f64 = 1.0;
     const MISSED_DELIVERY_COST: f64 = 1e9;
     const QUADRATIC_DISTANCE_COST: f64 = 1e-9;
 
-    fn solve(problem: &Problem) -> Solution {
+    fn solve(problem: &SimpleProblem) -> Solution {
         BranchAndBoundSolver::new(DeliveryCostCalculator::new(
             DistanceCostCalculator::new(problem),
             problem.stops().len(),
@@ -78,14 +76,14 @@ mod tests {
 
     #[test]
     fn do_nothing() {
-        let problem = Problem::new(vec![Vehicle::new()], vec![]);
+        let problem = SimpleProblem::new(vec![Vehicle::new()], vec![]);
 
         assert_eq!(solve(&problem), Solution::new(vec![vec![]]));
     }
 
     #[test]
     fn keep_one_stop() {
-        let problem = Problem::new(
+        let problem = SimpleProblem::new(
             vec![Vehicle::new()],
             vec![Stop::new(Location::new(0.0, 0.0))],
         );
@@ -95,7 +93,7 @@ mod tests {
 
     #[test]
     fn keep_two_stops() {
-        let problem = Problem::new(
+        let problem = SimpleProblem::new(
             vec![Vehicle::new()],
             vec![
                 Stop::new(Location::new(0.0, 0.0)),
@@ -108,7 +106,7 @@ mod tests {
 
     #[test]
     fn keep_three_stops() {
-        let problem = Problem::new(
+        let problem = SimpleProblem::new(
             vec![Vehicle::new()],
             vec![
                 Stop::new(Location::new(0.0, 0.0)),
@@ -122,7 +120,7 @@ mod tests {
 
     #[test]
     fn even_workload() {
-        let problem = Problem::new(
+        let problem = SimpleProblem::new(
             vec![Vehicle::new(), Vehicle::new()],
             vec![
                 Stop::new(Location::new(0.0, 0.0)),

@@ -1,5 +1,5 @@
-use crate::{Problem, Solution};
+use crate::{problem::BaseProblem, Solution};
 
 pub trait Solver {
-    fn solve(&mut self, problem: &Problem) -> Solution;
+    fn solve(&mut self, problem: impl BaseProblem) -> Solution;
 }
