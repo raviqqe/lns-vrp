@@ -35,7 +35,7 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
         for stop_index in 0..problem.stops().len() {
             let mut new_solutions = solutions.clone();
 
-            for (solution, _) in &solutions {
+            for solution in solutions.keys() {
                 for vehicle_index in 0..solution.routes().len() {
                     let solution = solution.add_stop(vehicle_index, stop_index);
                     let cost = self.cost_calculator.calculate(&solution);
