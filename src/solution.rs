@@ -1,21 +1,28 @@
 use alloc::vec::Vec;
+use std::{
+    alloc::{Allocator, Global},
+    hash::{Hash, Hasher},
+};
 
 // TODO Use persistent data structure.
-#[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub struct Solution {
-    routes: Vec<Vec<usize>>,
+#[derive(Clone, Debug)]
+pub struct Solution<A: Allocator = Global> {
+    routes: Vec<Vec<usize, A>, A>,
 }
 
-impl Solution {
-    pub fn new(routes: Vec<Vec<usize>>) -> Self {
+impl<A: Allocator> Solution<A> {
+    pub fn new(routes: Vec<Vec<usize, A>, A>) -> Self {
         Self { routes }
     }
 
-    pub fn routes(&self) -> &[Vec<usize>] {
+    pub fn routes(&self) -> &[Vec<usize, A>] {
         &self.routes
     }
 
-    pub fn add_stop(&self, vehicle_index: usize, stop_index: usize) -> Self {
+    pub fn add_stop(&self, vehicle_index: usize, stop_index: usize) -> Self
+    where
+        A: Clone,
+    {
         let mut route = self.routes[vehicle_index].clone();
         route.push(stop_index);
 
@@ -23,5 +30,34 @@ impl Solution {
         routes[vehicle_index] = route;
 
         Self { routes }
+    }
+}
+
+impl<A: Allocator> Eq for Solution<A> {}
+
+impl<A: Allocator> PartialEq for Solution<A> {
+    fn eq(&self, other: &Self) -> bool {
+        self.routes.len() == other.routes.len()
+            && self.routes.iter().zip(other.routes).all(|(one, other)| {
+                one.len() == other.len()
+                    && one
+                        .iter()
+                        .copied()
+                        .zip(other)
+                        .all(|(one, other)| one == other)
+            })
+    }
+}
+
+impl<A: Allocator> Hash for Solution<A> {
+    fn hash<H: Hasher>(&self, hasher: &mut H) {
+        for route in &self.routes {
+            // Hash a boundary.
+            false.hash(hasher);
+
+            for index in route {
+                index.hash(hasher);
+            }
+        }
     }
 }
