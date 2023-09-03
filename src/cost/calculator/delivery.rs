@@ -1,7 +1,6 @@
-use std::alloc::Allocator;
-
 use super::CostCalculator;
 use crate::{cost::distance::DistanceCostCalculator, problem::BaseProblem, Solution};
+use std::alloc::Allocator;
 
 #[derive(Debug)]
 pub struct DeliveryCostCalculator<P: BaseProblem> {
