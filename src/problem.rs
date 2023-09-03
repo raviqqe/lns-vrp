@@ -12,7 +12,11 @@ impl Problem {
         Self { vehicles, stops }
     }
 
-    pub fn routes(&self) -> impl Iterator<Item = &Route> {
-        self.routes.iter()
+    pub fn vehilcles(&self) -> Foo {
+        &self.vehicles
+    }
+
+    pub fn stops(&self) -> &[Stop] {
+        &self.stops
     }
 }
