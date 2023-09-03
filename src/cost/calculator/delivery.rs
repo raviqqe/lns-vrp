@@ -53,7 +53,7 @@ impl<'a> DeliveryCostCalculator<'a> {
         let route_cost = calculate_route(
             stop_indexes
                 .iter()
-                .map(|index| &self.problem.stops()[index]),
+                .map(|&index| &self.problem.stops()[index]),
         );
 
         route_cost + route_cost.powi(2) * self.quadratic_distance_cost
