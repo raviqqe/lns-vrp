@@ -42,14 +42,14 @@ fn create_cost_calculator(problem: &Problem) -> DeliveryCostCalculator {
 
 fn dynamic_programming(bencher: &mut Bencher) {
     let problem = random_problem();
-    let solver = DynamicProgrammingSolver::new(create_cost_calculator(&problem));
+    let mut solver = DynamicProgrammingSolver::new(create_cost_calculator(&problem));
 
     bencher.iter(|| solver.solve(&problem));
 }
 
 fn branch_and_bound(bencher: &mut Bencher) {
     let problem = random_problem();
-    let solver = BranchAndBoundSolver::new(create_cost_calculator(&problem));
+    let mut solver = BranchAndBoundSolver::new(create_cost_calculator(&problem));
 
     bencher.iter(|| solver.solve(&problem));
 }
