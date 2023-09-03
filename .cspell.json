@@ -4,6 +4,7 @@
     "bumpalo",
     "clippy",
     "flamegraph",
+    "hashbrown",
     "hasher",
     "powi",
     "reinterpretcat",
