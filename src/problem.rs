@@ -1,7 +1,7 @@
 use crate::{Stop, Vehicle};
 use alloc::vec::Vec;
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct Problem {
     vehicles: Vec<Vehicle>,
     stops: Vec<Stop>,
