@@ -2,7 +2,7 @@ use crate::Stop;
 use alloc::vec::Vec;
 
 // TODO Use persistent data structure.
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct Solution {
     routes: Vec<Vec<usize>>,
 }

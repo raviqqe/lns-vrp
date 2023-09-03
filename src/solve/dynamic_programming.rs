@@ -22,24 +22,20 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
         // We use a B-tree set instead of a hash one for determinism.
         let mut solutions = BTreeSet::<Solution>::new();
 
-        solutions.insert(
+        solutions.insert(Solution::new(
             problem
                 .vehicles()
                 .iter()
                 .map(|_| Default::default())
                 .collect::<Vec<_>>(),
-        );
+        ));
 
         for stop_index in 0..problem.stops().len() {
             let mut new_solutions = solutions.clone();
 
-            for routes in &solutions {
-                for (vehicle_index, stop_ids) in routes.iter().enumerate() {
-                    let mut stop_ids = stop_ids.clone();
-                    stop_ids.push(stop_index);
-
-                    let mut routes = routes.clone();
-                    routes[vehicle_index] = stop_ids;
+            for solution in &solutions {
+                for vehicle_index in 0..solution.routes().len() {
+                    solution.add_stop(vehicle_index, stop_index);
 
                     if self.cost_calculator.calculate(&routes).is_finite() {
                         new_solutions.insert(routes);
@@ -50,17 +46,13 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
             solutions = new_solutions;
         }
 
-        Solution::new(
-            solutions
-                .iter()
-                .map(|routes| (routes, self.cost_calculator.calculate(routes)))
-                .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
-                .expect("at least one solution")
-                .0
-                .iter()
-                .map(|stops| stops.iter().copied().collect())
-                .collect(),
-        )
+        solutions
+            .iter()
+            .map(|routes| (routes, self.cost_calculator.calculate(routes)))
+            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
+            .expect("at least one solution")
+            .0
+            .clone()
     }
 }
 
