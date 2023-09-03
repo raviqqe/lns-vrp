@@ -31,6 +31,10 @@ impl<A: Allocator> Solution<A> {
 
         Self { routes }
     }
+
+    pub fn to_global(&self) -> Solution<Global> {
+        Solution::new(self.routes().iter().map(|route| route.to_vec()).collect())
+    }
 }
 
 impl<A: Allocator> Eq for Solution<A> {}

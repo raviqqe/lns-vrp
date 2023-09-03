@@ -50,13 +50,7 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
             .expect("at least one solution")
             .0;
 
-        Solution::new(
-            solution
-                .routes()
-                .iter()
-                .map(|route| route.to_vec())
-                .collect(),
-        )
+        solution.to_global()
     }
 }
 
