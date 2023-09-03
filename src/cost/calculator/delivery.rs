@@ -34,7 +34,11 @@ impl<'a> DeliveryCostCalculator<'a> {
         solution
             .routes()
             .iter()
-            .map(|stop_indexes| self.calculate_route_distance_cost(stop_indexes))
+            .map(|stop_indexes| {
+                let route_cost = self.distance_cost_calculator.calculate_route(stop_indexes);
+
+                route_cost + route_cost.powi(2) * self.quadratic_distance_cost
+            })
             .sum::<f64>()
             * self.distance_cost
     }
@@ -47,12 +51,6 @@ impl<'a> DeliveryCostCalculator<'a> {
                 .map(|stops| stops.len())
                 .sum::<usize>()) as f64
             * self.missed_delivery_cost
-    }
-
-    fn calculate_route_distance_cost(&mut self, stop_indexes: &[usize]) -> f64 {
-        let route_cost = self.distance_cost_calculator.calculate_route(stop_indexes);
-
-        route_cost + route_cost.powi(2) * self.quadratic_distance_cost
     }
 }
 
