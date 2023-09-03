@@ -37,10 +37,9 @@ impl<'a> DeliveryCostCalculator<'a> {
             .map(|stop_indexes| {
                 let cost = self.distance_cost_calculator.calculate_route(stop_indexes);
 
-                cost + cost.powi(2) * self.quadratic_distance_cost
+                cost * self.distance_cost + cost.powi(2) * self.quadratic_distance_cost
             })
             .sum::<f64>()
-            * self.distance_cost
     }
 
     fn calculate_delivery_cost(&self, solution: &Solution) -> f64 {
