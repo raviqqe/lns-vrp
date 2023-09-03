@@ -16,7 +16,7 @@ impl<C: CostCalculator> BranchAndBoundSolver<C> {
 impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         let allocator = Bump::new();
-        let mut solutions = HashMap::default();
+        let mut solutions = HashMap::new_in(&allocator);
         let solution = Solution::new({
             let mut routes = Vec::with_capacity_in(problem.vehicle_count(), &allocator);
             routes.extend((0..problem.vehicle_count()).map(|_| Vec::new_in(&allocator)));
