@@ -1,18 +1,19 @@
 use crate::Problem;
 use geo::GeodesicDistance;
-use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct DistanceCostCalculator<'a> {
     problem: &'a Problem,
-    cache: HashMap<(usize, usize), f64>,
+    cache: Vec<f64>,
 }
 
 impl<'a> DistanceCostCalculator<'a> {
     pub fn new(problem: &'a Problem) -> Self {
+        let stop_count = problem.stops().len();
+
         Self {
             problem,
-            cache: Default::default(),
+            cache: vec![f64::NAN; stop_count * stop_count],
         }
     }
 
@@ -30,7 +31,7 @@ impl<'a> DistanceCostCalculator<'a> {
     }
 
     fn calculate_segment(&mut self, one: usize, other: usize) -> f64 {
-        if let Some(&cost) = self.cache.get(&(one, other)) {
+        if let Some(&cost) = self.cache.get([one * problem.stop_count() + other]) {
             return cost;
         }
 
