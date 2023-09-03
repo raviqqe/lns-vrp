@@ -51,13 +51,6 @@ impl<A: Allocator> PartialEq for Solution<A> {
 
 impl<A: Allocator> Hash for Solution<A> {
     fn hash<H: Hasher>(&self, hasher: &mut H) {
-        for route in &self.routes {
-            // Hash a boundary.
-            false.hash(hasher);
-
-            for index in route {
-                index.hash(hasher);
-            }
-        }
+        self.routes.hash(hasher)
     }
 }
