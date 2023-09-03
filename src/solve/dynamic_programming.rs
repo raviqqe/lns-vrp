@@ -83,49 +83,58 @@ mod tests {
 
     #[test]
     fn do_nothing() {
-        let problem = Problem::new(vec![]);
+        let problem = Problem::new(vec![], vec![]);
 
         assert_eq!(solve(&problem), Some(problem));
     }
 
     #[test]
     fn keep_one_stop() {
-        let problem = Problem::new(vec![Route::new(vec![Stop::new(Location::new(0.0, 0.0))])]);
+        let problem = Problem::new(
+            vec![Vehicle::new()],
+            vec![Stop::new(Location::new(0.0, 0.0))],
+        );
 
         assert_eq!(solve(&problem), Some(problem));
     }
 
     #[test]
     fn keep_two_stops() {
-        let problem = Problem::new(vec![Route::new(vec![
-            Stop::new(Location::new(0.0, 0.0)),
-            Stop::new(Location::new(1.0, 0.0)),
-        ])]);
+        let problem = Problem::new(
+            vec![Vehicle::new()],
+            vec![
+                Stop::new(Location::new(0.0, 0.0)),
+                Stop::new(Location::new(1.0, 0.0)),
+            ],
+        );
 
         assert_eq!(solve(&problem), Some(problem));
     }
 
     #[test]
     fn keep_three_stops() {
-        let problem = Problem::new(vec![Route::new(vec![
-            Stop::new(Location::new(0.0, 0.0)),
-            Stop::new(Location::new(1.0, 0.0)),
-            Stop::new(Location::new(2.0, 0.0)),
-        ])]);
+        let problem = Problem::new(
+            vec![Vehicle::new()],
+            vec![
+                Stop::new(Location::new(0.0, 0.0)),
+                Stop::new(Location::new(1.0, 0.0)),
+                Stop::new(Location::new(2.0, 0.0)),
+            ],
+        );
 
         assert_eq!(solve(&problem), Some(problem));
     }
 
     #[test]
     fn even_workload() {
-        let problem = Problem::new(vec![
-            Route::new(vec![
+        let problem = Problem::new(
+            vec![Vehicle::new(), Vehicle::new()],
+            vec![
                 Stop::new(Location::new(0.0, 0.0)),
                 Stop::new(Location::new(1.0, 0.0)),
                 Stop::new(Location::new(2.0, 0.0)),
-            ]),
-            Route::new(vec![]),
-        ]);
+            ],
+        );
 
         assert!(solve(&problem)
             .unwrap()
