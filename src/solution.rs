@@ -30,7 +30,7 @@ impl<A: Allocator> Solution<A> {
         let mut routes = self.routes.clone();
         routes[vehicle_index] = route;
 
-        Self { routes }
+        Self::new(routes)
     }
 
     pub fn to_global(&self) -> Solution<Global> {
