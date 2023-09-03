@@ -1,18 +1,18 @@
 use super::CostCalculator;
-use crate::{cost::distance::DistanceCostCalculator, Solution};
+use crate::{cost::distance::DistanceCostCalculator, problem::BaseProblem, Solution};
 
 #[derive(Debug)]
-pub struct PickupAndDropOffCostCalculator<'a> {
-    distance_cost_calculator: DistanceCostCalculator<'a>,
+pub struct PickupAndDropOffCostCalculator<P: BaseProblem> {
+    distance_cost_calculator: DistanceCostCalculator<P>,
     delivery_count: usize,
     missed_delivery_cost: f64,
     distance_cost: f64,
     quadratic_distance_cost: f64,
 }
 
-impl<'a> PickupAndDropOffCostCalculator<'a> {
+impl<P: BaseProblem> PickupAndDropOffCostCalculator<P> {
     pub fn new(
-        distance_cost_calculator: DistanceCostCalculator<'a>,
+        distance_cost_calculator: DistanceCostCalculator<P>,
         delivery_count: usize,
         missed_delivery_cost: f64,
         distance_cost: f64,
@@ -50,7 +50,7 @@ impl<'a> PickupAndDropOffCostCalculator<'a> {
     }
 }
 
-impl<'a> CostCalculator for PickupAndDropOffCostCalculator<'a> {
+impl<P: BaseProblem> CostCalculator for PickupAndDropOffCostCalculator<P> {
     fn calculate(&mut self, solution: &Solution) -> f64 {
         self.calculate_distance_cost(solution) + self.calculate_delivery_cost(solution)
     }
