@@ -796,6 +796,7 @@ name = "vrp"
 version = "0.1.0"
 dependencies = [
  "ahash",
+ "bumpalo",
  "criterion",
  "geo",
  "ordered-float",
