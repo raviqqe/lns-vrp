@@ -73,7 +73,7 @@ mod tests {
 
     fn solve(problem: &Problem) -> Solution {
         DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
-            problem.routes().flat_map(|route| route.stops()).count(),
+            problem.stops().len(),
             MISSED_DELIVERY_COST,
             DISTANCE_COST,
             QUADRATIC_DISTANCE_COST,
