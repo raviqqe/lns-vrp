@@ -1,22 +1,39 @@
-use crate::Stop;
+use crate::Problem;
 use geo::GeodesicDistance;
+use std::collections::HashMap;
 
-pub fn calculate_route<'a>(stops: impl IntoIterator<Item = &'a Stop>) -> f64 {
-    let mut cost = 0.0;
-    let mut stops = stops.into_iter();
-
-    if let Some(mut previous) = stops.next() {
-        for stop in stops {
-            cost += calculate_segment(previous, stop);
-            previous = stop;
-        }
-    }
-
-    cost
+#[derive(Debug)]
+pub struct DistanceCostCalculator<'a> {
+    problem: &'a Problem,
+    cache: HashMap<(usize, usize), f64>,
 }
 
-pub fn calculate_segment(one: &Stop, other: &Stop) -> f64 {
-    one.location()
-        .as_point()
-        .geodesic_distance(other.location().as_point())
+impl<'a> DistanceCostCalculator<'a> {
+    pub fn calculate_route<'b>(&mut self, stop_indexes: &[usize]) -> f64 {
+        let mut cost = 0.0;
+
+        if let Some(mut previous_index) = stop_indexes.get(0).copied() {
+            for &index in stop_indexes {
+                cost += self.calculate_segment(previous_index, index);
+                previous_index = index;
+            }
+        }
+
+        cost
+    }
+
+    fn calculate_segment(&self, one: usize, other: usize) -> f64 {
+        if let Some(&cost) = self.cache.get(&(one, other)) {
+            return cost;
+        }
+
+        let cost = self.problem.stops()[one]
+            .location()
+            .as_point()
+            .geodesic_distance(self.problem.stops()[other].location().as_point());
+
+        self.cache.insert((one, other), cost);
+
+        cost
+    }
 }

@@ -1,12 +1,12 @@
 use super::CostCalculator;
-use crate::{cost::distance::calculate_route, Problem, Solution};
+use crate::{cost::distance::DistanceCostCalculator, Problem, Solution};
 
 /// Delivery VRP cost calculator.
 ///
 /// All stops are considered as delivery ones.
 #[derive(Debug)]
 pub struct DeliveryCostCalculator<'a> {
-    problem: &'a Problem,
+    distance_cost_calculator: &'a DistanceCostCalculator<'a>,
     delivery_count: usize,
     missed_delivery_cost: f64,
     distance_cost: f64,
