@@ -3,11 +3,12 @@ use alloc::vec::Vec;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Problem {
-    routes: Vec<Route>,
+    vehicles: Vec<Vehicle>,
+    stops: Vec<Stop>,
 }
 
 impl Problem {
-    pub fn new(routes: Vec<Route>) -> Self {
+    pub fn new(routes: Vec<Vehicle>) -> Self {
         Self { routes }
     }
 
