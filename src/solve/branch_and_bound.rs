@@ -1,7 +1,7 @@
 use super::solver::Solver;
 use crate::{cost::CostCalculator, problem::BaseProblem, Solution};
 use ordered_float::OrderedFloat;
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, mem::swap};
 
 pub struct BranchAndBoundSolver<C: CostCalculator> {
     cost_calculator: C,
@@ -24,10 +24,9 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
 
         let cost = self.cost_calculator.calculate(&routes);
         solutions.insert(routes, cost);
+        let mut next_solutions = solutions.clone();
 
         for stop_index in 0..problem.stop_count() {
-            let mut new_states = solutions.clone();
-
             for (solution, upper_bound) in &solutions {
                 for vehicle_index in 0..solution.routes().len() {
                     let solution = solution.add_stop(vehicle_index, stop_index);
@@ -35,12 +34,12 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
 
                     if lower_bound < *upper_bound {
                         let cost = self.cost_calculator.calculate(&solution);
-                        new_states.insert(solution, cost);
+                        next_solutions.insert(solution, cost);
                     }
                 }
             }
 
-            solutions = new_states;
+            swap(&mut solutions, &mut next_solutions);
         }
 
         solutions
