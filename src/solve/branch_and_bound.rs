@@ -54,7 +54,7 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
             solution
                 .routes()
                 .iter()
-                .map(|route| route.iter().copied().collect())
+                .map(|route| route.to_vec())
                 .collect(),
         )
     }

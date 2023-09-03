@@ -57,7 +57,7 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
             solution
                 .routes()
                 .iter()
-                .map(|route| route.iter().copied().collect())
+                .map(|route| route.to_vec())
                 .collect(),
         )
     }
