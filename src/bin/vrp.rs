@@ -36,5 +36,13 @@ fn main() {
         QUADRATIC_DISTANCE_COST,
     ));
 
-    dbg!(solver.solve(&problem));
+    dbg!(solver
+        .solve(&problem)
+        .routes()
+        .iter()
+        .map(|indexes| indexes
+            .iter()
+            .map(|index| problem.stops()[*index].location().as_point().x())
+            .collect::<Vec<_>>())
+        .collect::<Vec<_>>());
 }
