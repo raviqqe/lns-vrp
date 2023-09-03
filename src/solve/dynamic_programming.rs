@@ -20,7 +20,7 @@ impl<C: CostCalculator> DynamicProgrammingSolver<C> {
 impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
     fn solve(&self, problem: &Problem) -> Solution {
         // We use a B-tree set instead of a hash one for determinism.
-        let mut solutions = BTreeSet::<Vec<Vec<usize>>>::new();
+        let mut solutions = BTreeSet::<Solution>::new();
 
         solutions.insert(
             problem
