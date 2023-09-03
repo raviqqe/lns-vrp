@@ -38,13 +38,8 @@ impl<A: Allocator> Eq for Solution<A> {}
 impl<A: Allocator> PartialEq for Solution<A> {
     fn eq(&self, other: &Self) -> bool {
         self.routes.len() == other.routes.len()
-            && self.routes.iter().zip(other.routes).all(|(one, other)| {
-                one.len() == other.len()
-                    && one
-                        .iter()
-                        .copied()
-                        .zip(other)
-                        .all(|(one, other)| one == other)
+            && self.routes.iter().zip(&other.routes).all(|(one, other)| {
+                one.len() == other.len() && one.iter().zip(other).all(|(one, other)| one == other)
             })
     }
 }
