@@ -20,7 +20,7 @@ impl Solution {
         let mut route = self.routes[vehicle_index].clone();
         route.push(stop_index);
 
-        let mut routes = routes.clone();
+        let mut routes = self.routes.clone();
         routes[vehicle_index] = route;
 
         Self { routes }

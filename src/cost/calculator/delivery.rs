@@ -1,5 +1,5 @@
 use super::CostCalculator;
-use crate::{cost::distance::calculate_route, Problem, Stop};
+use crate::{cost::distance::calculate_route, Problem, Solution, Stop};
 
 /// Delivery VRP cost calculator.
 ///
@@ -34,9 +34,11 @@ impl<'a> DeliveryCostCalculator<'a> {
         solution
             .routes()
             .iter()
-            .map(|stop_ids| {
+            .map(|stop_indexes| {
                 self.calculate_route_distance_cost(
-                    stop_ids.iter().map(|index| &self.problem.stops()[index]),
+                    stop_indexes
+                        .iter()
+                        .map(|&index| &self.problem.stops()[index]),
                 )
             })
             .sum::<f64>()
@@ -44,7 +46,12 @@ impl<'a> DeliveryCostCalculator<'a> {
     }
 
     fn calculate_delivery_cost(&self, solution: &Solution) -> f64 {
-        (self.delivery_count - solution.routes().iter().map(|stops| stops.len()).sum()) as f64
+        (self.delivery_count
+            - solution
+                .routes()
+                .iter()
+                .map(|stops| stops.len())
+                .sum::<usize>()) as f64
             * self.missed_delivery_cost
     }
 
@@ -56,9 +63,7 @@ impl<'a> DeliveryCostCalculator<'a> {
 
 impl CostCalculator for DeliveryCostCalculator {
     fn calculate<'a>(&self, solution: &Solution) -> f64 {
-        self.calculate_distance_cost(solution)
-            + (self.delivery_count - solution.routes().iter().map(|stops| stops.len()).sum()) as f64
-                * self.missed_delivery_cost
+        self.calculate_distance_cost(solution) + self.calculate_delivery_cost(solution)
     }
 
     fn calculate_lower_bound<'a>(&self, solution: &Solution) -> f64 {

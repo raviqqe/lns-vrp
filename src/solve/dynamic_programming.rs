@@ -1,5 +1,5 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, Problem, Route, Solution, Stop};
+use crate::{cost::CostCalculator, Problem, Solution, Stop};
 use ordered_float::OrderedFloat;
 use std::collections::BTreeSet;
 
