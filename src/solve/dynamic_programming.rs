@@ -1,7 +1,7 @@
 use super::solver::Solver;
 use crate::{cost::CostCalculator, Problem, Solution};
 use ordered_float::OrderedFloat;
-use std::collections::BTreeSet;
+use std::collections::BTreeMap;
 
 /// Dynamic programming solver.
 ///
@@ -19,26 +19,29 @@ impl<C: CostCalculator> DynamicProgrammingSolver<C> {
 
 impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
     fn solve(&mut self, problem: &Problem) -> Solution {
-        // We use a B-tree set instead of a hash one for determinism.
-        let mut solutions = BTreeSet::new();
+        // We use a B-tree map instead of a hash one for determinism.
+        let mut solutions = BTreeMap::new();
 
-        solutions.insert(Solution::new(
+        let solution = Solution::new(
             problem
                 .vehicles()
                 .iter()
                 .map(|_| Default::default())
                 .collect(),
-        ));
+        );
+        let cost = self.cost_calculator.calculate(&solution);
+        solutions.insert(solution, cost);
 
         for stop_index in 0..problem.stops().len() {
             let mut new_solutions = solutions.clone();
 
-            for solution in &solutions {
+            for solution in solutions.keys() {
                 for vehicle_index in 0..solution.routes().len() {
                     let solution = solution.add_stop(vehicle_index, stop_index);
+                    let cost = self.cost_calculator.calculate(&solution);
 
-                    if self.cost_calculator.calculate(&solution).is_finite() {
-                        new_solutions.insert(solution);
+                    if cost.is_finite() {
+                        new_solutions.insert(solution, cost);
                     }
                 }
             }
@@ -48,10 +51,6 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
 
         solutions
             .into_iter()
-            .map(|solution| {
-                let cost = self.cost_calculator.calculate(&solution);
-                (solution, cost)
-            })
             .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
             .expect("at least one solution")
             .0
