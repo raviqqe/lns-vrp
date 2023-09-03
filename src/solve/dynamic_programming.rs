@@ -28,7 +28,7 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
         });
         let cost = self.cost_calculator.calculate(&solution);
         solutions.insert(solution, cost);
-        let mut new_solutions = vec![];
+        let mut new_solutions = Vec::new_in(&allocator);
 
         for stop_index in 0..problem.stop_count() {
             new_solutions.clear();
