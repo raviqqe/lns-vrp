@@ -71,7 +71,7 @@ mod tests {
 
     fn solve(problem: &SimpleProblem) -> Solution {
         DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
-            DistanceCostCalculator::new(problem),
+            DistanceCostCalculator::<&SimpleProblem>::new(problem),
             problem.stops().len(),
             MISSED_DELIVERY_COST,
             DISTANCE_COST,
