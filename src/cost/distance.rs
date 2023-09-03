@@ -4,7 +4,7 @@ use geo::GeodesicDistance;
 #[derive(Debug)]
 pub struct DistanceCostCalculator<'a> {
     problem: &'a Problem,
-    cache: Vec<f64>,
+    cache: Vec<Vec<f64>>,
 }
 
 impl<'a> DistanceCostCalculator<'a> {
@@ -13,7 +13,7 @@ impl<'a> DistanceCostCalculator<'a> {
 
         Self {
             problem,
-            cache: vec![f64::NAN; stop_count * stop_count],
+            cache: vec![vec![f64::NAN; stop_count]; stop_count],
         }
     }
 
@@ -31,8 +31,10 @@ impl<'a> DistanceCostCalculator<'a> {
     }
 
     fn calculate_segment(&mut self, one: usize, other: usize) -> f64 {
-        if let Some(&cost) = self.cache.get([one * problem.stop_count() + other]) {
-            return cost;
+        let cached = self.cache[one][other];
+
+        if !cached.is_nan() {
+            return cached;
         }
 
         let cost = self.problem.stops()[one]
@@ -40,7 +42,7 @@ impl<'a> DistanceCostCalculator<'a> {
             .as_point()
             .geodesic_distance(self.problem.stops()[other].location().as_point());
 
-        self.cache.insert((one, other), cost);
+        self.cache[one][other] = cost;
 
         cost
     }
