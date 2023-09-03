@@ -8,8 +8,8 @@ pub struct Problem {
 }
 
 impl Problem {
-    pub fn new(routes: Vec<Vehicle>) -> Self {
-        Self { routes }
+    pub fn new(vehicles: Vec<Vehicle>, stops: Vec<Stop>) -> Self {
+        Self { vehicles, stops }
     }
 
     pub fn routes(&self) -> impl Iterator<Item = &Route> {
