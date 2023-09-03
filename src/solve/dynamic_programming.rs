@@ -18,7 +18,7 @@ impl<C: CostCalculator> DynamicProgrammingSolver<C> {
 }
 
 impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
-    fn solve(&self, problem: &Problem) -> Solution {
+    fn solve(&mut self, problem: &Problem) -> Solution {
         // We use a B-tree set instead of a hash one for determinism.
         let mut solutions = BTreeSet::new();
 
@@ -61,7 +61,10 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{cost::DeliveryCostCalculator, Location, Stop, Vehicle};
+    use crate::{
+        cost::{DeliveryCostCalculator, DistanceCostCalculator},
+        Location, Stop, Vehicle,
+    };
 
     const DISTANCE_COST: f64 = 1.0;
     const MISSED_DELIVERY_COST: f64 = 1e9;
@@ -69,7 +72,7 @@ mod tests {
 
     fn solve(problem: &Problem) -> Solution {
         DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
-            problem,
+            DistanceCostCalculator::new(problem),
             problem.stops().len(),
             MISSED_DELIVERY_COST,
             DISTANCE_COST,

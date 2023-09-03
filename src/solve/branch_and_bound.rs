@@ -14,7 +14,7 @@ impl<C: CostCalculator> BranchAndBoundSolver<C> {
 }
 
 impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
-    fn solve(&self, problem: &Problem) -> Solution {
+    fn solve(&mut self, problem: &Problem) -> Solution {
         let mut solutions = BTreeMap::<Solution, f64>::new();
         let routes = Solution::new(
             problem
@@ -56,7 +56,10 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{cost::DeliveryCostCalculator, Location, Stop, Vehicle};
+    use crate::{
+        cost::{DeliveryCostCalculator, DistanceCostCalculator},
+        Location, Stop, Vehicle,
+    };
 
     const DISTANCE_COST: f64 = 1.0;
     const MISSED_DELIVERY_COST: f64 = 1e9;
@@ -64,7 +67,7 @@ mod tests {
 
     fn solve(problem: &Problem) -> Solution {
         BranchAndBoundSolver::new(DeliveryCostCalculator::new(
-            problem,
+            DistanceCostCalculator::new(problem),
             problem.stops().len(),
             MISSED_DELIVERY_COST,
             DISTANCE_COST,

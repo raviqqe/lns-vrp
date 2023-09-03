@@ -1,12 +1,12 @@
 use super::CostCalculator;
-use crate::{cost::distance::calculate_route, Problem, Solution};
+use crate::{cost::distance::DistanceCostCalculator, Solution};
 
 /// Delivery VRP cost calculator.
 ///
 /// All stops are considered as delivery ones.
 #[derive(Debug)]
 pub struct DeliveryCostCalculator<'a> {
-    problem: &'a Problem,
+    distance_cost_calculator: DistanceCostCalculator<'a>,
     delivery_count: usize,
     missed_delivery_cost: f64,
     distance_cost: f64,
@@ -15,14 +15,14 @@ pub struct DeliveryCostCalculator<'a> {
 
 impl<'a> DeliveryCostCalculator<'a> {
     pub fn new(
-        problem: &'a Problem,
+        distance_cost_calculator: DistanceCostCalculator<'a>,
         delivery_count: usize,
         missed_delivery_cost: f64,
         distance_cost: f64,
         quadratic_distance_cost: f64,
     ) -> Self {
         Self {
-            problem,
+            distance_cost_calculator,
             delivery_count,
             missed_delivery_cost,
             distance_cost,
@@ -30,7 +30,7 @@ impl<'a> DeliveryCostCalculator<'a> {
         }
     }
 
-    fn calculate_distance_cost(&self, solution: &Solution) -> f64 {
+    fn calculate_distance_cost(&mut self, solution: &Solution) -> f64 {
         solution
             .routes()
             .iter()
@@ -49,23 +49,19 @@ impl<'a> DeliveryCostCalculator<'a> {
             * self.missed_delivery_cost
     }
 
-    fn calculate_route_distance_cost(&self, stop_indexes: &[usize]) -> f64 {
-        let route_cost = calculate_route(
-            stop_indexes
-                .iter()
-                .map(|&index| &self.problem.stops()[index]),
-        );
+    fn calculate_route_distance_cost(&mut self, stop_indexes: &[usize]) -> f64 {
+        let route_cost = self.distance_cost_calculator.calculate_route(stop_indexes);
 
         route_cost + route_cost.powi(2) * self.quadratic_distance_cost
     }
 }
 
 impl<'a> CostCalculator for DeliveryCostCalculator<'a> {
-    fn calculate(&self, solution: &Solution) -> f64 {
+    fn calculate(&mut self, solution: &Solution) -> f64 {
         self.calculate_distance_cost(solution) + self.calculate_delivery_cost(solution)
     }
 
-    fn calculate_lower_bound(&self, solution: &Solution) -> f64 {
+    fn calculate_lower_bound(&mut self, solution: &Solution) -> f64 {
         self.calculate_distance_cost(solution)
     }
 }
