@@ -15,7 +15,7 @@ impl<C: CostCalculator> BranchAndBoundSolver<C> {
 
 impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
     fn solve(&mut self, problem: &Problem) -> Solution {
-        let mut solutions = BTreeMap::<Solution, f64>::new();
+        let mut solutions = BTreeMap::new();
         let routes = Solution::new(
             problem
                 .vehicles()

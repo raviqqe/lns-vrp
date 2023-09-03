@@ -39,7 +39,7 @@ impl<'a> DeliveryCostCalculator<'a> {
 
                 cost * self.distance_cost + cost.powi(2) * self.quadratic_distance_cost
             })
-            .sum::<f64>()
+            .sum()
     }
 
     fn calculate_delivery_cost(&self, solution: &Solution) -> f64 {
