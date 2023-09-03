@@ -5,6 +5,7 @@ use std::{
 };
 
 // TODO Use persistent data structure.
+// TODO Make it more compact.
 #[derive(Clone, Debug)]
 pub struct Solution<A: Allocator = Global> {
     routes: Vec<Vec<usize, A>, A>,
