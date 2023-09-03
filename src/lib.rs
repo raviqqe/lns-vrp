@@ -5,6 +5,7 @@ extern crate core;
 
 mod context;
 pub mod cost;
+mod hash_map;
 mod location;
 mod problem;
 mod solution;
