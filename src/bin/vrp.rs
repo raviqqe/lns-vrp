@@ -39,7 +39,6 @@ fn main() {
     let solution = solver.solve(&problem);
 
     dbg!(&solution);
-
     dbg!(solution
         .routes()
         .iter()
