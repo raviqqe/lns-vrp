@@ -1,6 +1,6 @@
 use rand::random;
 use vrp::{
-    cost::DeliveryCostCalculator,
+    cost::{DeliveryCostCalculator, DistanceCostCalculator},
     solve::{DynamicProgrammingSolver, Solver},
     Location, Problem, Stop, Vehicle,
 };
@@ -28,8 +28,9 @@ fn main() {
             .collect(),
     );
 
-    let solver = DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
-        &problem,
+    let mut distance_cost_calculator = DistanceCostCalculator::new(&problem);
+    let mut solver = DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
+        &mut distance_cost_calculator,
         problem.stops().len(),
         MISSED_DELIVERY_COST,
         DISTANCE_COST,

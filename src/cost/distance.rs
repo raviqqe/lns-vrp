@@ -9,6 +9,13 @@ pub struct DistanceCostCalculator<'a> {
 }
 
 impl<'a> DistanceCostCalculator<'a> {
+    pub fn new(problem: &'a Problem) -> Self {
+        Self {
+            problem,
+            cache: Default::default(),
+        }
+    }
+
     pub fn calculate_route<'b>(&mut self, stop_indexes: &[usize]) -> f64 {
         let mut cost = 0.0;
 
@@ -22,7 +29,7 @@ impl<'a> DistanceCostCalculator<'a> {
         cost
     }
 
-    fn calculate_segment(&self, one: usize, other: usize) -> f64 {
+    fn calculate_segment(&mut self, one: usize, other: usize) -> f64 {
         if let Some(&cost) = self.cache.get(&(one, other)) {
             return cost;
         }
