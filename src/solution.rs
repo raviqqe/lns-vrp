@@ -1,7 +1,6 @@
 use alloc::vec::Vec;
 use std::{
     alloc::{Allocator, Global},
-    collections::hash_map::DefaultHasher,
     hash::{Hash, Hasher},
 };
 
@@ -9,16 +8,12 @@ use std::{
 // TODO Make it more compact.
 #[derive(Clone, Debug)]
 pub struct Solution<A: Allocator = Global> {
-    hash: u64,
     routes: Vec<Vec<usize, A>, A>,
 }
 
 impl<A: Allocator> Solution<A> {
     pub fn new(routes: Vec<Vec<usize, A>, A>) -> Self {
-        Self {
-            hash: Self::hash(&routes),
-            routes,
-        }
+        Self { routes }
     }
 
     pub fn routes(&self) -> &[Vec<usize, A>] {
@@ -41,20 +36,13 @@ impl<A: Allocator> Solution<A> {
     pub fn to_global(&self) -> Solution<Global> {
         Solution::new(self.routes().iter().map(|route| route.to_vec()).collect())
     }
-
-    fn hash(routes: &[Vec<usize, A>]) -> u64 {
-        let mut hasher = DefaultHasher::new();
-        routes.hash(&mut hasher);
-        hasher.finish()
-    }
 }
 
 impl<A: Allocator> Eq for Solution<A> {}
 
 impl<A: Allocator> PartialEq for Solution<A> {
     fn eq(&self, other: &Self) -> bool {
-        self.hash == other.hash
-            && self.routes.len() == other.routes.len()
+        self.routes.len() == other.routes.len()
             && self.routes.iter().zip(&other.routes).all(|(one, other)| {
                 one.len() == other.len() && one.iter().zip(other).all(|(one, other)| one == other)
             })
@@ -63,6 +51,6 @@ impl<A: Allocator> PartialEq for Solution<A> {
 
 impl<A: Allocator> Hash for Solution<A> {
     fn hash<H: Hasher>(&self, hasher: &mut H) {
-        self.hash.hash(hasher)
+        self.routes.hash(hasher)
     }
 }
