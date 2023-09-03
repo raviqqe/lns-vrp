@@ -36,10 +36,8 @@ fn main() {
         QUADRATIC_DISTANCE_COST,
     ));
 
-    let solution = solver.solve(&problem);
-
-    dbg!(&solution);
-    dbg!(solution
+    dbg!(solver
+        .solve(&problem)
         .routes()
         .iter()
         .map(|indexes| indexes
