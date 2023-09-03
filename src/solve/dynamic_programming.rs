@@ -34,12 +34,12 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
             new_solutions.clear();
 
             for solution in solutions.keys() {
-                for vehicle_index in 0..solution.routes().len() {
-                    for stop_index in 0..problem.stop_count() {
-                        if solution.has_stop(stop_index) {
-                            continue;
-                        }
+                for stop_index in 0..problem.stop_count() {
+                    if solution.has_stop(stop_index) {
+                        continue;
+                    }
 
+                    for vehicle_index in 0..solution.routes().len() {
                         let solution = solution.add_stop(vehicle_index, stop_index);
                         let cost = self.cost_calculator.calculate(&solution);
 

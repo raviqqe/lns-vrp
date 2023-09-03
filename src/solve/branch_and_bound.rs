@@ -26,17 +26,23 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
         solutions.insert(solution, cost);
         let mut new_solutions = vec![];
 
-        for stop_index in 0..problem.stop_count() {
+        for _ in 0..problem.stop_count() {
             new_solutions.clear();
 
             for (solution, upper_bound) in &solutions {
-                for vehicle_index in 0..solution.routes().len() {
-                    let solution = solution.add_stop(vehicle_index, stop_index);
-                    let lower_bound = self.cost_calculator.calculate_lower_bound(&solution);
+                for stop_index in 0..problem.stop_count() {
+                    if solution.has_stop(stop_index) {
+                        continue;
+                    }
 
-                    if lower_bound < *upper_bound {
-                        let cost = self.cost_calculator.calculate(&solution);
-                        new_solutions.push((solution, cost));
+                    for vehicle_index in 0..solution.routes().len() {
+                        let solution = solution.add_stop(vehicle_index, stop_index);
+                        let lower_bound = self.cost_calculator.calculate_lower_bound(&solution);
+
+                        if lower_bound < *upper_bound {
+                            let cost = self.cost_calculator.calculate(&solution);
+                            new_solutions.push((solution, cost));
+                        }
                     }
                 }
             }

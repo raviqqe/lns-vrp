@@ -5,8 +5,8 @@ expression: solve(&problem)
 Solution {
     routes: [
         [
-            0,
             1,
+            0,
         ],
     ],
 }
