@@ -1,3 +1,11 @@
 {
-  "words": ["reinterpretcat", "rustfmt", "clippy", "bumpalo", "hasher", "powi"]
+  "words": [
+    "bumpalo",
+    "clippy",
+    "flamegraph",
+    "hasher",
+    "powi",
+    "reinterpretcat",
+    "rustfmt"
+  ]
 }
