@@ -21,7 +21,6 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
                 .map(|_| Default::default())
                 .collect(),
         );
-
         let cost = self.cost_calculator.calculate(&solution);
         solutions.insert(solution, cost);
         let mut new_solutions = vec![];

@@ -21,7 +21,6 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         // We use a B-tree map instead of a hash one for determinism.
         let mut solutions = BTreeMap::new();
-
         let solution = Solution::new(
             (0..problem.vehicle_count())
                 .map(|_| Default::default())
@@ -29,9 +28,10 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
         );
         let cost = self.cost_calculator.calculate(&solution);
         solutions.insert(solution, cost);
+        let mut new_solutions = vec![];
 
         for stop_index in 0..problem.stop_count() {
-            let mut new_solutions = solutions.clone();
+            new_solutions.clear();
 
             for solution in solutions.keys() {
                 for vehicle_index in 0..solution.routes().len() {
@@ -39,12 +39,12 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
                     let cost = self.cost_calculator.calculate(&solution);
 
                     if cost.is_finite() {
-                        new_solutions.insert(solution, cost);
+                        new_solutions.push((solution, cost));
                     }
                 }
             }
 
-            solutions = new_solutions;
+            solutions.extend(new_solutions.drain(..));
         }
 
         solutions
