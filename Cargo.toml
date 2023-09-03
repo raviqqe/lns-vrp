@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 geo = "0.26.0"
-im-rc = "15.1.0"
 ordered-float = "3.9.1"
 rand = "0.8.5"
 
