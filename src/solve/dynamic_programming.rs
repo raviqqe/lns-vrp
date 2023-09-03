@@ -20,14 +20,14 @@ impl<C: CostCalculator> DynamicProgrammingSolver<C> {
 impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
     fn solve(&self, problem: &Problem) -> Solution {
         // We use a B-tree set instead of a hash one for determinism.
-        let mut solutions = BTreeSet::<Solution>::new();
+        let mut solutions = BTreeSet::new();
 
         solutions.insert(Solution::new(
             problem
                 .vehicles()
                 .iter()
                 .map(|_| Default::default())
-                .collect::<Vec<_>>(),
+                .collect(),
         ));
 
         for stop_index in 0..problem.stops().len() {
@@ -47,12 +47,14 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
         }
 
         solutions
-            .iter()
-            .map(|solution| (solution, self.cost_calculator.calculate(solution)))
+            .into_iter()
+            .map(|solution| {
+                let cost = self.cost_calculator.calculate(&solution);
+                (solution, cost)
+            })
             .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
             .expect("at least one solution")
             .0
-            .clone()
     }
 }
 
