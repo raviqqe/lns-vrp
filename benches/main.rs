@@ -2,7 +2,7 @@ use criterion::{criterion_group, criterion_main, Bencher, Criterion};
 use rand::random;
 use vrp::{
     cost::DeliveryCostCalculator,
-    solve::{DynamicProgrammingSolver, Solver},
+    solve::{BranchAndBoundSolver, DynamicProgrammingSolver, Solver},
     Location, Problem, Stop, Vehicle,
 };
 
@@ -47,18 +47,16 @@ fn dynamic_programming(bencher: &mut Bencher) {
     bencher.iter(|| solver.solve(&problem));
 }
 
-// TODO
-// fn branch_and_bound(bencher: &mut Bencher) {
-//     let problem = random_problem();
-//     let solver = BranchAndBoundSolver::new(create_cost_calculator(&problem));
+fn branch_and_bound(bencher: &mut Bencher) {
+    let problem = random_problem();
+    let solver = BranchAndBoundSolver::new(create_cost_calculator(&problem));
 
-//     bencher.iter(|| solver.solve(&problem).unwrap());
-// }
+    bencher.iter(|| solver.solve(&problem).unwrap());
+}
 
 fn benchmark(criterion: &mut Criterion) {
     criterion.bench_function("dynamic programming", dynamic_programming);
-    // TODO
-    // criterion.bench_function("branch and bound", branch_and_bound);
+    criterion.bench_function("branch and bound", branch_and_bound);
 }
 
 criterion_group!(benchmark_group, benchmark);
