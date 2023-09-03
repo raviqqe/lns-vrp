@@ -7,12 +7,12 @@ mod context;
 pub mod cost;
 mod location;
 mod problem;
-mod route;
+mod solution;
 pub mod solve;
 mod stop;
 mod vehicle;
 
 pub use self::{
-    context::Context, location::Location, problem::Problem, route::Route, stop::Stop,
+    context::Context, location::Location, problem::Problem, solution::Solution, stop::Stop,
     vehicle::Vehicle,
 };
