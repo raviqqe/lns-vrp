@@ -16,17 +16,19 @@ impl<C: CostCalculator> BranchAndBoundSolver<C> {
 impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         let mut solutions = BTreeMap::new();
-        let routes = Solution::new(
+        let solution = Solution::new(
             (0..problem.vehicle_count())
                 .map(|_| Default::default())
                 .collect(),
         );
 
-        let cost = self.cost_calculator.calculate(&routes);
-        solutions.insert(routes, cost);
-        let mut next_solutions = solutions.clone();
+        let cost = self.cost_calculator.calculate(&solution);
+        solutions.insert(solution, cost);
+        let mut new_solutions = vec![];
 
         for stop_index in 0..problem.stop_count() {
+            new_solutions.clear();
+
             for (solution, upper_bound) in &solutions {
                 for vehicle_index in 0..solution.routes().len() {
                     let solution = solution.add_stop(vehicle_index, stop_index);
@@ -34,12 +36,12 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
 
                     if lower_bound < *upper_bound {
                         let cost = self.cost_calculator.calculate(&solution);
-                        next_solutions.insert(solution, cost);
+                        new_solutions.push((solution, cost));
                     }
                 }
             }
 
-            swap(&mut solutions, &mut next_solutions);
+            solutions.extend(new_solutions.drain(..));
         }
 
         solutions
