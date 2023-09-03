@@ -1,7 +1,7 @@
 use super::solver::Solver;
 use crate::{cost::CostCalculator, Problem, Route, Solution, Stop};
-use im_rc::{HashSet, Vector};
 use ordered_float::OrderedFloat;
+use std::collections::BTreeSet;
 
 /// Dynamic programming solver.
 ///
@@ -19,7 +19,7 @@ impl<C: CostCalculator> DynamicProgrammingSolver<C> {
 
 impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
     fn solve(&self, problem: &Problem) -> Solution {
-        let mut solutions = HashSet::<Vec<Vec<usize>>>::new();
+        let mut solutions = BTreeSet::<Vec<Vec<usize>>>::new();
 
         solutions.insert(
             problem
@@ -38,7 +38,7 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
                     stop_ids.push_back(stop.clone());
 
                     let mut routes = solution.clone();
-                    routes[index] =  stop_ids);
+                    routes[index] = stop_ids;
 
                     if self.cost_calculator.calculate(&routes).is_finite() {
                         new_solutions.insert(routes);
@@ -74,6 +74,7 @@ mod tests {
 
     fn solve(problem: &Problem) -> Solution {
         DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
+            problem,
             problem.stops().len(),
             MISSED_DELIVERY_COST,
             DISTANCE_COST,
@@ -137,9 +138,6 @@ mod tests {
             ],
         );
 
-        assert!(solve(&problem)
-            .routes()
-            .iter()
-            .all(|stops| stops.len() < 3));
+        assert!(solve(&problem).routes().iter().all(|stops| stops.len() < 3));
     }
 }
