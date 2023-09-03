@@ -1,7 +1,6 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, problem::BaseProblem, Solution};
+use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, Solution};
 use ordered_float::OrderedFloat;
-use std::collections::BTreeMap;
 
 pub struct BranchAndBoundSolver<C: CostCalculator> {
     cost_calculator: C,
@@ -15,18 +14,18 @@ impl<C: CostCalculator> BranchAndBoundSolver<C> {
 
 impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
-        let mut solutions = BTreeMap::new();
-        let routes = Solution::new(
+        let mut solutions = HashMap::default();
+        let solution = Solution::new(
             (0..problem.vehicle_count())
                 .map(|_| Default::default())
                 .collect(),
         );
-
-        let cost = self.cost_calculator.calculate(&routes);
-        solutions.insert(routes, cost);
+        let cost = self.cost_calculator.calculate(&solution);
+        solutions.insert(solution, cost);
+        let mut new_solutions = vec![];
 
         for stop_index in 0..problem.stop_count() {
-            let mut new_states = solutions.clone();
+            new_solutions.clear();
 
             for (solution, upper_bound) in &solutions {
                 for vehicle_index in 0..solution.routes().len() {
@@ -35,12 +34,12 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
 
                     if lower_bound < *upper_bound {
                         let cost = self.cost_calculator.calculate(&solution);
-                        new_states.insert(solution, cost);
+                        new_solutions.push((solution, cost));
                     }
                 }
             }
 
-            solutions = new_states;
+            solutions.extend(new_solutions.drain(..));
         }
 
         solutions
