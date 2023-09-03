@@ -1,4 +1,4 @@
-use crate::{Stop, Vehicle};
+use crate::{Location, Stop, Vehicle};
 use alloc::vec::Vec;
 
 use super::BaseProblem;
@@ -30,5 +30,9 @@ impl BaseProblem for &SimpleProblem {
 
     fn stop_count(&self) -> usize {
         self.stops.len()
+    }
+
+    fn stop_location(&self, index: usize) -> &Location {
+        self.stops[index].location()
     }
 }
