@@ -1,9 +1,8 @@
 mod delivery;
 
-use std::alloc::Allocator;
-
 use crate::Solution;
 pub use delivery::DeliveryCostCalculator;
+use std::alloc::Allocator;
 
 pub trait CostCalculator {
     fn calculate(&mut self, solution: &Solution<impl Allocator>) -> f64;
