@@ -129,6 +129,20 @@ mod tests {
     }
 
     #[test]
+    fn optimize_stop_order() {
+        let problem = SimpleProblem::new(
+            vec![Vehicle::new()],
+            vec![
+                Stop::new(Location::new(0.0, 0.0)),
+                Stop::new(Location::new(2.0, 0.0)),
+                Stop::new(Location::new(1.0, 0.0)),
+            ],
+        );
+
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 2, 1]]));
+    }
+
+    #[test]
     fn even_workload() {
         let problem = SimpleProblem::new(
             vec![Vehicle::new(), Vehicle::new()],
