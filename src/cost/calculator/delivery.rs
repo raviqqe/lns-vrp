@@ -49,7 +49,7 @@ impl<'a> DeliveryCostCalculator<'a> {
             * self.missed_delivery_cost
     }
 
-    fn calculate_route_distance_cost<'a>(&self, stop_indexes: &[usize]) -> f64 {
+    fn calculate_route_distance_cost(&self, stop_indexes: &[usize]) -> f64 {
         let route_cost = calculate_route(
             stop_indexes
                 .iter()
@@ -60,12 +60,12 @@ impl<'a> DeliveryCostCalculator<'a> {
     }
 }
 
-impl CostCalculator for DeliveryCostCalculator {
-    fn calculate<'a>(&self, solution: &Solution) -> f64 {
+impl<'a> CostCalculator for DeliveryCostCalculator<'a> {
+    fn calculate(&self, solution: &Solution) -> f64 {
         self.calculate_distance_cost(solution) + self.calculate_delivery_cost(solution)
     }
 
-    fn calculate_lower_bound<'a>(&self, solution: &Solution) -> f64 {
+    fn calculate_lower_bound(&self, solution: &Solution) -> f64 {
         self.calculate_distance_cost(solution)
     }
 }

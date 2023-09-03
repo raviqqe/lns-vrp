@@ -35,10 +35,10 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
 
             for solution in &solutions {
                 for vehicle_index in 0..solution.routes().len() {
-                    solution.add_stop(vehicle_index, stop_index);
+                    let solution = solution.add_stop(vehicle_index, stop_index);
 
-                    if self.cost_calculator.calculate(&routes).is_finite() {
-                        new_solutions.insert(routes);
+                    if self.cost_calculator.calculate(&solution).is_finite() {
+                        new_solutions.insert(solution);
                     }
                 }
             }
@@ -48,7 +48,7 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
 
         solutions
             .iter()
-            .map(|routes| (routes, self.cost_calculator.calculate(routes)))
+            .map(|solution| (solution, self.cost_calculator.calculate(solution)))
             .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
             .expect("at least one solution")
             .0
