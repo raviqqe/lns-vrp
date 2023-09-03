@@ -70,6 +70,7 @@ mod tests {
         cost::{DeliveryCostCalculator, DistanceCostCalculator},
         Location, SimpleProblem, Stop, Vehicle,
     };
+    use insta::assert_debug_snapshot;
 
     const DISTANCE_COST: f64 = 1.0;
     const MISSED_DELIVERY_COST: f64 = 1e9;
@@ -111,7 +112,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1]]));
+        assert_debug_snapshot!(solve(&problem));
     }
 
     #[test]
@@ -125,7 +126,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1, 2]]));
+        assert_debug_snapshot!(solve(&problem));
     }
 
     #[test]
@@ -139,7 +140,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 2, 1]]));
+        assert_debug_snapshot!(solve(&problem));
     }
 
     #[test]
