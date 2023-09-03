@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, Bencher, Criterion};
 use rand::random;
 use vrp::{
-    cost::DeliveryCostCalculator,
+    cost::{DeliveryCostCalculator, DistanceCostCalculator},
     solve::{BranchAndBoundSolver, DynamicProgrammingSolver, Solver},
     Location, Problem, Stop, Vehicle,
 };
@@ -32,7 +32,7 @@ fn random_problem() -> Problem {
 
 fn create_cost_calculator(problem: &Problem) -> DeliveryCostCalculator {
     DeliveryCostCalculator::new(
-        problem,
+        DistanceCostCalculator::new(problem),
         problem.stops().len(),
         MISSED_DELIVERY_COST,
         DISTANCE_COST,

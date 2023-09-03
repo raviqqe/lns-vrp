@@ -71,10 +71,8 @@ mod tests {
     const QUADRATIC_DISTANCE_COST: f64 = 1e-9;
 
     fn solve(problem: &Problem) -> Solution {
-        let mut distance_cost_calculator = DistanceCostCalculator::new(problem);
-
         DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
-            &mut distance_cost_calculator,
+            DistanceCostCalculator::new(problem),
             problem.stops().len(),
             MISSED_DELIVERY_COST,
             DISTANCE_COST,

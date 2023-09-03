@@ -6,7 +6,7 @@ use crate::{cost::distance::DistanceCostCalculator, Solution};
 /// All stops are considered as delivery ones.
 #[derive(Debug)]
 pub struct DeliveryCostCalculator<'a> {
-    distance_cost_calculator: &'a mut DistanceCostCalculator<'a>,
+    distance_cost_calculator: DistanceCostCalculator<'a>,
     delivery_count: usize,
     missed_delivery_cost: f64,
     distance_cost: f64,
@@ -15,7 +15,7 @@ pub struct DeliveryCostCalculator<'a> {
 
 impl<'a> DeliveryCostCalculator<'a> {
     pub fn new(
-        distance_cost_calculator: &'a mut DistanceCostCalculator<'a>,
+        distance_cost_calculator: DistanceCostCalculator<'a>,
         delivery_count: usize,
         missed_delivery_cost: f64,
         distance_cost: f64,

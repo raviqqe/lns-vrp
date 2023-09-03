@@ -28,9 +28,8 @@ fn main() {
             .collect(),
     );
 
-    let mut distance_cost_calculator = DistanceCostCalculator::new(&problem);
     let mut solver = DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
-        &mut distance_cost_calculator,
+        DistanceCostCalculator::new(&problem),
         problem.stops().len(),
         MISSED_DELIVERY_COST,
         DISTANCE_COST,
