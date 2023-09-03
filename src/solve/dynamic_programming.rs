@@ -1,7 +1,6 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, problem::BaseProblem, Solution};
+use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, Solution};
 use ordered_float::OrderedFloat;
-use std::collections::BTreeMap;
 
 /// Dynamic programming solver.
 ///
@@ -20,7 +19,7 @@ impl<C: CostCalculator> DynamicProgrammingSolver<C> {
 impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         // We use a B-tree map instead of a hash one for determinism.
-        let mut solutions = BTreeMap::new();
+        let mut solutions = HashMap::default();
         let solution = Solution::new(
             (0..problem.vehicle_count())
                 .map(|_| Default::default())
