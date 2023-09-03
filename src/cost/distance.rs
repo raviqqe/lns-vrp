@@ -16,10 +16,10 @@ impl<'a> DistanceCostCalculator<'a> {
         }
     }
 
-    pub fn calculate_route<'b>(&mut self, stop_indexes: &[usize]) -> f64 {
+    pub fn calculate_route(&mut self, stop_indexes: &[usize]) -> f64 {
         let mut cost = 0.0;
 
-        if let Some(mut previous_index) = stop_indexes.get(0).copied() {
+        if let Some(mut previous_index) = stop_indexes.first().copied() {
             for &index in stop_indexes {
                 cost += self.calculate_segment(previous_index, index);
                 previous_index = index;
