@@ -30,7 +30,7 @@ fn random_problem() -> SimpleProblem {
     )
 }
 
-fn create_cost_calculator(problem: &SimpleProblem) -> DeliveryCostCalculator {
+fn create_cost_calculator(problem: &SimpleProblem) -> DeliveryCostCalculator<&SimpleProblem> {
     DeliveryCostCalculator::new(
         DistanceCostCalculator::new(problem),
         problem.stops().len(),
