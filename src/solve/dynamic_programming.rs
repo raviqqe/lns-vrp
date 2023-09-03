@@ -18,7 +18,6 @@ impl<C: CostCalculator> DynamicProgrammingSolver<C> {
 
 impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
-        // We use a B-tree map instead of a hash one for determinism.
         let mut solutions = HashMap::default();
         let solution = Solution::new(
             (0..problem.vehicle_count())
