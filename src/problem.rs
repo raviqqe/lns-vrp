@@ -1,4 +1,4 @@
-use crate::Route;
+use crate::Stop;
 use alloc::vec::Vec;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
