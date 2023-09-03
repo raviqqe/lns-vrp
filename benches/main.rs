@@ -3,7 +3,7 @@ use rand::random;
 use vrp::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},
     solve::{BranchAndBoundSolver, DynamicProgrammingSolver, Solver},
-    Location, Problem, Stop, Vehicle,
+    Location, SimpleProblem, Stop, Vehicle,
 };
 
 const STOP_COUNT: usize = 11;
@@ -21,8 +21,8 @@ fn random_location() -> Location {
     Location::new(random_longitude(), 0.0)
 }
 
-fn random_problem() -> Problem {
-    Problem::new(
+fn random_problem() -> SimpleProblem {
+    SimpleProblem::new(
         (0..VEHICLE_COUNT).map(|_| Vehicle::new()).collect(),
         (0..STOP_COUNT)
             .map(|_| Stop::new(random_location()))
@@ -30,7 +30,7 @@ fn random_problem() -> Problem {
     )
 }
 
-fn create_cost_calculator(problem: &Problem) -> DeliveryCostCalculator {
+fn create_cost_calculator(problem: &SimpleProblem) -> DeliveryCostCalculator<&SimpleProblem> {
     DeliveryCostCalculator::new(
         DistanceCostCalculator::new(problem),
         problem.stops().len(),

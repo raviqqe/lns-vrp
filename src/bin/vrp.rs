@@ -2,7 +2,7 @@ use rand::random;
 use vrp::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},
     solve::{DynamicProgrammingSolver, Solver},
-    Location, Problem, Stop, Vehicle,
+    Location, SimpleProblem, Stop, Vehicle,
 };
 
 const STOP_COUNT: usize = 12;
@@ -21,7 +21,7 @@ fn random_location() -> Location {
 }
 
 fn main() {
-    let problem = Problem::new(
+    let problem = SimpleProblem::new(
         (0..VEHICLE_COUNT).map(|_| Vehicle::new()).collect(),
         (0..STOP_COUNT)
             .map(|_| Stop::new(random_location()))
