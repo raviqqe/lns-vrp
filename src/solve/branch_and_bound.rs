@@ -1,5 +1,5 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, SimpleProblem, Solution};
+use crate::{cost::CostCalculator, problem::BaseProblem, Solution};
 use ordered_float::OrderedFloat;
 use std::collections::BTreeMap;
 
@@ -14,12 +14,10 @@ impl<C: CostCalculator> BranchAndBoundSolver<C> {
 }
 
 impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
-    fn solve(&mut self, problem: &SimpleProblem) -> Solution {
+    fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         let mut solutions = BTreeMap::new();
         let routes = Solution::new(
-            problem
-                .vehicles()
-                .iter()
+            (0..problem.vehicle_count())
                 .map(|_| Default::default())
                 .collect(),
         );
@@ -27,7 +25,7 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
         let cost = self.cost_calculator.calculate(&routes);
         solutions.insert(routes, cost);
 
-        for stop_index in 0..problem.stops().len() {
+        for stop_index in 0..problem.stop_count() {
             let mut new_states = solutions.clone();
 
             for (solution, upper_bound) in &solutions {
@@ -58,7 +56,7 @@ mod tests {
     use super::*;
     use crate::{
         cost::{DeliveryCostCalculator, DistanceCostCalculator},
-        Location, Stop, Vehicle,
+        Location, SimpleProblem, Stop, Vehicle,
     };
 
     const DISTANCE_COST: f64 = 1.0;

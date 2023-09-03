@@ -1,5 +1,5 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, SimpleProblem, Solution};
+use crate::{cost::CostCalculator, problem::BaseProblem, Solution};
 use ordered_float::OrderedFloat;
 use std::collections::BTreeMap;
 
@@ -18,21 +18,19 @@ impl<C: CostCalculator> DynamicProgrammingSolver<C> {
 }
 
 impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
-    fn solve(&mut self, problem: &SimpleProblem) -> Solution {
+    fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         // We use a B-tree map instead of a hash one for determinism.
         let mut solutions = BTreeMap::new();
 
         let solution = Solution::new(
-            problem
-                .vehicles()
-                .iter()
+            (0..problem.vehicle_count())
                 .map(|_| Default::default())
                 .collect(),
         );
         let cost = self.cost_calculator.calculate(&solution);
         solutions.insert(solution, cost);
 
-        for stop_index in 0..problem.stops().len() {
+        for stop_index in 0..problem.stop_count() {
             let mut new_solutions = solutions.clone();
 
             for solution in solutions.keys() {
@@ -62,7 +60,7 @@ mod tests {
     use super::*;
     use crate::{
         cost::{DeliveryCostCalculator, DistanceCostCalculator},
-        Location, Stop, Vehicle,
+        Location, SimpleProblem, Stop, Vehicle,
     };
 
     const DISTANCE_COST: f64 = 1.0;
