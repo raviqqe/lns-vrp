@@ -4,6 +4,7 @@ use alloc::vec::Vec;
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Problem {
     vehicles: Vec<Vehicle>,
+    // TODO Make stop replicatable in solutions.
     stops: Vec<Stop>,
 }
 
