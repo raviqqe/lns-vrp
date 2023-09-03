@@ -1,5 +1,6 @@
 use super::solver::Solver;
 use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, Solution};
+use bumpalo::Bump;
 use ordered_float::OrderedFloat;
 
 pub struct BranchAndBoundSolver<C: CostCalculator> {
@@ -14,12 +15,13 @@ impl<C: CostCalculator> BranchAndBoundSolver<C> {
 
 impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
+        let allocator = Bump::new();
         let mut solutions = HashMap::default();
-        let solution = Solution::new(
-            (0..problem.vehicle_count())
-                .map(|_| Default::default())
-                .collect(),
-        );
+        let solution = Solution::new({
+            let mut routes = Vec::with_capacity_in(problem.vehicle_count(), &allocator);
+            routes.extend((0..problem.vehicle_count()).map(|_| Vec::new_in(&allocator)));
+            routes
+        });
         let cost = self.cost_calculator.calculate(&solution);
         solutions.insert(solution, cost);
         let mut new_solutions = vec![];
@@ -42,11 +44,13 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
             solutions.extend(new_solutions.drain(..));
         }
 
-        solutions
+        let solution = solutions
             .into_iter()
             .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
             .expect("at least one solution")
-            .0
+            .0;
+
+        solution.to_global()
     }
 }
 
