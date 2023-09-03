@@ -67,7 +67,7 @@ mod tests {
 
     fn solve(problem: &SimpleProblem) -> Solution {
         BranchAndBoundSolver::new(DeliveryCostCalculator::new(
-            DistanceCostCalculator::<&SimpleProblem>::new(problem),
+            DistanceCostCalculator::new(problem),
             problem.stops().len(),
             MISSED_DELIVERY_COST,
             DISTANCE_COST,
