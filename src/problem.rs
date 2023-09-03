@@ -2,12 +2,12 @@ use crate::{Stop, Vehicle};
 use alloc::vec::Vec;
 
 #[derive(Clone, Debug)]
-pub struct Problem {
+pub struct SimpleProblem {
     vehicles: Vec<Vehicle>,
     stops: Vec<Stop>,
 }
 
-impl Problem {
+impl SimpleProblem {
     pub fn new(vehicles: Vec<Vehicle>, stops: Vec<Stop>) -> Self {
         Self { vehicles, stops }
     }

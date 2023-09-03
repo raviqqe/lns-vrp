@@ -1,5 +1,5 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, Problem, Solution};
+use crate::{cost::CostCalculator, SimpleProblem, Solution};
 use ordered_float::OrderedFloat;
 use std::collections::BTreeMap;
 
@@ -18,7 +18,7 @@ impl<C: CostCalculator> DynamicProgrammingSolver<C> {
 }
 
 impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
-    fn solve(&mut self, problem: &Problem) -> Solution {
+    fn solve(&mut self, problem: &SimpleProblem) -> Solution {
         // We use a B-tree map instead of a hash one for determinism.
         let mut solutions = BTreeMap::new();
 
@@ -69,7 +69,7 @@ mod tests {
     const MISSED_DELIVERY_COST: f64 = 1e9;
     const QUADRATIC_DISTANCE_COST: f64 = 1e-9;
 
-    fn solve(problem: &Problem) -> Solution {
+    fn solve(problem: &SimpleProblem) -> Solution {
         DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
             DistanceCostCalculator::new(problem),
             problem.stops().len(),
@@ -82,14 +82,14 @@ mod tests {
 
     #[test]
     fn do_nothing() {
-        let problem = Problem::new(vec![Vehicle::new()], vec![]);
+        let problem = SimpleProblem::new(vec![Vehicle::new()], vec![]);
 
         assert_eq!(solve(&problem), Solution::new(vec![vec![]]));
     }
 
     #[test]
     fn keep_one_stop() {
-        let problem = Problem::new(
+        let problem = SimpleProblem::new(
             vec![Vehicle::new()],
             vec![Stop::new(Location::new(0.0, 0.0))],
         );
@@ -99,7 +99,7 @@ mod tests {
 
     #[test]
     fn keep_two_stops() {
-        let problem = Problem::new(
+        let problem = SimpleProblem::new(
             vec![Vehicle::new()],
             vec![
                 Stop::new(Location::new(0.0, 0.0)),
@@ -112,7 +112,7 @@ mod tests {
 
     #[test]
     fn keep_three_stops() {
-        let problem = Problem::new(
+        let problem = SimpleProblem::new(
             vec![Vehicle::new()],
             vec![
                 Stop::new(Location::new(0.0, 0.0)),
@@ -126,7 +126,7 @@ mod tests {
 
     #[test]
     fn even_workload() {
-        let problem = Problem::new(
+        let problem = SimpleProblem::new(
             vec![Vehicle::new(), Vehicle::new()],
             vec![
                 Stop::new(Location::new(0.0, 0.0)),

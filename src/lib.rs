@@ -13,6 +13,6 @@ mod stop;
 mod vehicle;
 
 pub use self::{
-    context::Context, location::Location, problem::Problem, solution::Solution, stop::Stop,
+    context::Context, location::Location, problem::SimpleProblem, solution::Solution, stop::Stop,
     vehicle::Vehicle,
 };

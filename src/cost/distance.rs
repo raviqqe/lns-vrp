@@ -1,14 +1,14 @@
-use crate::Problem;
+use crate::SimpleProblem;
 use geo::GeodesicDistance;
 
 #[derive(Debug)]
 pub struct DistanceCostCalculator<'a> {
-    problem: &'a Problem,
+    problem: &'a SimpleProblem,
     cache: Vec<Vec<f64>>,
 }
 
 impl<'a> DistanceCostCalculator<'a> {
-    pub fn new(problem: &'a Problem) -> Self {
+    pub fn new(problem: &'a SimpleProblem) -> Self {
         let stop_count = problem.stops().len();
 
         Self {
