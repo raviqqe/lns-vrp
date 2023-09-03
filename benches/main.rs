@@ -51,7 +51,7 @@ fn branch_and_bound(bencher: &mut Bencher) {
     let problem = random_problem();
     let solver = BranchAndBoundSolver::new(create_cost_calculator(&problem));
 
-    bencher.iter(|| solver.solve(&problem).unwrap());
+    bencher.iter(|| solver.solve(&problem));
 }
 
 fn benchmark(criterion: &mut Criterion) {

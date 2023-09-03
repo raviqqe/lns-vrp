@@ -1,5 +1,5 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, Problem, Solution, Stop};
+use crate::{cost::CostCalculator, Problem, Solution};
 use ordered_float::OrderedFloat;
 use std::collections::BTreeMap;
 
@@ -56,7 +56,7 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{cost::DeliveryCostCalculator, Location, Vehicle};
+    use crate::{cost::DeliveryCostCalculator, Location, Stop, Vehicle};
 
     const DISTANCE_COST: f64 = 1.0;
     const MISSED_DELIVERY_COST: f64 = 1e9;

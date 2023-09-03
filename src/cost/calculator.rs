@@ -1,6 +1,6 @@
 mod delivery;
 
-use crate::{Solution, Stop};
+use crate::Solution;
 pub use delivery::DeliveryCostCalculator;
 
 pub trait CostCalculator {

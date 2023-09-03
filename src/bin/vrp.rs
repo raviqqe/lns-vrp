@@ -2,7 +2,7 @@ use rand::random;
 use vrp::{
     cost::DeliveryCostCalculator,
     solve::{DynamicProgrammingSolver, Solver},
-    Location, Problem, Solution, Stop, Vehicle,
+    Location, Problem, Stop, Vehicle,
 };
 
 const STOP_COUNT: usize = 10;

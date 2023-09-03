@@ -1,4 +1,3 @@
-use crate::Stop;
 use alloc::vec::Vec;
 
 // TODO Use persistent data structure.

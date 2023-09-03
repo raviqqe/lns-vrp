@@ -1,5 +1,5 @@
 use super::CostCalculator;
-use crate::{cost::distance::calculate_route, Problem, Solution, Stop};
+use crate::{cost::distance::calculate_route, Problem, Solution};
 
 /// Delivery VRP cost calculator.
 ///
