@@ -1,5 +1,5 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, Problem, Route, Stop};
+use crate::{cost::CostCalculator, Problem, Route, Solution, Stop};
 use im_rc::{HashSet, Vector};
 use ordered_float::OrderedFloat;
 
@@ -18,19 +18,20 @@ impl<C: CostCalculator> DynamicProgrammingSolver<C> {
 }
 
 impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
-    fn solve(&self, problem: &Problem) -> Option<Problem> {
-        let mut states = HashSet::<Vector<Vector<Stop>>>::new();
-        let initial = problem
-            .routes()
-            .map(|_| Default::default())
-            .collect::<Vector<_>>();
+    fn solve(&self, problem: &Problem) -> Solution {
+        let mut solutions = HashSet::<Vector<Vector<Stop>>>::new();
 
-        states.insert(initial);
+        solutions.insert(
+            problem
+                .vehicles()
+                .map(|_| Default::default())
+                .collect::<Vector<_>>(),
+        );
 
-        for stop in problem.routes().flat_map(Route::stops) {
-            let mut new_states = states.clone();
+        for stop in problem.stops() {
+            let mut new_solutions = solutions.clone();
 
-            for routes in &states {
+            for routes in &solutions {
                 for (index, stops) in routes.iter().enumerate() {
                     let mut stops = stops.clone();
                     stops.push_back(stop.clone());
@@ -39,26 +40,25 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
                     routes.set(index, stops);
 
                     if self.cost_calculator.calculate(&routes).is_finite() {
-                        new_states.insert(routes);
+                        new_solutions.insert(routes);
                     }
                 }
             }
 
-            states = new_states;
+            solutions = new_solutions;
         }
 
-        states
-            .iter()
-            .map(|routes| (routes, self.cost_calculator.calculate(routes)))
-            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
-            .map(|(routes, _)| {
-                Problem::new(
-                    routes
-                        .iter()
-                        .map(|stops| Route::new(stops.iter().cloned().collect()))
-                        .collect(),
-                )
-            })
+        Solution::new(
+            solutions
+                .iter()
+                .map(|routes| (routes, self.cost_calculator.calculate(routes)))
+                .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
+                .expect("at least one solution")
+                .0
+                .iter()
+                .map(|stops| stops.iter().copied().collect())
+                .collect(),
+        )
     }
 }
 
@@ -71,7 +71,7 @@ mod tests {
     const MISSED_DELIVERY_COST: f64 = 1e9;
     const QUADRATIC_DISTANCE_COST: f64 = 1e-9;
 
-    fn solve(problem: &Problem) -> Option<Problem> {
+    fn solve(problem: &Problem) -> Solution {
         DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
             problem.routes().flat_map(|route| route.stops()).count(),
             MISSED_DELIVERY_COST,
@@ -85,7 +85,7 @@ mod tests {
     fn do_nothing() {
         let problem = Problem::new(vec![], vec![]);
 
-        assert_eq!(solve(&problem), Some(problem));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![]]));
     }
 
     #[test]
@@ -95,7 +95,7 @@ mod tests {
             vec![Stop::new(Location::new(0.0, 0.0))],
         );
 
-        assert_eq!(solve(&problem), Some(problem));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0]]));
     }
 
     #[test]
@@ -108,7 +108,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Some(problem));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1]]));
     }
 
     #[test]
@@ -122,7 +122,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Some(problem));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1, 2]]));
     }
 
     #[test]
@@ -136,9 +136,6 @@ mod tests {
             ],
         );
 
-        assert!(solve(&problem)
-            .unwrap()
-            .routes()
-            .all(|route| route.stops().len() < 3));
+        assert!(solve(&problem).routes().iter().all(|stops| stops.len() < 3));
     }
 }

@@ -3,20 +3,15 @@ use alloc::vec::Vec;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Solution {
-    vehicles: Vec<Vehicle>,
-    stops: Vec<Stop>,
+    routes: Vec<Vec<usize>>,
 }
 
-impl Problem {
-    pub fn new(vehicles: Vec<Vehicle>, stops: Vec<Stop>) -> Self {
-        Self { vehicles, stops }
+impl Solution {
+    pub fn new(routes: Vec<Vec<usize>>) -> Self {
+        Self { routes }
     }
 
-    pub fn vehilcles(&self) -> Foo {
-        &self.vehicles
-    }
-
-    pub fn stops(&self) -> &[Stop] {
-        &self.stops
+    pub fn routes(&self) -> &[Vec<usize>] {
+        &self.routes
     }
 }

@@ -13,7 +13,7 @@ impl Problem {
         Self { vehicles, stops }
     }
 
-    pub fn vehilcles(&self) -> Foo {
+    pub fn vehicles(&self) -> Foo {
         &self.vehicles
     }
 
