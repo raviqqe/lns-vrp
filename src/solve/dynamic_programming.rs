@@ -19,25 +19,26 @@ impl<C: CostCalculator> DynamicProgrammingSolver<C> {
 
 impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
     fn solve(&self, problem: &Problem) -> Solution {
-        let mut solutions = HashSet::<Vector<Vector<Stop>>>::new();
+        let mut solutions = HashSet::<Vec<Vec<usize>>>::new();
 
         solutions.insert(
             problem
                 .vehicles()
                 .map(|_| Default::default())
-                .collect::<Vector<_>>(),
+                .collect::<Vec<_>>(),
         );
 
-        for stop in problem.stops() {
+        for id in problem.stops().iter().enumerate() {
             let mut new_solutions = solutions.clone();
 
             for routes in &solutions {
-                for (index, stops) in routes.iter().enumerate() {
-                    let mut stops = stops.clone();
-                    stops.push_back(stop.clone());
+                for (index, stop_ids) in solution.vehicles().iter().enumerate() {
+                    let mut routes = solution.clone();
+                    let mut stop_ids = stop_ids.clone();
+                    stop_ids.push_back(stop.clone());
 
-                    let mut routes = routes.clone();
-                    routes.set(index, stops);
+                    let mut routes = solution.clone();
+                    routes[index] =  stop_ids);
 
                     if self.cost_calculator.calculate(&routes).is_finite() {
                         new_solutions.insert(routes);
@@ -65,7 +66,7 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{cost::DeliveryCostCalculator, Location, Route};
+    use crate::{cost::DeliveryCostCalculator, Location, Vehicle};
 
     const DISTANCE_COST: f64 = 1.0;
     const MISSED_DELIVERY_COST: f64 = 1e9;
@@ -136,6 +137,9 @@ mod tests {
             ],
         );
 
-        assert!(solve(&problem).routes().iter().all(|stops| stops.len() < 3));
+        assert!(solve(&problem)
+            .routes()
+            .iter()
+            .all(|stops| stops.len() < 3));
     }
 }
