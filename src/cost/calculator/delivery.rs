@@ -1,5 +1,6 @@
 use super::CostCalculator;
 use crate::{cost::distance::DistanceCostCalculator, problem::BaseProblem, Solution};
+use std::alloc::Allocator;
 
 #[derive(Debug)]
 pub struct DeliveryCostCalculator<P: BaseProblem> {
@@ -24,7 +25,7 @@ impl<P: BaseProblem> DeliveryCostCalculator<P> {
         }
     }
 
-    fn calculate_distance_cost(&mut self, solution: &Solution) -> f64 {
+    fn calculate_distance_cost(&mut self, solution: &Solution<impl Allocator>) -> f64 {
         solution
             .routes()
             .iter()
@@ -34,7 +35,7 @@ impl<P: BaseProblem> DeliveryCostCalculator<P> {
             .sum()
     }
 
-    fn calculate_delivery_cost(&self, solution: &Solution) -> f64 {
+    fn calculate_delivery_cost(&self, solution: &Solution<impl Allocator>) -> f64 {
         (self.delivery_count
             - solution
                 .routes()
@@ -46,11 +47,11 @@ impl<P: BaseProblem> DeliveryCostCalculator<P> {
 }
 
 impl<P: BaseProblem> CostCalculator for DeliveryCostCalculator<P> {
-    fn calculate(&mut self, solution: &Solution) -> f64 {
+    fn calculate(&mut self, solution: &Solution<impl Allocator>) -> f64 {
         self.calculate_distance_cost(solution) + self.calculate_delivery_cost(solution)
     }
 
-    fn calculate_lower_bound(&mut self, solution: &Solution) -> f64 {
+    fn calculate_lower_bound(&mut self, solution: &Solution<impl Allocator>) -> f64 {
         self.calculate_distance_cost(solution)
     }
 }
