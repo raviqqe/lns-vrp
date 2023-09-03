@@ -65,7 +65,6 @@ mod tests {
 
     const DISTANCE_COST: f64 = 1.0;
     const MISSED_DELIVERY_COST: f64 = 1e9;
-    const QUADRATIC_DISTANCE_COST: f64 = 1e-9;
 
     fn solve(problem: &SimpleProblem) -> Solution {
         DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
@@ -73,7 +72,6 @@ mod tests {
             problem.stops().len(),
             MISSED_DELIVERY_COST,
             DISTANCE_COST,
-            QUADRATIC_DISTANCE_COST,
         ))
         .solve(problem)
     }
