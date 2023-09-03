@@ -1,7 +1,7 @@
 use super::solver::Solver;
 use crate::{cost::CostCalculator, problem::BaseProblem, Solution};
 use ordered_float::OrderedFloat;
-use std::{collections::BTreeMap, mem::swap};
+use std::collections::BTreeMap;
 
 pub struct BranchAndBoundSolver<C: CostCalculator> {
     cost_calculator: C,
