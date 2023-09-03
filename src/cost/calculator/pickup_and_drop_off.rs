@@ -7,7 +7,6 @@ pub struct PickupAndDropOffCostCalculator<P: BaseProblem> {
     delivery_count: usize,
     missed_delivery_cost: f64,
     distance_cost: f64,
-    quadratic_distance_cost: f64,
 }
 
 impl<P: BaseProblem> PickupAndDropOffCostCalculator<P> {
@@ -16,14 +15,12 @@ impl<P: BaseProblem> PickupAndDropOffCostCalculator<P> {
         delivery_count: usize,
         missed_delivery_cost: f64,
         distance_cost: f64,
-        quadratic_distance_cost: f64,
     ) -> Self {
         Self {
             distance_cost_calculator,
             delivery_count,
             missed_delivery_cost,
             distance_cost,
-            quadratic_distance_cost,
         }
     }
 
@@ -32,9 +29,7 @@ impl<P: BaseProblem> PickupAndDropOffCostCalculator<P> {
             .routes()
             .iter()
             .map(|stop_indexes| {
-                let cost = self.distance_cost_calculator.calculate_route(stop_indexes);
-
-                cost * self.distance_cost + cost.powi(2) * self.quadratic_distance_cost
+                self.distance_cost_calculator.calculate_route(stop_indexes) * self.distance_cost
             })
             .sum()
     }
