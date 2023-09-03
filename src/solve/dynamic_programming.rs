@@ -32,12 +32,11 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
             let mut new_solutions = solutions.clone();
 
             for routes in &solutions {
-                for (index, stop_ids) in solution.vehicles().iter().enumerate() {
-                    let mut routes = solution.clone();
+                for (index, stop_ids) in routes.iter().enumerate() {
                     let mut stop_ids = stop_ids.clone();
                     stop_ids.push_back(stop.clone());
 
-                    let mut routes = solution.clone();
+                    let mut routes = routes.clone();
                     routes[index] = stop_ids;
 
                     if self.cost_calculator.calculate(&routes).is_finite() {
