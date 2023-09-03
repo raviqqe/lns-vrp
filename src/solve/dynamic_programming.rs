@@ -78,7 +78,7 @@ mod tests {
 
     #[test]
     fn do_nothing() {
-        let problem = Problem::new(vec![], vec![]);
+        let problem = Problem::new(vec![Vehicle::new()], vec![]);
 
         assert_eq!(solve(&problem), Solution::new(vec![vec![]]));
     }
