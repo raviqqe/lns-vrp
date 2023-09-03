@@ -1,4 +1,4 @@
-use crate::Stop;
+use crate::{Stop, Vehicle};
 use alloc::vec::Vec;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
@@ -13,7 +13,7 @@ impl Problem {
         Self { vehicles, stops }
     }
 
-    pub fn vehicles(&self) -> Foo {
+    pub fn vehicles(&self) -> &[Vehicle] {
         &self.vehicles
     }
 

@@ -19,25 +19,27 @@ impl<C: CostCalculator> DynamicProgrammingSolver<C> {
 
 impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
     fn solve(&self, problem: &Problem) -> Solution {
+        // We use a B-tree set instead of a hash one for determinism.
         let mut solutions = BTreeSet::<Vec<Vec<usize>>>::new();
 
         solutions.insert(
             problem
                 .vehicles()
+                .iter()
                 .map(|_| Default::default())
                 .collect::<Vec<_>>(),
         );
 
-        for id in problem.stops().iter().enumerate() {
+        for stop_index in 0..problem.stops().len() {
             let mut new_solutions = solutions.clone();
 
             for routes in &solutions {
-                for (index, stop_ids) in routes.iter().enumerate() {
+                for (vehicle_index, stop_ids) in routes.iter().enumerate() {
                     let mut stop_ids = stop_ids.clone();
-                    stop_ids.push_back(stop.clone());
+                    stop_ids.push(stop_index);
 
                     let mut routes = routes.clone();
-                    routes[index] = stop_ids;
+                    routes[vehicle_index] = stop_ids;
 
                     if self.cost_calculator.calculate(&routes).is_finite() {
                         new_solutions.insert(routes);
