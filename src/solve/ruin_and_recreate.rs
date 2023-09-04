@@ -121,7 +121,7 @@ impl<C: CostCalculator, S: Solver> RuinAndRecreateSolver<C, S> {
     }
 }
 
-impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
+impl<C: CostCalculator, S: Solver> Solver for RuinAndRecreateSolver<C, S> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         if problem.vehicle_count() == 0 {
             return Solution::new(vec![]);
@@ -155,6 +155,7 @@ mod tests {
     use crate::{
         cost::{DeliveryCostCalculator, DistanceCostCalculator},
         route::CrowRouter,
+        solve::NearestNeighborSolver,
         Location, SimpleProblem, Stop, Vehicle,
     };
 
@@ -170,6 +171,7 @@ mod tests {
                 MISSED_DELIVERY_COST,
                 DISTANCE_COST,
             ),
+            NearestNeighborSolver::new(CrowRouter::new()),
             ITERATION_COUNT,
         )
         .solve(problem)
