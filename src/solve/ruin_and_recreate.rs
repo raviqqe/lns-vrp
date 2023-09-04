@@ -31,7 +31,6 @@ impl<C: CostCalculator, S: Solver> RuinAndRecreateSolver<C, S> {
         }
     }
 
-    // TODO Choose regions to ruin based on geography.
     fn choose_regions(&mut self, solution: &Solution) -> Vec<RouteRegion> {
         let vehicle_count = solution.routes().len();
         let route_count = (1.min(vehicle_count)..(MAX_VEHICLE_REGION_SIZE.min(vehicle_count) + 1))
