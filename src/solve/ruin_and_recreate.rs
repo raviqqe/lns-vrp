@@ -1,5 +1,5 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, Solution};
+use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, trace, Solution};
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
 use std::ops::Range;
