@@ -1,9 +1,11 @@
 mod branch_and_bound;
 mod dynamic_programming;
+mod nearest_neighbor;
 mod ruin_and_recreate;
 mod solver;
 
 pub use self::{
     branch_and_bound::BranchAndBoundSolver, dynamic_programming::DynamicProgrammingSolver,
-    ruin_and_recreate::RuinAndRecreateSolver, solver::Solver,
+    nearest_neighbor::NearestNeighborSolver, ruin_and_recreate::RuinAndRecreateSolver,
+    solver::Solver,
 };

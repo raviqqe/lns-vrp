@@ -22,6 +22,13 @@ impl<A: Allocator> Solution<A> {
         &self.routes
     }
 
+    pub fn has_stop(&self, stop_index: usize) -> bool {
+        self.routes
+            .iter()
+            .any(|stop_indexes| stop_indexes.contains(&stop_index))
+    }
+
+    #[must_use]
     pub fn add_stop(&self, vehicle_index: usize, stop_index: usize) -> Self
     where
         A: Clone,
@@ -35,6 +42,7 @@ impl<A: Allocator> Solution<A> {
         Self::new(routes)
     }
 
+    #[must_use]
     pub fn insert_stop(
         &self,
         vehicle_index: usize,
@@ -53,12 +61,7 @@ impl<A: Allocator> Solution<A> {
         Self::new(routes)
     }
 
-    pub fn has_stop(&self, stop_index: usize) -> bool {
-        self.routes
-            .iter()
-            .any(|stop_indexes| stop_indexes.contains(&stop_index))
-    }
-
+    #[must_use]
     pub fn ruin_route(&self, vehicle_index: usize, stop_range: Range<usize>) -> Self
     where
         A: Clone,
