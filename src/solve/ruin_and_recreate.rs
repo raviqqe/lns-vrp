@@ -11,7 +11,7 @@ const MAX_STOP_REGION_SIZE: usize = 3;
 #[derive(Debug)]
 struct RouteRegion {
     vehicle_index: usize,
-    range: Range<usize>,
+    stop_range: Range<usize>,
 }
 
 pub struct RuinAndRecreateSolver<C: CostCalculator> {
@@ -40,7 +40,7 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
             .into_iter()
             .map(|vehicle_index| RouteRegion {
                 vehicle_index,
-                range: self.choose_range(solution, vehicle_index),
+                stop_range: self.choose_range(solution, vehicle_index),
             })
             .collect()
     }
@@ -62,7 +62,7 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
         let mut solution = initial_solution.clone();
 
         for region in regions {
-            solution = solution.ruin_route(region.vehicle_index, region.range.clone())
+            solution = solution.ruin_route(region.vehicle_index, region.stop_range.clone())
         }
 
         let cost = self.cost_calculator.calculate(&solution);
@@ -71,7 +71,7 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
         solutions.insert(solution.clone(), cost);
         let mut new_solutions = vec![];
 
-        for _ in regions.iter().flat_map(|region| region.range.clone()) {
+        for _ in regions.iter().flat_map(|region| region.stop_range.clone()) {
             new_solutions.clear();
 
             for solution in solutions.keys() {
@@ -86,7 +86,7 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
                     for region in regions {
                         let solution = solution.insert_stop(
                             region.vehicle_index,
-                            region.range.start,
+                            region.stop_range.start,
                             stop_index,
                         );
                         let cost = self.cost_calculator.calculate(&solution);
@@ -113,7 +113,7 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
         solution: &'a Solution,
     ) -> impl Iterator<Item = usize> + 'a {
         region
-            .range
+            .stop_range
             .clone()
             .map(|index| solution.routes()[region.vehicle_index][index])
     }
