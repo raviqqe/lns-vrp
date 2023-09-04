@@ -16,7 +16,10 @@ insta = "1.31.0"
 pretty_assertions = "1.4.0"
 
 [[bin]]
-name = "vrp"
+name = "dynamic_programming"
+
+[[bin]]
+name = "ruin_and_recreate"
 
 [[bench]]
 name = "main"
