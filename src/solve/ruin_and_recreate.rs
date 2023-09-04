@@ -36,10 +36,11 @@ impl<C: CostCalculator, S: Solver> RuinAndRecreateSolver<C, S> {
         let route_count = (1.min(vehicle_count)..(MAX_VEHICLE_REGION_SIZE.min(vehicle_count) + 1))
             .choose(&mut self.rng)
             .expect("ruined route count");
+        let vehicle_indexes = (0..vehicle_count).choose_multiple(&mut self.rng, route_count);
 
-        (0..vehicle_count)
-            .choose_multiple(&mut self.rng, route_count)
-            .into_iter()
+        vehicle_indexes
+            .iter()
+            .copied()
             .map(|vehicle_index| RouteRegion {
                 vehicle_index,
                 stop_range: self.choose_range(
