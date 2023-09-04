@@ -129,7 +129,7 @@ impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
         let mut solution = Solution::new({
             let mut routes = Vec::with_capacity(problem.vehicle_count());
             routes.push((0..problem.stop_count()).collect());
-            routes.extend((1..problem.vehicle_count()).map(|_| Default::default()));
+            routes.extend((1..problem.vehicle_count()).map(|_| vec![].into()));
             routes
         });
         let mut cost = self.cost_calculator.calculate(&solution);
@@ -182,7 +182,7 @@ mod tests {
     fn do_nothing() {
         let problem = SimpleProblem::new(vec![Vehicle::new()], vec![]);
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![]]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
     }
 
     #[test]
@@ -192,7 +192,7 @@ mod tests {
             vec![Stop::new(Location::new(0.0, 0.0))],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0]]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0].into()]));
     }
 
     #[test]
@@ -205,7 +205,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1]]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1].into()]));
     }
 
     #[test]
@@ -219,7 +219,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1, 2]]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1, 2].into()]));
     }
 
     #[test]
