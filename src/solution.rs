@@ -21,6 +21,7 @@ impl<A: Allocator> Solution<A> {
         &self.routes
     }
 
+    #[must_use]
     pub fn add_stop(&self, vehicle_index: usize, stop_index: usize) -> Self
     where
         A: Clone,
@@ -34,6 +35,7 @@ impl<A: Allocator> Solution<A> {
         Self::new(routes)
     }
 
+    #[must_use]
     pub fn insert_stop(
         &self,
         vehicle_index: usize,

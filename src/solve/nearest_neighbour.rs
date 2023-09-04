@@ -1,49 +1,76 @@
-use super::solver::Solver;
-use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, Solution};
-use bumpalo::Bump;
 use ordered_float::OrderedFloat;
 
-pub struct NearestNeighbourSolver<C: CostCalculator> {
-    cost_calculator: C,
+use super::solver::Solver;
+use crate::{problem::BaseProblem, route::Router, Solution};
+use std::collections::HashSet;
+
+pub struct NearestNeighbourSolver<R: Router> {
+    router: R,
 }
 
-impl<C: CostCalculator> NearestNeighbourSolver<C> {
-    pub fn new(cost_calculator: C) -> Self {
-        Self { cost_calculator }
+impl<R: Router> NearestNeighbourSolver<R> {
+    pub fn new(router: R) -> Self {
+        Self { router }
     }
 }
 
-impl<C: CostCalculator> Solver for NearestNeighbourSolver<C> {
+impl<R: Router> Solver for NearestNeighbourSolver<R> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
-        let solution = Solution::new((0..problem.vehicle_count()).map(|_| Default::default()));
-
-        for stop_index in 0..problem.stop_count() {
-            foo
+        if problem.vehicle_count() == 0 {
+            return Solution::new(vec![]);
         }
 
-        solution
+        let mut solution = Solution::new(
+            (0..problem.vehicle_count())
+                .map(|_| Default::default())
+                .collect(),
+        );
+        let mut stops = HashSet::<usize>::from_iter(0..problem.stop_count());
+
+        for index in 0..problem.vehicle_count().min(problem.stop_count()) {
+            solution = solution.add_stop(index, index);
+            stops.remove(&index);
+        }
+
+        loop {
+            for vehicle_index in 0..problem.vehicle_count() {
+                if stops.is_empty() {
+                    return solution;
+                }
+
+                let last_location = problem.stop_location(
+                    *solution.routes()[vehicle_index]
+                        .last()
+                        .expect("last location"),
+                );
+
+                let stop_index = stops
+                    .iter()
+                    .map(|&index| {
+                        (
+                            index,
+                            self.router
+                                .route(last_location, problem.stop_location(index)),
+                        )
+                    })
+                    .min_by_key(|(_, distance)| OrderedFloat(*distance))
+                    .expect("stop index")
+                    .0;
+
+                solution = solution.add_stop(vehicle_index, stop_index);
+                stops.remove(&stop_index);
+            }
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        cost::{DeliveryCostCalculator, DistanceCostCalculator},
-        Location, SimpleProblem, Stop, Vehicle,
-    };
-
-    const DISTANCE_COST: f64 = 1.0;
-    const MISSED_DELIVERY_COST: f64 = 1e9;
+    use crate::{route::CrowRouter, Location, SimpleProblem, Stop, Vehicle};
 
     fn solve(problem: &SimpleProblem) -> Solution {
-        NearestNeighbourSolver::new(DeliveryCostCalculator::new(
-            DistanceCostCalculator::new(problem),
-            problem.stops().len(),
-            MISSED_DELIVERY_COST,
-            DISTANCE_COST,
-        ))
-        .solve(problem)
+        NearestNeighbourSolver::new(CrowRouter::new()).solve(problem)
     }
 
     #[test]
@@ -91,30 +118,22 @@ mod tests {
     }
 
     #[test]
-    fn optimize_stop_order() {
+    fn distribute_to_two_vehicles() {
         let problem = SimpleProblem::new(
             vec![Vehicle::new()],
             vec![
                 Stop::new(Location::new(0.0, 0.0)),
-                Stop::new(Location::new(2.0, 0.0)),
                 Stop::new(Location::new(1.0, 0.0)),
+                Stop::new(Location::new(0.1, 0.0)),
+                Stop::new(Location::new(1.1, 0.0)),
+                Stop::new(Location::new(0.2, 0.0)),
+                Stop::new(Location::new(1.3, 0.0)),
             ],
         );
 
-        assert_eq!(solve(&problem).routes()[0][1], 2);
-    }
-
-    #[test]
-    fn even_workload() {
-        let problem = SimpleProblem::new(
-            vec![Vehicle::new(), Vehicle::new()],
-            vec![
-                Stop::new(Location::new(0.0, 0.0)),
-                Stop::new(Location::new(1.0, 0.0)),
-                Stop::new(Location::new(2.0, 0.0)),
-            ],
+        assert_eq!(
+            solve(&problem),
+            Solution::new(vec![vec![0, 2, 4], vec![0, 2, 4]])
         );
-
-        assert!(solve(&problem).routes().iter().all(|stops| stops.len() < 3));
     }
 }
