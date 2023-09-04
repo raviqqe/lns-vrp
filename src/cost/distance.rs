@@ -1,17 +1,18 @@
-use crate::problem::BaseProblem;
-use geo::GeodesicDistance;
+use crate::{problem::BaseProblem, route::Router};
 
 #[derive(Debug)]
-pub struct DistanceCostCalculator<P: BaseProblem> {
+pub struct DistanceCostCalculator<R: Router, P: BaseProblem> {
+    router: R,
     problem: P,
     cache: Vec<Vec<f64>>,
 }
 
-impl<P: BaseProblem> DistanceCostCalculator<P> {
-    pub fn new(problem: P) -> Self {
+impl<R: Router, P: BaseProblem> DistanceCostCalculator<R, P> {
+    pub fn new(router: R, problem: P) -> Self {
         let stop_count = problem.stop_count();
 
         Self {
+            router,
             problem,
             cache: vec![vec![f64::NAN; stop_count]; stop_count],
         }
@@ -32,11 +33,10 @@ impl<P: BaseProblem> DistanceCostCalculator<P> {
             return cached;
         }
 
-        let cost = self
-            .problem
-            .stop_location(one)
-            .as_point()
-            .geodesic_distance(self.problem.stop_location(other).as_point());
+        let cost = self.router.route(
+            self.problem.stop_location(one),
+            self.problem.stop_location(other),
+        );
 
         self.cache[one][other] = cost;
 

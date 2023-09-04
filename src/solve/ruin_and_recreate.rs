@@ -157,6 +157,7 @@ mod tests {
     use super::*;
     use crate::{
         cost::{DeliveryCostCalculator, DistanceCostCalculator},
+        route::CrowRouter,
         Location, SimpleProblem, Stop, Vehicle,
     };
 
@@ -167,7 +168,7 @@ mod tests {
     fn solve(problem: &SimpleProblem) -> Solution {
         RuinAndRecreateSolver::new(
             DeliveryCostCalculator::new(
-                DistanceCostCalculator::new(problem),
+                DistanceCostCalculator::new(CrowRouter::new(), problem),
                 problem.stops().len(),
                 MISSED_DELIVERY_COST,
                 DISTANCE_COST,
