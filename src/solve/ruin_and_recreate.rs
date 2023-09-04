@@ -54,43 +54,6 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
         index..(index + MAX_STOP_REGION_SIZE).min(len)
     }
 
-    fn solve_one_region(&mut self, initial_solution: &Solution, region: &RouteRegion) -> Solution {
-        let solution = initial_solution.ruin_route(region.vehicle_index, region.range.clone());
-        let cost = self.cost_calculator.calculate(&solution);
-
-        let mut solutions = HashMap::default();
-        solutions.insert(solution, cost);
-        let mut new_solutions = vec![];
-
-        for _ in region.range.clone() {
-            new_solutions.clear();
-
-            for solution in solutions.keys() {
-                for stop_index in Self::region_stop_indexes(region, initial_solution) {
-                    if solution.has_stop(stop_index) {
-                        continue;
-                    }
-
-                    let solution =
-                        solution.insert_stop(region.vehicle_index, region.range.start, stop_index);
-                    let cost = self.cost_calculator.calculate(&solution);
-
-                    if cost.is_finite() {
-                        new_solutions.push((solution, cost));
-                    }
-                }
-            }
-
-            solutions.extend(new_solutions.drain(..));
-        }
-
-        solutions
-            .into_iter()
-            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
-            .expect("at least one solution")
-            .0
-    }
-
     fn optimize_regions(
         &mut self,
         initial_solution: &Solution,
