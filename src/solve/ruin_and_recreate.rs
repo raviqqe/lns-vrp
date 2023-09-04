@@ -1,9 +1,24 @@
 use super::solver::Solver;
 use crate::{cost::CostCalculator, problem::BaseProblem, Solution};
+use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
+use std::ops::Range;
+
+const SEED: [u8; 32] = [0u8; 32];
+
+struct RouteRegion {
+    vehicle_index: usize,
+    range: Range<usize>,
+}
+
+enum Region {
+    One(RouteRegion),
+    Two(RouteRegion, RouteRegion),
+}
 
 pub struct RuinAndRecreateSolver<C: CostCalculator> {
     cost_calculator: C,
     iteration_count: usize,
+    rng: SmallRng,
 }
 
 impl<C: CostCalculator> RuinAndRecreateSolver<C> {
@@ -11,6 +26,21 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
         Self {
             cost_calculator,
             iteration_count,
+            rng: SmallRng::from_seed(SEED),
+        }
+    }
+
+    fn choose_region(&mut self, solution: &Solution) -> Region {
+        if rand::random::<bool>() {
+            let vehicle_index = (0..solution.routes().len())
+                .choose(&mut self.rng)
+                .expect("at least one vehicle");
+            Region::One(RouteRegion {
+                vehicle_index,
+                range: todo!(),
+            })
+        } else {
+            todo!()
         }
     }
 }
@@ -38,14 +68,6 @@ impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
         }
 
         solution
-    }
-
-    fn choose_region(&self, solution: &Solution) -> foo {
-        if rand::random::<bool>() {
-            todo!()
-        } else {
-            todo!()
-        }
     }
 }
 
