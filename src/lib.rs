@@ -10,6 +10,7 @@ pub mod cost;
 mod hash_map;
 mod location;
 mod problem;
+pub mod route;
 mod solution;
 pub mod solve;
 mod stop;
