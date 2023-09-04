@@ -31,16 +31,30 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
     }
 
     fn choose_region(&mut self, solution: &Solution) -> Region {
-        if rand::random::<bool>() {
+        if rand::random::<bool>() || solution.routes().len() == 1 {
             let vehicle_index = (0..solution.routes().len())
                 .choose(&mut self.rng)
                 .expect("at least one vehicle");
+
             Region::One(RouteRegion {
                 vehicle_index,
                 range: todo!(),
             })
         } else {
-            todo!()
+            let mut vehicle_indexes = [0usize; 2];
+
+            (0..solution.routes().len()).choose_multiple_fill(&mut self.rng, &mut vehicle_indexes);
+
+            Region::Two(
+                RouteRegion {
+                    vehicle_index: vehicle_indexes[0],
+                    range: todo!(),
+                },
+                RouteRegion {
+                    vehicle_index: vehicle_indexes[1],
+                    range: todo!(),
+                },
+            )
         }
     }
 }
