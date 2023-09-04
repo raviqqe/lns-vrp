@@ -3,6 +3,7 @@ use crate::{
     Location, SimpleProblem, Stop, Vehicle,
 };
 use rand::random;
+use std::time::Instant;
 
 const STOP_COUNT: usize = 8;
 const VEHICLE_COUNT: usize = 3;
@@ -34,4 +35,12 @@ pub fn create_cost_calculator(problem: &SimpleProblem) -> DeliveryCostCalculator
         MISSED_DELIVERY_COST,
         DISTANCE_COST,
     )
+}
+
+pub fn measure_time(callback: impl FnOnce()) {
+    let instant = Instant::now();
+
+    callback();
+
+    dbg!(Instant::now().duration_since(instant));
 }
