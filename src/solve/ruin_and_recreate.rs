@@ -6,7 +6,7 @@ use std::ops::Range;
 
 const SEED: [u8; 32] = [0u8; 32];
 const MAX_VEHICLE_REGION_SIZE: usize = 2;
-const MAX_STOP_REGION_SIZE: usize = 3;
+const MAX_STOP_REGION_SIZE: usize = 6;
 
 #[derive(Debug)]
 struct RouteRegion {
@@ -42,18 +42,27 @@ impl<C: CostCalculator, S: Solver> RuinAndRecreateSolver<C, S> {
             .into_iter()
             .map(|vehicle_index| RouteRegion {
                 vehicle_index,
-                stop_range: self.choose_range(solution, vehicle_index),
+                stop_range: self.choose_range(
+                    solution,
+                    vehicle_index,
+                    MAX_STOP_REGION_SIZE / route_count,
+                ),
             })
             .collect()
     }
 
-    fn choose_range(&mut self, solution: &Solution, vehicle_index: usize) -> Range<usize> {
+    fn choose_range(
+        &mut self,
+        solution: &Solution,
+        vehicle_index: usize,
+        stop_region_size: usize,
+    ) -> Range<usize> {
         let len = solution.routes()[vehicle_index].len();
-        let index = (0..len.saturating_sub(MAX_STOP_REGION_SIZE))
+        let index = (0..len.saturating_sub(stop_region_size))
             .choose(&mut self.rng)
             .unwrap_or(0);
 
-        index..(index + MAX_STOP_REGION_SIZE).min(len)
+        index..(index + stop_region_size).min(len)
     }
 
     fn optimize_regions(
