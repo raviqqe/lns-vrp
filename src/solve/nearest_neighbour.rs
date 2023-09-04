@@ -120,7 +120,7 @@ mod tests {
     #[test]
     fn distribute_to_two_vehicles() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new()],
+            vec![Vehicle::new(), Vehicle::new()],
             vec![
                 Stop::new(Location::new(0.0, 0.0)),
                 Stop::new(Location::new(1.0, 0.0)),
@@ -134,6 +134,25 @@ mod tests {
         assert_eq!(
             solve(&problem),
             Solution::new(vec![vec![0, 2, 4].into(), vec![1, 3, 5].into()])
+        );
+    }
+
+    #[test]
+    fn distribute_to_two_vehicles_with_uneven_stops() {
+        let problem = SimpleProblem::new(
+            vec![Vehicle::new(), Vehicle::new()],
+            vec![
+                Stop::new(Location::new(0.0, 0.0)),
+                Stop::new(Location::new(1.0, 0.0)),
+                Stop::new(Location::new(0.1, 0.0)),
+                Stop::new(Location::new(1.1, 0.0)),
+                Stop::new(Location::new(0.2, 0.0)),
+            ],
+        );
+
+        assert_eq!(
+            solve(&problem),
+            Solution::new(vec![vec![0, 2, 4].into(), vec![1, 3].into()])
         );
     }
 }
