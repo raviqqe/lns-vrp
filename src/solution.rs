@@ -26,7 +26,7 @@ impl<A: Allocator> Solution<A> {
     where
         A: Clone,
     {
-        let mut route = self.routes[vehicle_index].to_vec_in(self.routes.allocator().clone());
+        let mut route = self.clone_route(vehicle_index);
         route.push(stop_index);
 
         let mut routes = self.routes.clone();
@@ -44,7 +44,7 @@ impl<A: Allocator> Solution<A> {
     where
         A: Clone,
     {
-        let mut route = self.routes[vehicle_index].to_vec_in(self.routes.allocator().clone());
+        let mut route = self.clone_route(vehicle_index);
         route.insert(insertion_index, stop_index);
 
         let mut routes = self.routes.clone();
