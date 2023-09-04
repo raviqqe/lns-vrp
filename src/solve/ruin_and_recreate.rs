@@ -125,6 +125,7 @@ impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
             return Solution::new(vec![]);
         }
 
+        // TODO Build an initial solution with heuristics.
         let mut solution = Solution::new({
             let mut routes = Vec::with_capacity(problem.vehicle_count());
             routes.push((0..problem.stop_count()).collect());
