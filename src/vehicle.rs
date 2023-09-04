@@ -1,4 +1,4 @@
-#[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
+#[derive(Debug, Default, Eq, Hash, PartialEq)]
 pub struct Vehicle {}
 
 impl Vehicle {
