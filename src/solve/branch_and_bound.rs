@@ -67,7 +67,6 @@ mod tests {
         cost::{DeliveryCostCalculator, DistanceCostCalculator},
         Location, SimpleProblem, Stop, Vehicle,
     };
-    use insta::assert_debug_snapshot;
 
     const DISTANCE_COST: f64 = 1.0;
     const MISSED_DELIVERY_COST: f64 = 1e9;
