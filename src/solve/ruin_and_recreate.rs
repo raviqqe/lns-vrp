@@ -31,6 +31,7 @@ impl<C: CostCalculator, S: Solver> RuinAndRecreateSolver<C, S> {
         }
     }
 
+    // TODO Choose regions to ruin based on geography.
     fn choose_regions(&mut self, solution: &Solution) -> Vec<RouteRegion> {
         let vehicle_count = solution.routes().len();
         let route_count = (1.min(vehicle_count)..(MAX_VEHICLE_REGION_SIZE.min(vehicle_count) + 1))
@@ -127,7 +128,6 @@ impl<C: CostCalculator, S: Solver> Solver for RuinAndRecreateSolver<C, S> {
             return Solution::new(vec![]);
         }
 
-        // TODO Build an initial solution with heuristics.
         let mut solution = self.initial_solver.solve(problem);
         let mut cost = self.cost_calculator.calculate(&solution);
 
