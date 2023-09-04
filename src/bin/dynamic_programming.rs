@@ -1,38 +1,12 @@
-use rand::random;
 use vrp::{
-    cost::{DeliveryCostCalculator, DistanceCostCalculator},
+    bin_utility::{create_cost_calculator, random_problem},
     solve::{DynamicProgrammingSolver, Solver},
-    Location, SimpleProblem, Stop, Vehicle,
 };
 
-const STOP_COUNT: usize = 8;
-const VEHICLE_COUNT: usize = 3;
-
-const DISTANCE_COST: f64 = 1.0;
-const MISSED_DELIVERY_COST: f64 = 1e9;
-
-fn random_longitude() -> f64 {
-    0.1 * random::<f64>()
-}
-
-fn random_location() -> Location {
-    Location::new(random_longitude(), 0.0)
-}
-
 fn main() {
-    let problem = SimpleProblem::new(
-        (0..VEHICLE_COUNT).map(|_| Vehicle::new()).collect(),
-        (0..STOP_COUNT)
-            .map(|_| Stop::new(random_location()))
-            .collect(),
-    );
+    let problem = random_problem();
 
-    let mut solver = DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
-        DistanceCostCalculator::new(&problem),
-        problem.stops().len(),
-        MISSED_DELIVERY_COST,
-        DISTANCE_COST,
-    ));
+    let mut solver = DynamicProgrammingSolver::new(create_cost_calculator(&problem));
 
     dbg!(solver
         .solve(&problem)
