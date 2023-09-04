@@ -1,6 +1,5 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, Solution};
-use ordered_float::OrderedFloat;
+use crate::{cost::CostCalculator, problem::BaseProblem, Solution};
 
 pub struct RuinAndRecreateSolver<C: CostCalculator> {
     cost_calculator: C,
@@ -22,28 +21,23 @@ impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
             return Solution::new(vec![]);
         }
 
-        let mut solutions = HashMap::default();
-        let solution = Solution::new({
+        let mut solution = Solution::new({
             let mut routes = Vec::with_capacity(problem.vehicle_count());
             routes.push((0..problem.stop_count()).collect());
             routes.extend((1..problem.vehicle_count()).map(|_| Default::default()));
             routes
         });
-        let cost = self.cost_calculator.calculate(&solution);
-        solutions.insert(solution, cost);
-        let mut new_solutions = vec![];
+        let mut cost = self.cost_calculator.calculate(&solution);
 
         for _ in 0..self.iteration_count {
             let region = self.choose_region(&solution);
+
+            if self.cost_calculator.calculate(&new_solution) < cost {
+                solution = new_solution;
+            }
         }
 
-        let solution = solutions
-            .into_iter()
-            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
-            .expect("at least one solution")
-            .0;
-
-        solution.to_global()
+        solution
     }
 
     fn choose_region(&self, solution: &Solution) -> foo {
