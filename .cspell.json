@@ -4,6 +4,7 @@
     "bumpalo",
     "clippy",
     "flamegraph",
+    "graphhopper",
     "hasher",
     "insta",
     "jsprit",
