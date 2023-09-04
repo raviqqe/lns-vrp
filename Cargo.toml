@@ -8,7 +8,7 @@ ahash = { version = "0.8.3", default-features = false }
 bumpalo = { version = "3.13.0", features = ["allocator_api"] }
 geo = "0.26.0"
 ordered-float = "3.9.1"
-rand = "0.8.5"
+rand = { version = "0.8.5", features = ["small_rng"] }
 
 [dev-dependencies]
 criterion = "0.5.1"
@@ -16,7 +16,10 @@ insta = "1.31.0"
 pretty_assertions = "1.4.0"
 
 [[bin]]
-name = "vrp"
+name = "dynamic_programming"
+
+[[bin]]
+name = "ruin_and_recreate"
 
 [[bench]]
 name = "main"

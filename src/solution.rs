@@ -2,6 +2,7 @@ use alloc::vec::Vec;
 use std::{
     alloc::{Allocator, Global},
     hash::{Hash, Hasher},
+    ops::Range,
 };
 
 // TODO Use persistent data structure.
@@ -33,10 +34,41 @@ impl<A: Allocator> Solution<A> {
         Self::new(routes)
     }
 
+    pub fn insert_stop(
+        &self,
+        vehicle_index: usize,
+        insertion_index: usize,
+        stop_index: usize,
+    ) -> Self
+    where
+        A: Clone,
+    {
+        let mut route = self.routes[vehicle_index].clone();
+        route.insert(insertion_index, stop_index);
+
+        let mut routes = self.routes.clone();
+        routes[vehicle_index] = route;
+
+        Self::new(routes)
+    }
+
     pub fn has_stop(&self, stop_index: usize) -> bool {
         self.routes
             .iter()
             .any(|stop_indexes| stop_indexes.contains(&stop_index))
+    }
+
+    pub fn ruin_route(&self, vehicle_index: usize, stop_range: Range<usize>) -> Self
+    where
+        A: Clone,
+    {
+        let mut route = self.routes[vehicle_index].clone();
+        route.drain(stop_range);
+
+        let mut routes = self.routes.clone();
+        routes[vehicle_index] = route;
+
+        Self::new(routes)
     }
 
     pub fn to_global(&self) -> Solution<Global> {
