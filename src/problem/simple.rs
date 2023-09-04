@@ -1,7 +1,6 @@
+use super::BaseProblem;
 use crate::{Location, Stop, Vehicle};
 use alloc::vec::Vec;
-
-use super::BaseProblem;
 
 #[derive(Debug)]
 pub struct SimpleProblem {
