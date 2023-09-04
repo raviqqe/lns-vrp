@@ -22,7 +22,7 @@ impl<R: Router> Solver for NearestNeighbourSolver<R> {
 
         let mut solution = Solution::new(
             (0..problem.vehicle_count())
-                .map(|_| Default::default())
+                .map(|_| vec![].into())
                 .collect(),
         );
         let mut stops = HashSet::<usize>::from_iter(0..problem.stop_count());
@@ -77,7 +77,7 @@ mod tests {
     fn do_nothing() {
         let problem = SimpleProblem::new(vec![Vehicle::new()], vec![]);
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![]]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
     }
 
     #[test]
@@ -87,7 +87,7 @@ mod tests {
             vec![Stop::new(Location::new(0.0, 0.0))],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0]]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0].into()]));
     }
 
     #[test]
@@ -133,7 +133,7 @@ mod tests {
 
         assert_eq!(
             solve(&problem),
-            Solution::new(vec![vec![0, 2, 4], vec![0, 2, 4]])
+            Solution::new(vec![vec![0, 2, 4].into(), vec![1, 3, 5].into()])
         );
     }
 }
