@@ -25,6 +25,9 @@ name = "dynamic_programming"
 [[bin]]
 name = "ruin_and_recreate"
 
+[[bin]]
+name = "heap_allocation"
+
 [[bench]]
 name = "main"
 harness = false
