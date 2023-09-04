@@ -1,7 +1,6 @@
-use ordered_float::OrderedFloat;
-
 use super::solver::Solver;
 use crate::{problem::BaseProblem, route::Router, Solution};
+use ordered_float::OrderedFloat;
 use std::collections::HashSet;
 
 pub struct NearestNeighbourSolver<R: Router> {
