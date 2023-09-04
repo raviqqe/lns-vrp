@@ -141,7 +141,6 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
                             region.range.start,
                             stop_index,
                         );
-                        dbg!(&solution);
                         let cost = self.cost_calculator.calculate(&solution);
 
                         if cost.is_finite() {
