@@ -10,15 +10,15 @@ use std::{
 // TODO Make it more compact.
 #[derive(Clone, Debug)]
 pub struct Solution<A: Allocator = Global> {
-    routes: Vec<Rc<Vec<usize, A>, A>, A>,
+    routes: Vec<Rc<[usize], A>, A>,
 }
 
 impl<A: Allocator> Solution<A> {
-    pub fn new(routes: Vec<Rc<Vec<usize, A>, A>, A>) -> Self {
+    pub fn new(routes: Vec<Rc<[usize], A>, A>) -> Self {
         Self { routes }
     }
 
-    pub fn routes(&self) -> &[Rc<Vec<usize, A>, A>] {
+    pub fn routes(&self) -> &[Rc<[usize], A>] {
         &self.routes
     }
 
@@ -37,7 +37,7 @@ impl<A: Allocator> Solution<A> {
         route.push(stop_index);
 
         let mut routes = self.routes.clone();
-        routes[vehicle_index] = Rc::new_in(route, self.routes.allocator().clone());
+        routes[vehicle_index] = route.into();
 
         Self::new(routes)
     }
@@ -56,7 +56,7 @@ impl<A: Allocator> Solution<A> {
         route.insert(insertion_index, stop_index);
 
         let mut routes = self.routes.clone();
-        routes[vehicle_index] = Rc::new_in(route, self.routes.allocator().clone());
+        routes[vehicle_index] = route.into();
 
         Self::new(routes)
     }
@@ -70,7 +70,7 @@ impl<A: Allocator> Solution<A> {
         route.drain(stop_range);
 
         let mut routes = self.routes.clone();
-        routes[vehicle_index] = Rc::new_in(route, self.routes.allocator().clone());
+        routes[vehicle_index] = route.into();
 
         Self::new(routes)
     }
