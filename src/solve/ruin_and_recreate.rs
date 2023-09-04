@@ -14,16 +14,18 @@ struct RouteRegion {
     stop_range: Range<usize>,
 }
 
-pub struct RuinAndRecreateSolver<C: CostCalculator> {
+pub struct RuinAndRecreateSolver<C: CostCalculator, S: Solver> {
     cost_calculator: C,
+    initial_solver: S,
     iteration_count: usize,
     rng: SmallRng,
 }
 
-impl<C: CostCalculator> RuinAndRecreateSolver<C> {
-    pub fn new(cost_calculator: C, iteration_count: usize) -> Self {
+impl<C: CostCalculator, S: Solver> RuinAndRecreateSolver<C, S> {
+    pub fn new(cost_calculator: C, initial_solver: S, iteration_count: usize) -> Self {
         Self {
             cost_calculator,
+            initial_solver,
             iteration_count,
             rng: SmallRng::from_seed(SEED),
         }
@@ -126,12 +128,7 @@ impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
         }
 
         // TODO Build an initial solution with heuristics.
-        let mut solution = Solution::new({
-            let mut routes = Vec::with_capacity(problem.vehicle_count());
-            routes.push((0..problem.stop_count()).collect());
-            routes.extend((1..problem.vehicle_count()).map(|_| vec![].into()));
-            routes
-        });
+        let mut solution = self.initial_solver.solve(problem);
         let mut cost = self.cost_calculator.calculate(&solution);
 
         for _ in 0..self.iteration_count {
