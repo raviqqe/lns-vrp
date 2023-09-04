@@ -2,8 +2,7 @@ use geo::Point;
 use ordered_float::OrderedFloat;
 use std::hash::{Hash, Hasher};
 
-// The fields are in the order in GeoJSON.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Location(Point);
 
 impl Location {

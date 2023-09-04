@@ -141,7 +141,7 @@ impl<C: CostCalculator, S: Solver> Solver for RuinAndRecreateSolver<C, S> {
 
         for _ in 0..self.iteration_count {
             let regions = self.choose_regions(&solution);
-            trace!(&regions);
+            trace!("regions: {:?}", &regions);
             let new_solution = self.optimize_regions(&solution, &regions);
             let new_cost = self.cost_calculator.calculate(&new_solution);
 
@@ -149,6 +149,10 @@ impl<C: CostCalculator, S: Solver> Solver for RuinAndRecreateSolver<C, S> {
             // TODO Save multiple solutions.
             // TODO Decide if a solution is good enough already.
             if new_cost < cost {
+                trace!("new solution found!");
+                trace!("solution: {:?}", solution);
+                trace!("cost: {:?}", cost);
+
                 solution = new_solution;
                 cost = new_cost;
             }

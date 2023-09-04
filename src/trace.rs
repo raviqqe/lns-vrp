@@ -1,7 +1,10 @@
 #[macro_export]
 macro_rules! trace {
-    ($expr:expr) => {
+    ($template:literal) => {
+        trace!($template,);
+    };
+    ($template:literal, $($value:expr),*) => {
         #[cfg(feature = "trace")]
-        dbg!($expr);
+        println!($template, $($value),*);
     };
 }
