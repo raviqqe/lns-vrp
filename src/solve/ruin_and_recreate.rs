@@ -4,41 +4,37 @@ use ordered_float::OrderedFloat;
 
 pub struct RuinAndRecreateSolver<C: CostCalculator> {
     cost_calculator: C,
+    iteration_count: usize,
 }
 
 impl<C: CostCalculator> RuinAndRecreateSolver<C> {
-    pub fn new(cost_calculator: C) -> Self {
-        Self { cost_calculator }
+    pub fn new(cost_calculator: C, iteration_count: usize) -> Self {
+        Self {
+            cost_calculator,
+            iteration_count,
+        }
     }
 }
 
 impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
+        if problem.vehicle_count() == 0 {
+            return Solution::new(vec![]);
+        }
+
         let mut solutions = HashMap::default();
         let solution = Solution::new({
             let mut routes = Vec::with_capacity(problem.vehicle_count());
-            routes.extend((0..problem.vehicle_count()).map(|_| Default::default()));
+            routes.push((0..problem.stop_count()).collect());
+            routes.extend((1..problem.vehicle_count()).map(|_| Default::default()));
             routes
         });
         let cost = self.cost_calculator.calculate(&solution);
         solutions.insert(solution, cost);
         let mut new_solutions = vec![];
 
-        for stop_index in 0..problem.stop_count() {
-            new_solutions.clear();
-
-            for solution in solutions.keys() {
-                for vehicle_index in 0..solution.routes().len() {
-                    let solution = solution.add_stop(vehicle_index, stop_index);
-                    let cost = self.cost_calculator.calculate(&solution);
-
-                    if cost.is_finite() {
-                        new_solutions.push((solution, cost));
-                    }
-                }
-            }
-
-            solutions.extend(new_solutions.drain(..));
+        for _ in 0..self.iteration_count {
+            let region = self.choose_region(&solution);
         }
 
         let solution = solutions
@@ -48,6 +44,14 @@ impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
             .0;
 
         solution.to_global()
+    }
+
+    fn choose_region(&self, solution: &Solution) -> foo {
+        if rand::random::<bool>() {
+            todo!()
+        } else {
+            todo!()
+        }
     }
 }
 
