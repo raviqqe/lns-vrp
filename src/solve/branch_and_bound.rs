@@ -26,17 +26,23 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
         solutions.insert(solution, cost);
         let mut new_solutions = vec![];
 
-        for stop_index in 0..problem.stop_count() {
+        for _ in 0..problem.stop_count() {
             new_solutions.clear();
 
             for (solution, upper_bound) in &solutions {
-                for vehicle_index in 0..solution.routes().len() {
-                    let solution = solution.add_stop(vehicle_index, stop_index);
-                    let lower_bound = self.cost_calculator.calculate_lower_bound(&solution);
+                for stop_index in 0..problem.stop_count() {
+                    if solution.has_stop(stop_index) {
+                        continue;
+                    }
 
-                    if lower_bound < *upper_bound {
-                        let cost = self.cost_calculator.calculate(&solution);
-                        new_solutions.push((solution, cost));
+                    for vehicle_index in 0..solution.routes().len() {
+                        let solution = solution.add_stop(vehicle_index, stop_index);
+                        let lower_bound = self.cost_calculator.calculate_lower_bound(&solution);
+
+                        if lower_bound < *upper_bound {
+                            let cost = self.cost_calculator.calculate(&solution);
+                            new_solutions.push((solution, cost));
+                        }
                     }
                 }
             }
@@ -102,7 +108,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1]]));
+        assert_eq!(solve(&problem).routes()[0].len(), 2);
     }
 
     #[test]
@@ -116,7 +122,21 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1, 2]]));
+        assert_eq!(solve(&problem).routes()[0][1], 1);
+    }
+
+    #[test]
+    fn optimize_stop_order() {
+        let problem = SimpleProblem::new(
+            vec![Vehicle::new()],
+            vec![
+                Stop::new(Location::new(0.0, 0.0)),
+                Stop::new(Location::new(2.0, 0.0)),
+                Stop::new(Location::new(1.0, 0.0)),
+            ],
+        );
+
+        assert_eq!(solve(&problem).routes()[0][1], 2);
     }
 
     #[test]

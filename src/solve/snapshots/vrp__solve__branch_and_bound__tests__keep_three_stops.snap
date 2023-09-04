@@ -1,0 +1,13 @@
+---
+source: src/solve/branch_and_bound.rs
+expression: solve(&problem)
+---
+Solution {
+    routes: [
+        [
+            0,
+            1,
+            2,
+        ],
+    ],
+}

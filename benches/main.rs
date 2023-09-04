@@ -6,7 +6,7 @@ use vrp::{
     Location, SimpleProblem, Stop, Vehicle,
 };
 
-const STOP_COUNT: usize = 11;
+const STOP_COUNT: usize = 8;
 const VEHICLE_COUNT: usize = 2;
 
 const DISTANCE_COST: f64 = 1.0;

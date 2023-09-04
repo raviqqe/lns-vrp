@@ -2,6 +2,8 @@
 
 Vehicle Routing Problem (VRP) solver
 
+A number of total cases is `(s + v - 1)! / (v - 1)!` where `s` is a number of stops and `v` is a number of vehicles.
+
 ## References
 
 - [`reinterpretcat/vrp`](https://github.com/reinterpretcat/vrp)

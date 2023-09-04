@@ -1,0 +1,12 @@
+---
+source: src/solve/dynamic_programming.rs
+expression: solve(&problem)
+---
+Solution {
+    routes: [
+        [
+            1,
+            0,
+        ],
+    ],
+}

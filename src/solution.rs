@@ -33,6 +33,12 @@ impl<A: Allocator> Solution<A> {
         Self::new(routes)
     }
 
+    pub fn has_stop(&self, stop_index: usize) -> bool {
+        self.routes
+            .iter()
+            .any(|stop_indexes| stop_indexes.contains(&stop_index))
+    }
+
     pub fn to_global(&self) -> Solution<Global> {
         Solution::new(self.routes().iter().map(|route| route.to_vec()).collect())
     }
