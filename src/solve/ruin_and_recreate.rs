@@ -1,6 +1,5 @@
 use super::solver::Solver;
 use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, Solution};
-use bumpalo::Bump;
 use ordered_float::OrderedFloat;
 
 pub struct RuinAndRecreateSolver<C: CostCalculator> {
@@ -15,11 +14,10 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
 
 impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
-        let allocator = Bump::new();
         let mut solutions = HashMap::default();
         let solution = Solution::new({
-            let mut routes = Vec::with_capacity_in(problem.vehicle_count(), &allocator);
-            routes.extend((0..problem.vehicle_count()).map(|_| Vec::new_in(&allocator)));
+            let mut routes = Vec::with_capacity(problem.vehicle_count());
+            routes.extend((0..problem.vehicle_count()).map(|_| Default::default()));
             routes
         });
         let cost = self.cost_calculator.calculate(&solution);
