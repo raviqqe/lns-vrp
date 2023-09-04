@@ -15,47 +15,13 @@ impl<C: CostCalculator> NearestNeighbourSolver<C> {
 
 impl<C: CostCalculator> Solver for NearestNeighbourSolver<C> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
-        let allocator = Bump::new();
-        let mut solutions = HashMap::default();
-        let solution = Solution::new({
-            let mut routes = Vec::with_capacity_in(problem.vehicle_count(), &allocator);
-            routes.extend((0..problem.vehicle_count()).map(|_| Vec::new_in(&allocator)));
-            routes
-        });
-        let cost = self.cost_calculator.calculate(&solution);
-        solutions.insert(solution, cost);
-        let mut new_solutions = vec![];
+        let solution = Solution::new((0..problem.vehicle_count()).map(|_| Default::default()));
 
-        for _ in 0..problem.stop_count() {
-            new_solutions.clear();
-
-            for solution in solutions.keys() {
-                for stop_index in 0..problem.stop_count() {
-                    if solution.has_stop(stop_index) {
-                        continue;
-                    }
-
-                    for vehicle_index in 0..solution.routes().len() {
-                        let solution = solution.add_stop(vehicle_index, stop_index);
-                        let cost = self.cost_calculator.calculate(&solution);
-
-                        if cost.is_finite() {
-                            new_solutions.push((solution, cost));
-                        }
-                    }
-                }
-            }
-
-            solutions.extend(new_solutions.drain(..));
+        for stop_index in 0..problem.stop_count() {
+            foo
         }
 
-        let solution = solutions
-            .into_iter()
-            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
-            .expect("at least one solution")
-            .0;
-
-        solution.to_global()
+        solution
     }
 }
 
