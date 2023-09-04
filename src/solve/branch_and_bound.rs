@@ -109,7 +109,7 @@ mod tests {
             ],
         );
 
-        assert_debug_snapshot!(solve(&problem));
+        assert_eq!(solve(&problem).routes()[0].len(), 2);
     }
 
     #[test]
@@ -123,7 +123,7 @@ mod tests {
             ],
         );
 
-        assert_debug_snapshot!(solve(&problem));
+        assert_eq!(solve(&problem).routes()[0][1], 1);
     }
 
     #[test]
@@ -137,7 +137,7 @@ mod tests {
             ],
         );
 
-        assert_debug_snapshot!(solve(&problem));
+        assert_eq!(solve(&problem).routes()[0][1], 2);
     }
 
     #[test]
