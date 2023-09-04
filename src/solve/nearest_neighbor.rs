@@ -3,17 +3,17 @@ use crate::{problem::BaseProblem, route::Router, Solution};
 use ordered_float::OrderedFloat;
 use std::collections::HashSet;
 
-pub struct NearestNeighbourSolver<R: Router> {
+pub struct NearestNeighborSolver<R: Router> {
     router: R,
 }
 
-impl<R: Router> NearestNeighbourSolver<R> {
+impl<R: Router> NearestNeighborSolver<R> {
     pub fn new(router: R) -> Self {
         Self { router }
     }
 }
 
-impl<R: Router> Solver for NearestNeighbourSolver<R> {
+impl<R: Router> Solver for NearestNeighborSolver<R> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         if problem.vehicle_count() == 0 {
             return Solution::new(vec![]);
@@ -69,7 +69,7 @@ mod tests {
     use crate::{route::CrowRouter, Location, SimpleProblem, Stop, Vehicle};
 
     fn solve(problem: &SimpleProblem) -> Solution {
-        NearestNeighbourSolver::new(CrowRouter::new()).solve(problem)
+        NearestNeighborSolver::new(CrowRouter::new()).solve(problem)
     }
 
     #[test]
