@@ -76,6 +76,8 @@ impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
         for _ in 0..self.iteration_count {
             let region = self.choose_region(&solution);
 
+            let new_solution = todo!();
+
             if self.cost_calculator.calculate(&new_solution) < cost {
                 solution = new_solution;
             }
