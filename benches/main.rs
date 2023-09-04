@@ -3,7 +3,10 @@ use rand::random;
 use vrp::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},
     route::CrowRouter,
-    solve::{BranchAndBoundSolver, DynamicProgrammingSolver, RuinAndRecreateSolver, Solver},
+    solve::{
+        BranchAndBoundSolver, DynamicProgrammingSolver, NearestNeighborSolver,
+        RuinAndRecreateSolver, Solver,
+    },
     Location, SimpleProblem, Stop, Vehicle,
 };
 
@@ -58,7 +61,11 @@ fn branch_and_bound(bencher: &mut Bencher) {
 
 fn ruin_and_recreate(bencher: &mut Bencher) {
     let problem = random_problem();
-    let mut solver = RuinAndRecreateSolver::new(create_cost_calculator(&problem), ITERATION_COUNT);
+    let mut solver = RuinAndRecreateSolver::new(
+        create_cost_calculator(&problem),
+        NearestNeighborSolver::new(CrowRouter::new()),
+        ITERATION_COUNT,
+    );
 
     bencher.iter(|| solver.solve(&problem));
 }
