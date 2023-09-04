@@ -97,14 +97,18 @@ mod tests {
 
     const DISTANCE_COST: f64 = 1.0;
     const MISSED_DELIVERY_COST: f64 = 1e9;
+    const ITERATION_COUNT: usize = 100;
 
     fn solve(problem: &SimpleProblem) -> Solution {
-        RuinAndRecreateSolver::new(DeliveryCostCalculator::new(
-            DistanceCostCalculator::new(problem),
-            problem.stops().len(),
-            MISSED_DELIVERY_COST,
-            DISTANCE_COST,
-        ))
+        RuinAndRecreateSolver::new(
+            DeliveryCostCalculator::new(
+                DistanceCostCalculator::new(problem),
+                problem.stops().len(),
+                MISSED_DELIVERY_COST,
+                DISTANCE_COST,
+            ),
+            ITERATION_COUNT,
+        )
         .solve(problem)
     }
 
