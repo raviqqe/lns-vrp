@@ -1,6 +1,7 @@
 use crate::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},
     problem::BaseProblem,
+    route::CrowRouter,
     Location, SimpleProblem, Solution, Stop, Vehicle,
 };
 use rand::random;
@@ -29,9 +30,11 @@ pub fn random_problem() -> SimpleProblem {
     )
 }
 
-pub fn create_cost_calculator(problem: &SimpleProblem) -> DeliveryCostCalculator<&SimpleProblem> {
+pub fn create_cost_calculator(
+    problem: &SimpleProblem,
+) -> DeliveryCostCalculator<CrowRouter, &SimpleProblem> {
     DeliveryCostCalculator::new(
-        DistanceCostCalculator::new(problem),
+        DistanceCostCalculator::new(CrowRouter::new(), problem),
         problem.stops().len(),
         MISSED_DELIVERY_COST,
         DISTANCE_COST,

@@ -2,6 +2,7 @@ use criterion::{criterion_group, criterion_main, Bencher, Criterion};
 use rand::random;
 use vrp::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},
+    route::CrowRouter,
     solve::{BranchAndBoundSolver, DynamicProgrammingSolver, RuinAndRecreateSolver, Solver},
     Location, SimpleProblem, Stop, Vehicle,
 };
@@ -30,9 +31,11 @@ fn random_problem() -> SimpleProblem {
     )
 }
 
-fn create_cost_calculator(problem: &SimpleProblem) -> DeliveryCostCalculator<&SimpleProblem> {
+fn create_cost_calculator(
+    problem: &SimpleProblem,
+) -> DeliveryCostCalculator<CrowRouter, &SimpleProblem> {
     DeliveryCostCalculator::new(
-        DistanceCostCalculator::new(problem),
+        DistanceCostCalculator::new(CrowRouter::new(), problem),
         problem.stops().len(),
         MISSED_DELIVERY_COST,
         DISTANCE_COST,
