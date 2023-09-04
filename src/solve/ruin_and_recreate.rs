@@ -5,18 +5,13 @@ use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
 use std::ops::Range;
 
 const SEED: [u8; 32] = [0u8; 32];
-const MAX_STOP_RANGE_SIZE: usize = 3;
+const MAX_VEHICLE_REGION_SIZE: usize = 2;
+const MAX_STOP_REGION_SIZE: usize = 3;
 
 #[derive(Debug)]
 struct RouteRegion {
     vehicle_index: usize,
     range: Range<usize>,
-}
-
-#[derive(Debug)]
-enum Region {
-    One(RouteRegion),
-    Two(RouteRegion, RouteRegion),
 }
 
 pub struct RuinAndRecreateSolver<C: CostCalculator> {
@@ -34,41 +29,29 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
         }
     }
 
-    fn choose_region(&mut self, solution: &Solution) -> Region {
-        if rand::random::<bool>() || solution.routes().len() == 1 {
-            let vehicle_index = (0..solution.routes().len())
-                .choose(&mut self.rng)
-                .expect("at least one vehicle");
+    fn choose_regions(&mut self, solution: &Solution) -> Vec<RouteRegion> {
+        let vehicle_count = solution.routes().len();
+        let route_count = (1.min(vehicle_count)..(MAX_VEHICLE_REGION_SIZE.min(vehicle_count) + 1))
+            .choose(&mut self.rng)
+            .expect("ruined route count");
 
-            Region::One(RouteRegion {
+        (0..vehicle_count)
+            .choose_multiple(&mut self.rng, route_count)
+            .into_iter()
+            .map(|vehicle_index| RouteRegion {
                 vehicle_index,
                 range: self.choose_range(solution, vehicle_index),
             })
-        } else {
-            let mut vehicle_indexes = [0usize; 2];
-
-            (0..solution.routes().len()).choose_multiple_fill(&mut self.rng, &mut vehicle_indexes);
-
-            Region::Two(
-                RouteRegion {
-                    vehicle_index: vehicle_indexes[0],
-                    range: self.choose_range(solution, vehicle_indexes[0]),
-                },
-                RouteRegion {
-                    vehicle_index: vehicle_indexes[1],
-                    range: self.choose_range(solution, vehicle_indexes[1]),
-                },
-            )
-        }
+            .collect()
     }
 
     fn choose_range(&mut self, solution: &Solution, vehicle_index: usize) -> Range<usize> {
         let len = solution.routes()[vehicle_index].len();
-        let index = (0..len.saturating_sub(MAX_STOP_RANGE_SIZE))
+        let index = (0..len.saturating_sub(MAX_STOP_REGION_SIZE))
             .choose(&mut self.rng)
             .unwrap_or(0);
 
-        index..(index + MAX_STOP_RANGE_SIZE).min(len)
+        index..(index + MAX_STOP_REGION_SIZE).min(len)
     }
 
     fn solve_one_region(&mut self, initial_solution: &Solution, region: &RouteRegion) -> Solution {
@@ -108,26 +91,28 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
             .0
     }
 
-    fn solve_two_regions(
+    fn optimize_regions(
         &mut self,
         initial_solution: &Solution,
-        one: &RouteRegion,
-        other: &RouteRegion,
+        regions: &[RouteRegion],
     ) -> Solution {
-        let solution = initial_solution
-            .ruin_route(one.vehicle_index, one.range.clone())
-            .ruin_route(other.vehicle_index, other.range.clone());
+        let mut solution = initial_solution.clone();
+
+        for region in regions {
+            solution = solution.ruin_route(region.vehicle_index, region.range.clone())
+        }
+
         let cost = self.cost_calculator.calculate(&solution);
 
         let mut solutions = HashMap::default();
         solutions.insert(solution.clone(), cost);
         let mut new_solutions = vec![];
 
-        for _ in [one, other].iter().flat_map(|region| region.range.clone()) {
+        for _ in regions.iter().flat_map(|region| region.range.clone()) {
             new_solutions.clear();
 
             for solution in solutions.keys() {
-                for stop_index in [one, other]
+                for stop_index in regions
                     .iter()
                     .flat_map(|region| Self::region_stop_indexes(region, initial_solution))
                 {
@@ -135,7 +120,7 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
                         continue;
                     }
 
-                    for region in [one, other] {
+                    for region in regions {
                         let solution = solution.insert_stop(
                             region.vehicle_index,
                             region.range.start,
@@ -186,10 +171,8 @@ impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
         let mut cost = self.cost_calculator.calculate(&solution);
 
         for _ in 0..self.iteration_count {
-            let new_solution = match &self.choose_region(&solution) {
-                Region::One(region) => self.solve_one_region(&solution, region),
-                Region::Two(one, other) => self.solve_two_regions(&solution, one, other),
-            };
+            let regions = self.choose_regions(&solution);
+            let new_solution = self.optimize_regions(&solution, &regions);
             let new_cost = self.cost_calculator.calculate(&new_solution);
 
             // TODO Consider a non-greedy strategy like simulated annealing.
