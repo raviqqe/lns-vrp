@@ -76,7 +76,7 @@ impl<A: Allocator> Solution<A> {
         Solution::new(
             self.routes()
                 .iter()
-                .map(|route| route.as_ref().to_vec())
+                .map(|route| route.to_vec().into())
                 .collect(),
         )
     }
