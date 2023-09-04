@@ -2,16 +2,18 @@ use super::solver::Solver;
 use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, Solution};
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
-use std::{iter::repeat, ops::Range};
+use std::ops::Range;
 
 const SEED: [u8; 32] = [0u8; 32];
 const MAX_STOP_RANGE_SIZE: usize = 4;
 
+#[derive(Debug)]
 struct RouteRegion {
     vehicle_index: usize,
     range: Range<usize>,
 }
 
+#[derive(Debug)]
 enum Region {
     One(RouteRegion),
     Two(RouteRegion, RouteRegion),
@@ -70,18 +72,18 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
     }
 
     fn solve_one_region(&mut self, initial_solution: &Solution, region: &RouteRegion) -> Solution {
+        let solution = initial_solution.ruin_route(region.vehicle_index, region.range.clone());
+        let cost = self.cost_calculator.calculate(&solution);
+
         let mut solutions = HashMap::default();
-        solutions.insert(
-            initial_solution.clone(),
-            self.cost_calculator.calculate(initial_solution),
-        );
+        solutions.insert(solution, cost);
         let mut new_solutions = vec![];
 
         for _ in region.range.clone() {
             new_solutions.clear();
 
             for solution in solutions.keys() {
-                for stop_index in Self::region_stop_indexes(region, solution) {
+                for stop_index in Self::region_stop_indexes(region, initial_solution) {
                     if solution.has_stop(stop_index) {
                         continue;
                     }
@@ -99,43 +101,47 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
             solutions.extend(new_solutions.drain(..));
         }
 
-        let solution = solutions
+        solutions
             .into_iter()
             .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
             .expect("at least one solution")
-            .0;
-
-        solution.to_global()
+            .0
     }
 
     fn solve_two_regions(
-        &self,
-        solution: &Solution,
+        &mut self,
+        initial_solution: &Solution,
         one: &RouteRegion,
         other: &RouteRegion,
     ) -> Solution {
+        let solution = initial_solution
+            .ruin_route(one.vehicle_index, one.range.clone())
+            .ruin_route(other.vehicle_index, other.range.clone());
+        let cost = self.cost_calculator.calculate(&solution);
+
         let mut solutions = HashMap::default();
-        solutions.insert(solution.clone(), self.cost_calculator.calculate(solution));
+        solutions.insert(solution.clone(), cost);
         let mut new_solutions = vec![];
 
-        for _ in one.range.clone().chain(other.range.clone()) {
+        for _ in [one, other].iter().flat_map(|region| region.range.clone()) {
             new_solutions.clear();
 
             for solution in solutions.keys() {
                 for stop_index in [one, other]
                     .iter()
-                    .flat_map(|region| Self::region_stop_indexes(region, solution))
+                    .flat_map(|region| Self::region_stop_indexes(region, initial_solution))
                 {
                     if solution.has_stop(stop_index) {
                         continue;
                     }
 
-                    for vehicle_index in [one.vehicle_index, other.vehicle_index] {
+                    for region in [one, other] {
                         let solution = solution.insert_stop(
                             region.vehicle_index,
                             region.range.start,
                             stop_index,
                         );
+                        dbg!(&solution);
                         let cost = self.cost_calculator.calculate(&solution);
 
                         if cost.is_finite() {
@@ -148,13 +154,11 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
             solutions.extend(new_solutions.drain(..));
         }
 
-        let solution = solutions
+        solutions
             .into_iter()
             .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
             .expect("at least one solution")
-            .0;
-
-        solution.to_global()
+            .0
     }
 
     fn region_stop_indexes<'a>(
@@ -165,10 +169,6 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
             .range
             .clone()
             .map(|index| solution.routes()[region.vehicle_index][index])
-    }
-
-    fn iter_route_region(region: &RouteRegion) -> impl Iterator<Item = (usize, usize)> {
-        repeat(region.vehicle_index).zip(region.range.clone())
     }
 }
 
@@ -188,8 +188,8 @@ impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
 
         for _ in 0..self.iteration_count {
             let new_solution = match &self.choose_region(&solution) {
-                Region::One(region) => self.solve_one_region(&solution, &region),
-                Region::Two(one, other) => self.solve_two_regions(&solution, &one, &other),
+                Region::One(region) => self.solve_one_region(&solution, region),
+                Region::Two(one, other) => self.solve_two_regions(&solution, one, other),
             };
             let new_cost = self.cost_calculator.calculate(&new_solution);
 

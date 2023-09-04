@@ -2,6 +2,7 @@ use alloc::vec::Vec;
 use std::{
     alloc::{Allocator, Global},
     hash::{Hash, Hasher},
+    ops::Range,
 };
 
 // TODO Use persistent data structure.
@@ -55,6 +56,19 @@ impl<A: Allocator> Solution<A> {
         self.routes
             .iter()
             .any(|stop_indexes| stop_indexes.contains(&stop_index))
+    }
+
+    pub fn ruin_route(&self, vehicle_index: usize, stop_range: Range<usize>) -> Self
+    where
+        A: Clone,
+    {
+        let mut route = self.routes[vehicle_index].clone();
+        route.drain(stop_range);
+
+        let mut routes = self.routes.clone();
+        routes[vehicle_index] = route;
+
+        Self::new(routes)
     }
 
     pub fn to_global(&self) -> Solution<Global> {

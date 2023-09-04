@@ -8,6 +8,7 @@ use vrp::{
 
 const STOP_COUNT: usize = 8;
 const VEHICLE_COUNT: usize = 2;
+const ITERATION_COUNT: usize = 100;
 
 const DISTANCE_COST: f64 = 1.0;
 const MISSED_DELIVERY_COST: f64 = 1e9;
@@ -54,7 +55,7 @@ fn branch_and_bound(bencher: &mut Bencher) {
 
 fn ruin_and_recreate(bencher: &mut Bencher) {
     let problem = random_problem();
-    let mut solver = RuinAndRecreateSolver::new(create_cost_calculator(&problem));
+    let mut solver = RuinAndRecreateSolver::new(create_cost_calculator(&problem), ITERATION_COUNT);
 
     bencher.iter(|| solver.solve(&problem));
 }
