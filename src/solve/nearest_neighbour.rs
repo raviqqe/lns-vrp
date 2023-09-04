@@ -71,7 +71,7 @@ mod tests {
     const MISSED_DELIVERY_COST: f64 = 1e9;
 
     fn solve(problem: &SimpleProblem) -> Solution {
-        DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
+        NearestNeighbourSolver::new(DeliveryCostCalculator::new(
             DistanceCostCalculator::new(problem),
             problem.stops().len(),
             MISSED_DELIVERY_COST,
