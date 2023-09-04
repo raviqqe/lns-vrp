@@ -5,7 +5,7 @@ use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
 use std::ops::Range;
 
 const SEED: [u8; 32] = [0u8; 32];
-const MAX_STOP_RANGE_SIZE: usize = 4;
+const MAX_STOP_RANGE_SIZE: usize = 3;
 
 #[derive(Debug)]
 struct RouteRegion {
@@ -194,6 +194,7 @@ impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
 
             // TODO Consider a non-greedy strategy like simulated annealing.
             // TODO Save multiple solutions.
+            // TODO Decide if a solution is good enough already.
             if new_cost < cost {
                 solution = new_solution;
                 cost = new_cost;
