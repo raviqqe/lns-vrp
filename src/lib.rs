@@ -3,6 +3,8 @@
 extern crate alloc;
 extern crate core;
 
+#[doc(hidden)]
+pub mod bin_utility;
 mod context;
 pub mod cost;
 mod hash_map;

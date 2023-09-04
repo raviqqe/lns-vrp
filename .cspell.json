@@ -8,6 +8,8 @@
     "insta",
     "powi",
     "reinterpretcat",
-    "rustfmt"
+    "rngs",
+    "rustfmt",
+    "seedable"
   ]
 }
