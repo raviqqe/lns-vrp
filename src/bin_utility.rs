@@ -1,6 +1,7 @@
 use crate::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},
-    Location, SimpleProblem, Stop, Vehicle,
+    problem::BaseProblem,
+    Location, SimpleProblem, Solution, Stop, Vehicle,
 };
 use rand::random;
 use std::time::Instant;
@@ -37,10 +38,26 @@ pub fn create_cost_calculator(problem: &SimpleProblem) -> DeliveryCostCalculator
     )
 }
 
-pub fn measure_time(callback: impl FnOnce()) {
+pub fn measure_time<T>(callback: impl FnOnce() -> T) -> T {
     let instant = Instant::now();
 
-    callback();
+    let value = callback();
 
     dbg!(Instant::now().duration_since(instant));
+
+    value
+}
+
+pub fn print_solution(problem: impl BaseProblem, solution: &Solution) {
+    println!(
+        "{:#?}",
+        solution
+            .routes()
+            .iter()
+            .map(|indexes| indexes
+                .iter()
+                .map(|index| problem.stop_location(*index).as_point().x())
+                .collect::<Vec<_>>())
+            .collect::<Vec<_>>()
+    );
 }
