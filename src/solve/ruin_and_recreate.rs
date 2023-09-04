@@ -1,9 +1,11 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, problem::BaseProblem, Solution};
+use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, Solution};
+use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
-use std::ops::Range;
+use std::{iter::repeat, ops::Range};
 
 const SEED: [u8; 32] = [0u8; 32];
+const MAX_STOP_RANGE_SIZE: usize = 4;
 
 struct RouteRegion {
     vehicle_index: usize,
@@ -38,7 +40,7 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
 
             Region::One(RouteRegion {
                 vehicle_index,
-                range: todo!(),
+                range: self.choose_range(solution, vehicle_index),
             })
         } else {
             let mut vehicle_indexes = [0usize; 2];
@@ -48,14 +50,125 @@ impl<C: CostCalculator> RuinAndRecreateSolver<C> {
             Region::Two(
                 RouteRegion {
                     vehicle_index: vehicle_indexes[0],
-                    range: todo!(),
+                    range: self.choose_range(solution, vehicle_indexes[0]),
                 },
                 RouteRegion {
                     vehicle_index: vehicle_indexes[1],
-                    range: todo!(),
+                    range: self.choose_range(solution, vehicle_indexes[1]),
                 },
             )
         }
+    }
+
+    fn choose_range(&mut self, solution: &Solution, vehicle_index: usize) -> Range<usize> {
+        let len = solution.routes()[vehicle_index].len();
+        let index = (0..len.saturating_sub(MAX_STOP_RANGE_SIZE))
+            .choose(&mut self.rng)
+            .unwrap_or(0);
+
+        index..(index + MAX_STOP_RANGE_SIZE).min(len)
+    }
+
+    fn solve_one_region(&mut self, initial_solution: &Solution, region: &RouteRegion) -> Solution {
+        let mut solutions = HashMap::default();
+        solutions.insert(
+            initial_solution.clone(),
+            self.cost_calculator.calculate(initial_solution),
+        );
+        let mut new_solutions = vec![];
+
+        for _ in region.range.clone() {
+            new_solutions.clear();
+
+            for solution in solutions.keys() {
+                for stop_index in Self::region_stop_indexes(region, solution) {
+                    if solution.has_stop(stop_index) {
+                        continue;
+                    }
+
+                    let solution =
+                        solution.insert_stop(region.vehicle_index, region.range.start, stop_index);
+                    let cost = self.cost_calculator.calculate(&solution);
+
+                    if cost.is_finite() {
+                        new_solutions.push((solution, cost));
+                    }
+                }
+            }
+
+            solutions.extend(new_solutions.drain(..));
+        }
+
+        let solution = solutions
+            .into_iter()
+            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
+            .expect("at least one solution")
+            .0;
+
+        solution.to_global()
+    }
+
+    fn solve_two_regions(
+        &self,
+        solution: &Solution,
+        one: &RouteRegion,
+        other: &RouteRegion,
+    ) -> Solution {
+        let mut solutions = HashMap::default();
+        solutions.insert(solution.clone(), self.cost_calculator.calculate(solution));
+        let mut new_solutions = vec![];
+
+        for _ in one.range.clone().chain(other.range.clone()) {
+            new_solutions.clear();
+
+            for solution in solutions.keys() {
+                for stop_index in [one, other]
+                    .iter()
+                    .flat_map(|region| Self::region_stop_indexes(region, solution))
+                {
+                    if solution.has_stop(stop_index) {
+                        continue;
+                    }
+
+                    for vehicle_index in [one.vehicle_index, other.vehicle_index] {
+                        let solution = solution.insert_stop(
+                            region.vehicle_index,
+                            region.range.start,
+                            stop_index,
+                        );
+                        let cost = self.cost_calculator.calculate(&solution);
+
+                        if cost.is_finite() {
+                            new_solutions.push((solution, cost));
+                        }
+                    }
+                }
+            }
+
+            solutions.extend(new_solutions.drain(..));
+        }
+
+        let solution = solutions
+            .into_iter()
+            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
+            .expect("at least one solution")
+            .0;
+
+        solution.to_global()
+    }
+
+    fn region_stop_indexes<'a>(
+        region: &'a RouteRegion,
+        solution: &'a Solution,
+    ) -> impl Iterator<Item = usize> + 'a {
+        region
+            .range
+            .clone()
+            .map(|index| solution.routes()[region.vehicle_index][index])
+    }
+
+    fn iter_route_region(region: &RouteRegion) -> impl Iterator<Item = (usize, usize)> {
+        repeat(region.vehicle_index).zip(region.range.clone())
     }
 }
 
@@ -74,12 +187,17 @@ impl<C: CostCalculator> Solver for RuinAndRecreateSolver<C> {
         let mut cost = self.cost_calculator.calculate(&solution);
 
         for _ in 0..self.iteration_count {
-            let region = self.choose_region(&solution);
+            let new_solution = match &self.choose_region(&solution) {
+                Region::One(region) => self.solve_one_region(&solution, &region),
+                Region::Two(one, other) => self.solve_two_regions(&solution, &one, &other),
+            };
+            let new_cost = self.cost_calculator.calculate(&new_solution);
 
-            let new_solution = todo!();
-
-            if self.cost_calculator.calculate(&new_solution) < cost {
+            // TODO Consider a non-greedy strategy like simulated annealing.
+            // TODO Save multiple solutions.
+            if new_cost < cost {
                 solution = new_solution;
+                cost = new_cost;
             }
         }
 
