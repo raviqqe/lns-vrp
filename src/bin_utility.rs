@@ -7,9 +7,6 @@ use crate::{
 use rand::random;
 use std::time::Instant;
 
-const STOP_COUNT: usize = 8;
-const VEHICLE_COUNT: usize = 3;
-
 const DISTANCE_COST: f64 = 1.0;
 const MISSED_DELIVERY_COST: f64 = 1e9;
 
@@ -27,10 +24,10 @@ fn random_location() -> Location {
     Location::new(random_longitude(), random_latitude())
 }
 
-pub fn random_problem() -> SimpleProblem {
+pub fn random_problem(vehicle_count: usize, stop_count: usize) -> SimpleProblem {
     SimpleProblem::new(
-        (0..VEHICLE_COUNT).map(|_| Vehicle::new()).collect(),
-        (0..STOP_COUNT)
+        (0..vehicle_count).map(|_| Vehicle::new()).collect(),
+        (0..stop_count)
             .map(|_| Stop::new(random_location()))
             .collect(),
     )
