@@ -1,10 +1,13 @@
 use alloc::vec::Vec;
+use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 use std::{
     alloc::{Allocator, Global},
     hash::{Hash, Hasher},
     ops::Range,
     rc::Rc,
 };
+
+use crate::problem::BaseProblem;
 
 // TODO Use persistent data structure.
 // TODO Make it more compact.
@@ -89,6 +92,43 @@ impl<A: Allocator> Solution<A> {
         A: Clone,
     {
         self.routes[vehicle_index].to_vec_in(self.routes.allocator().clone())
+    }
+
+    pub fn to_geojson(&self, problem: impl BaseProblem) -> GeoJson {
+        FeatureCollection {
+            bbox: None,
+            foreign_members: None,
+            features: self
+                .routes
+                .iter()
+                .filter(|route| route.len() > 0)
+                .map(|route| Feature {
+                    geometry: Some(Geometry {
+                        bbox: None,
+                        foreign_members: None,
+                        value: if route.len() == 1 {
+                            let point = problem.stop_location(route[0]).as_point();
+                            Value::Point(vec![point.x(), point.y()])
+                        } else {
+                            Value::LineString(
+                                route
+                                    .iter()
+                                    .copied()
+                                    .map(|stop_index| {
+                                        let coordinates =
+                                            problem.stop_location(stop_index).as_point();
+
+                                        vec![coordinates.x(), coordinates.y()]
+                                    })
+                                    .collect(),
+                            )
+                        },
+                    }),
+                    ..Default::default()
+                })
+                .collect(),
+        }
+        .into()
     }
 }
 
