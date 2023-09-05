@@ -107,10 +107,10 @@ impl<A: Allocator> Solution<A> {
                         bbox: None,
                         foreign_members: None,
                         value: Value::LineString(
-                            (route.len() == 1)
-                                .then_some(route[0])
-                                .into_iter()
-                                .chain(route.iter().copied())
+                            route
+                                .iter()
+                                .copied()
+                                .chain((route.len() == 1).then_some(route[0]))
                                 .map(|stop_index| {
                                     let coordinates =
                                         problem.stop_location(stop_index).as_point().0;
