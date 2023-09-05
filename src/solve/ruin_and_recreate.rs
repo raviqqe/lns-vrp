@@ -1,5 +1,7 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, trace, Solution};
+use crate::{
+    cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, route::Router, trace, Solution,
+};
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
 use std::ops::Range;
@@ -14,14 +16,15 @@ struct RouteRegion {
     stop_range: Range<usize>,
 }
 
-pub struct RuinAndRecreateSolver<C: CostCalculator, S: Solver> {
-    cost_calculator: C,
+pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: Solver> {
     initial_solver: S,
+    cost_calculator: C,
+    router: R,
     iteration_count: usize,
     rng: SmallRng,
 }
 
-impl<C: CostCalculator, S: Solver> RuinAndRecreateSolver<C, S> {
+impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
     pub fn new(cost_calculator: C, initial_solver: S, iteration_count: usize) -> Self {
         Self {
             cost_calculator,
@@ -131,11 +134,19 @@ impl<C: CostCalculator, S: Solver> RuinAndRecreateSolver<C, S> {
     }
 }
 
-impl<C: CostCalculator, S: Solver> Solver for RuinAndRecreateSolver<C, S> {
+impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C, R, S> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         if problem.vehicle_count() == 0 {
             return Solution::new(vec![]);
         }
+
+        let regions =
+            HashMap::<usize, Vec<usize>>::from_iter((0..problem.stop_count()).map(|one| {
+                (
+                    one,
+                    (0..problem.stop_count()).min_by_key(|other| self.router.route(one, other)),
+                )
+            }));
 
         let mut solution = self.initial_solver.solve(problem);
         let mut cost = self.cost_calculator.calculate(&solution);
