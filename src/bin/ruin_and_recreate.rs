@@ -6,7 +6,7 @@ use vrp::{
 const ITERATION_COUNT: usize = 100;
 
 fn main() {
-    let problem = random_problem();
+    let problem = random_problem(100, 10);
     let mut solver = RuinAndRecreateSolver::new(
         create_cost_calculator(&problem),
         &ROUTER,
