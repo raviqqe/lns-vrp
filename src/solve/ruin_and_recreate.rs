@@ -148,17 +148,14 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         }
 
         let stop_pairs = ((0..problem.stop_count()).map(|one| {
-            (
-                one,
-                (0..problem.stop_count())
-                    .filter(|other| one != *other)
-                    .min_by_key(|other| {
-                        OrderedFloat(
-                            self.router
-                                .route(problem.stop_location(one), problem.stop_location(*other)),
-                        )
-                    }),
-            )
+            (0..problem.stop_count())
+                .filter(|other| one != *other)
+                .min_by_key(|other| {
+                    OrderedFloat(
+                        self.router
+                            .route(problem.stop_location(one), problem.stop_location(*other)),
+                    )
+                })
         }))
         .collect::<Vec<_>>();
 
