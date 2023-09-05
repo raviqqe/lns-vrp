@@ -3,7 +3,7 @@ use vrp::{
     solve::{NearestNeighborSolver, RuinAndRecreateSolver, Solver},
 };
 
-const ITERATION_COUNT: usize = 100;
+const ITERATION_COUNT: usize = 1000;
 
 fn main() {
     let problem = random_problem(100, 10);
