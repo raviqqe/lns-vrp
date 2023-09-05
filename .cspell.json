@@ -1,6 +1,7 @@
 {
   "words": [
     "ahash",
+    "bbox",
     "bumpalo",
     "clippy",
     "flamegraph",
