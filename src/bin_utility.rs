@@ -52,15 +52,5 @@ pub fn measure_time<T>(callback: impl FnOnce() -> T) -> T {
 }
 
 pub fn print_solution(problem: impl BaseProblem, solution: &Solution) {
-    println!(
-        "{:#?}",
-        solution
-            .routes()
-            .iter()
-            .map(|indexes| indexes
-                .iter()
-                .map(|index| problem.stop_location(*index).as_point().x())
-                .collect::<Vec<_>>())
-            .collect::<Vec<_>>()
-    );
+    println!("{}", solution.to_geojson(problem));
 }
