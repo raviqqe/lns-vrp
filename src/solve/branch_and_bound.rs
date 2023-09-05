@@ -72,9 +72,11 @@ mod tests {
     const DISTANCE_COST: f64 = 1.0;
     const MISSED_DELIVERY_COST: f64 = 1e9;
 
+    static ROUTER: CrowRouter = CrowRouter::new();
+
     fn solve(problem: &SimpleProblem) -> Solution {
         BranchAndBoundSolver::new(DeliveryCostCalculator::new(
-            DistanceCostCalculator::new(CrowRouter::new(), problem),
+            DistanceCostCalculator::new(&ROUTER, problem),
             problem.stops().len(),
             MISSED_DELIVERY_COST,
             DISTANCE_COST,
