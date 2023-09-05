@@ -34,9 +34,9 @@ pub fn random_problem() -> SimpleProblem {
 
 pub fn create_cost_calculator(
     problem: &SimpleProblem,
-) -> DeliveryCostCalculator<CrowRouter, &SimpleProblem> {
+) -> DeliveryCostCalculator<&CrowRouter, &SimpleProblem> {
     DeliveryCostCalculator::new(
-        DistanceCostCalculator::new(CrowRouter::new(), problem),
+        DistanceCostCalculator::new(&ROUTER, problem),
         problem.stops().len(),
         MISSED_DELIVERY_COST,
         DISTANCE_COST,
