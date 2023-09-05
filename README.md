@@ -17,7 +17,14 @@ Note that those are currently equivalent to a brute force one unless you provide
 
 - Nearest neighbor
 - [Ruin and recreate][ruin-and-recreate]
-  - Ruined regions are simply a pair of the closest stops and their surrounding stops in routes in an existing solution.
+  - Ruined regions are simply the top-k closest stops and their surrounding stops in routes in an existing solution.
+  - Sub-problems are solved by brute force.
+
+## Examples
+
+```sh
+cargo run --release --features trace --bin ruin_and_recreate
+```
 
 ## References
 
