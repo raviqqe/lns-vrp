@@ -4,6 +4,20 @@ Vehicle Routing Problem (VRP) solver
 
 A number of total cases is `(s + v - 1)! / (v - 1)!` where `s` is a number of stops and `v` is a number of vehicles.
 
+## Solvers
+
+### Exact
+
+Note that those are currently equivalent to brute force unless you provide a cost calculator that may return infinity or proper lower bounds.
+
+- Dynamic programming
+- Branch and bound
+
+### Approximate
+
+- Nearest neighbor
+- Ruin and recreate
+
 ## References
 
 - [Heuristics for Vehicle Routing Problem: A Survey and Recent Advances](https://arxiv.org/abs/2303.04147)
