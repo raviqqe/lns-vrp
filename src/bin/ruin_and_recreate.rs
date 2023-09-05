@@ -3,10 +3,10 @@ use vrp::{
     solve::{NearestNeighborSolver, RuinAndRecreateSolver, Solver},
 };
 
-const ITERATION_COUNT: usize = 100;
+const ITERATION_COUNT: usize = 1000;
 
 fn main() {
-    let problem = random_problem();
+    let problem = random_problem(10, 100);
     let mut solver = RuinAndRecreateSolver::new(
         create_cost_calculator(&problem),
         &ROUTER,
