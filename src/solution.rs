@@ -90,6 +90,10 @@ impl<A: Allocator> Solution<A> {
     {
         self.routes[vehicle_index].to_vec_in(self.routes.allocator().clone())
     }
+
+    pub fn to_geojson(&self) -> GeoJson {
+        foo
+    }
 }
 
 impl<A: Allocator> Eq for Solution<A> {}
