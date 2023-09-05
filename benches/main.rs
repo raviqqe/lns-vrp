@@ -17,6 +17,8 @@ const ITERATION_COUNT: usize = 100;
 const DISTANCE_COST: f64 = 1.0;
 const MISSED_DELIVERY_COST: f64 = 1e9;
 
+static ROUTER: CrowRouter = CrowRouter::new();
+
 fn random_longitude() -> f64 {
     0.1 * random::<f64>()
 }
@@ -36,9 +38,9 @@ fn random_problem() -> SimpleProblem {
 
 fn create_cost_calculator(
     problem: &SimpleProblem,
-) -> DeliveryCostCalculator<CrowRouter, &SimpleProblem> {
+) -> DeliveryCostCalculator<&CrowRouter, &SimpleProblem> {
     DeliveryCostCalculator::new(
-        DistanceCostCalculator::new(CrowRouter::new(), problem),
+        DistanceCostCalculator::new(&ROUTER, problem),
         problem.stops().len(),
         MISSED_DELIVERY_COST,
         DISTANCE_COST,
@@ -63,7 +65,8 @@ fn ruin_and_recreate(bencher: &mut Bencher) {
     let problem = random_problem();
     let mut solver = RuinAndRecreateSolver::new(
         create_cost_calculator(&problem),
-        NearestNeighborSolver::new(CrowRouter::new()),
+        &ROUTER,
+        NearestNeighborSolver::new(&ROUTER),
         ITERATION_COUNT,
     );
 
