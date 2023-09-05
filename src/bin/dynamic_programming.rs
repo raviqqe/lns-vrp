@@ -4,7 +4,7 @@ use vrp::{
 };
 
 fn main() {
-    let problem = random_problem();
+    let problem = random_problem(3, 8);
     let mut solver = DynamicProgrammingSolver::new(create_cost_calculator(&problem));
 
     let solution = measure_time(|| solver.solve(&problem));
