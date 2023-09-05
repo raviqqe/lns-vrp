@@ -9,7 +9,7 @@ use std::ops::Range;
 
 const SEED: [u8; 32] = [0u8; 32];
 const MAX_STOP_REGION_SIZE: usize = 6;
-const CLOSEST_STOP_COUNT: usize = 2;
+const CLOSEST_STOP_COUNT: usize = 3;
 
 #[derive(Debug)]
 struct RouteRegion {
