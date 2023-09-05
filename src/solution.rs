@@ -1,6 +1,5 @@
 use alloc::vec::Vec;
-use geo::LineString;
-use geojson::{FeatureCollection, GeoJson};
+use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 use std::{
     alloc::{Allocator, Global},
     hash::{Hash, Hasher},
@@ -102,12 +101,23 @@ impl<A: Allocator> Solution<A> {
             features: self
                 .routes
                 .iter()
-                .map(|route| {
-                    LineString::new(
-                        route
-                            .iter()
-                            .map(|location| problem.stop_location(location).as_point()),
-                    )
+                .map(|route| Feature {
+                    geometry: Some(Geometry {
+                        bbox: None,
+                        foreign_members: None,
+                        value: Value::LineString(
+                            route
+                                .iter()
+                                .map(|&stop_index| {
+                                    let coordinates =
+                                        problem.stop_location(stop_index).as_point().0;
+
+                                    vec![coordinates.x, coordinates.y]
+                                })
+                                .collect(),
+                        ),
+                    }),
+                    ..Default::default()
                 })
                 .collect(),
         }
