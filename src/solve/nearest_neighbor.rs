@@ -68,8 +68,10 @@ mod tests {
     use super::*;
     use crate::{route::CrowRouter, Location, SimpleProblem, Stop, Vehicle};
 
+    static ROUTER: CrowRouter = CrowRouter::new();
+
     fn solve(problem: &SimpleProblem) -> Solution {
-        NearestNeighborSolver::new(CrowRouter::new()).solve(problem)
+        NearestNeighborSolver::new(&ROUTER).solve(problem)
     }
 
     #[test]
