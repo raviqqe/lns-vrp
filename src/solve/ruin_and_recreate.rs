@@ -141,21 +141,18 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
             return Solution::new(vec![]);
         }
 
-        let regions = ((0..problem.stop_count()).map(|one| {
-            (one, {
-                let mut indexes = (0..problem.stop_count())
+        let stop_pairs = ((0..problem.stop_count()).map(|one| {
+            (
+                one,
+                (0..problem.stop_count())
                     .filter(|other| one != *other)
-                    .collect::<Vec<_>>();
-
-                indexes.sort_by_key(|other| {
-                    OrderedFloat(
-                        self.router
-                            .route(problem.stop_location(one), problem.stop_location(*other)),
-                    )
-                });
-
-                indexes
-            })
+                    .min_by_key(|other| {
+                        OrderedFloat(
+                            self.router
+                                .route(problem.stop_location(one), problem.stop_location(*other)),
+                        )
+                    }),
+            )
         }))
         .collect::<Vec<_>>();
 
