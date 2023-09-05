@@ -8,7 +8,6 @@ use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
 use std::ops::Range;
 
 const SEED: [u8; 32] = [0u8; 32];
-const MAX_VEHICLE_REGION_SIZE: usize = 2;
 const MAX_STOP_REGION_SIZE: usize = 6;
 
 #[derive(Debug)]
@@ -57,7 +56,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                             .then_some((vehicle_index, stop_index))
                     })
             })
-            .unique_by(|(vehicle_index, _)| vehicle_index)
+            .unique_by(|(vehicle_index, _)| *vehicle_index)
             .collect::<Vec<_>>();
 
         pairs
@@ -65,8 +64,8 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .map(|(vehicle_index, stop_index)| {
                 self.choose_region(
                     solution,
-                    vehicle_index,
-                    stop_index,
+                    *vehicle_index,
+                    *stop_index,
                     MAX_STOP_REGION_SIZE / pairs.len(),
                 )
             })
@@ -79,15 +78,17 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         vehicle_index: usize,
         stop_index: usize,
         stop_region_size: usize,
-    ) -> Range<usize> {
-        let len = solution.routes()[vehicle_index].len();
-        let index = (0..len.saturating_sub(stop_region_size))
-            .choose(&mut self.rng)
-            .unwrap_or(0);
+    ) -> RouteRegion {
+        let route = &solution.routes()[vehicle_index];
+        let middle = route
+            .iter()
+            .position(|&other| other == stop_index)
+            .expect("stop index");
+        let start = middle.saturating_sub(stop_region_size / 2);
 
         RouteRegion {
             vehicle_index,
-            stop_range: index..(index + stop_region_size).min(len),
+            stop_range: start..(start + stop_region_size).min(route.len()),
         }
     }
 
