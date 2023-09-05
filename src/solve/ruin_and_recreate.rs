@@ -25,10 +25,11 @@ pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: Solver> {
 }
 
 impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
-    pub fn new(cost_calculator: C, initial_solver: S, iteration_count: usize) -> Self {
+    pub fn new(cost_calculator: C, router: R, initial_solver: S, iteration_count: usize) -> Self {
         Self {
-            cost_calculator,
             initial_solver,
+            cost_calculator,
+            router,
             iteration_count,
             rng: SmallRng::from_seed(SEED),
         }
@@ -140,13 +141,13 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
             return Solution::new(vec![]);
         }
 
-        let regions =
-            HashMap::<usize, Vec<usize>>::from_iter((0..problem.stop_count()).map(|one| {
-                (
-                    one,
-                    (0..problem.stop_count()).min_by_key(|other| self.router.route(one, other)),
-                )
-            }));
+        let regions = ((0..problem.stop_count()).map(|one| {
+            (
+                one,
+                (0..problem.stop_count()).min_by_key(|other| self.router.route(one, other)),
+            )
+        }))
+        .collect::<Vec<_>>();
 
         let mut solution = self.initial_solver.solve(problem);
         let mut cost = self.cost_calculator.calculate(&solution);
