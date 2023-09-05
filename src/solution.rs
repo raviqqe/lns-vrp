@@ -106,19 +106,23 @@ impl<A: Allocator> Solution<A> {
                     geometry: Some(Geometry {
                         bbox: None,
                         foreign_members: None,
-                        value: Value::LineString(
-                            route
-                                .iter()
-                                .copied()
-                                .chain((route.len() == 1).then_some(route[0]))
-                                .map(|stop_index| {
-                                    let coordinates =
-                                        problem.stop_location(stop_index).as_point().0;
+                        value: if route.len() == 1 {
+                            let point = route[0].as_point();
+                            Value::Point(vec![point.x, point.y])
+                        } else {
+                            Value::LineString(
+                                route
+                                    .iter()
+                                    .copied()
+                                    .map(|stop_index| {
+                                        let coordinates =
+                                            problem.stop_location(stop_index).as_point().0;
 
-                                    vec![coordinates.x, coordinates.y]
-                                })
-                                .collect(),
-                        ),
+                                        vec![coordinates.x, coordinates.y]
+                                    })
+                                    .collect(),
+                            )
+                        },
                     }),
                     ..Default::default()
                 })
