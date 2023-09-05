@@ -99,14 +99,19 @@ impl<A: Allocator> Solution<A> {
         FeatureCollection {
             bbox: None,
             foreign_members: None,
-            features: self.routes.iter().map(|route| {
-                LineString::new(
-                    route
-                        .iter()
-                        .map(|location| problem.stop_location(location).as_point()),
-                )
-            }),
+            features: self
+                .routes
+                .iter()
+                .map(|route| {
+                    LineString::new(
+                        route
+                            .iter()
+                            .map(|location| problem.stop_location(location).as_point()),
+                    )
+                })
+                .collect(),
         }
+        .into()
     }
 }
 
