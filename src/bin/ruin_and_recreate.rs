@@ -1,6 +1,5 @@
 use vrp::{
     bin_utility::{create_cost_calculator, measure_time, print_solution, random_problem, ROUTER},
-    route::CrowRouter,
     solve::{NearestNeighborSolver, RuinAndRecreateSolver, Solver},
 };
 

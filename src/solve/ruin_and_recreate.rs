@@ -35,7 +35,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         }
     }
 
-    fn choose_regions(&mut self, solution: &Solution) -> Vec<RouteRegion> {
+    fn choose_regions(&mut self, solution: &Solution, closest_stops: &[usize]) -> Vec<RouteRegion> {
         let vehicle_count = solution.routes().len();
         let route_count = (1.min(vehicle_count)..(MAX_VEHICLE_REGION_SIZE.min(vehicle_count) + 1))
             .choose(&mut self.rng)
@@ -145,9 +145,11 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
                     .map(|_| vec![].into())
                     .collect(),
             );
+        } else if problem.stop_count() == 1 {
+            return self.initial_solver.solve(problem);
         }
 
-        let stop_pairs = ((0..problem.stop_count()).map(|one| {
+        let closest_stops = ((0..problem.stop_count()).map(|one| {
             (0..problem.stop_count())
                 .filter(|other| one != *other)
                 .min_by_key(|other| {
@@ -156,6 +158,7 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
                             .route(problem.stop_location(one), problem.stop_location(*other)),
                     )
                 })
+                .expect("stop index")
         }))
         .collect::<Vec<_>>();
 
@@ -163,7 +166,7 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         let mut cost = self.cost_calculator.calculate(&solution);
 
         for _ in 0..self.iteration_count {
-            let regions = self.choose_regions(&solution);
+            let regions = self.choose_regions(&solution, &closest_stops);
             trace!("regions: {:?}", &regions);
             let new_solution = self.optimize_regions(&solution, &regions);
             let new_cost = self.cost_calculator.calculate(&new_solution);
