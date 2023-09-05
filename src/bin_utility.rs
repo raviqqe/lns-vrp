@@ -17,8 +17,12 @@ fn random_longitude() -> f64 {
     0.1 * random::<f64>()
 }
 
+fn random_latitude() -> f64 {
+    0.1 * random::<f64>()
+}
+
 fn random_location() -> Location {
-    Location::new(random_longitude(), 0.0)
+    Location::new(random_longitude(), random_latitude())
 }
 
 pub fn random_problem() -> SimpleProblem {
