@@ -107,8 +107,8 @@ impl<A: Allocator> Solution<A> {
                         bbox: None,
                         foreign_members: None,
                         value: if route.len() == 1 {
-                            let point = route[0].as_point();
-                            Value::Point(vec![point.x, point.y])
+                            let point = problem.stop_location(route[0]).as_point();
+                            Value::Point(vec![point.x(), point.y()])
                         } else {
                             Value::LineString(
                                 route
@@ -116,9 +116,9 @@ impl<A: Allocator> Solution<A> {
                                     .copied()
                                     .map(|stop_index| {
                                         let coordinates =
-                                            problem.stop_location(stop_index).as_point().0;
+                                            problem.stop_location(stop_index).as_point();
 
-                                        vec![coordinates.x, coordinates.y]
+                                        vec![coordinates.x(), coordinates.y()]
                                     })
                                     .collect(),
                             )
