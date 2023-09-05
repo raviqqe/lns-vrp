@@ -36,16 +36,21 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         }
     }
 
-    fn choose_regions(&mut self, solution: &Solution, closest_stops: &[usize]) -> Vec<RouteRegion> {
-        let (first_stop_index, second_stop_index) = closest_stops
+    fn choose_regions(
+        &mut self,
+        solution: &Solution,
+        closest_stops: &[Vec<usize>],
+    ) -> Vec<RouteRegion> {
+        let (stop_index, closest_stop_indexes) = closest_stops
             .iter()
             .enumerate()
-            .map(|(other, one)| (*one, other))
             .choose(&mut self.rng)
             .expect("stop pair");
 
-        let pairs = [first_stop_index, second_stop_index]
-            .into_iter()
+        let pairs = [stop_index]
+            .iter()
+            .chain(closest_stop_indexes)
+            .copied()
             .flat_map(|stop_index| {
                 solution
                     .routes()
