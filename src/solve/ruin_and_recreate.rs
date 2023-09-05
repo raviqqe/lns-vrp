@@ -9,6 +9,7 @@ use std::ops::Range;
 
 const SEED: [u8; 32] = [0u8; 32];
 const MAX_STOP_REGION_SIZE: usize = 6;
+const CLOSEST_STOP_COUNT: usize = 2;
 
 #[derive(Debug)]
 struct RouteRegion {
@@ -172,15 +173,19 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         }
 
         let closest_stops = ((0..problem.stop_count()).map(|one| {
-            (0..problem.stop_count())
+            let mut stops = (0..problem.stop_count())
                 .filter(|other| one != *other)
-                .min_by_key(|other| {
-                    OrderedFloat(
-                        self.router
-                            .route(problem.stop_location(one), problem.stop_location(*other)),
-                    )
-                })
-                .expect("stop index")
+                .collect::<Vec<_>>();
+
+            stops.sort_by_key(|other| {
+                OrderedFloat(
+                    self.router
+                        .route(problem.stop_location(one), problem.stop_location(*other)),
+                )
+            });
+            stops.truncate(CLOSEST_STOP_COUNT);
+
+            stops
         }))
         .collect::<Vec<_>>();
 
