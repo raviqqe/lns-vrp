@@ -6,7 +6,7 @@ use geo::GeodesicDistance;
 pub struct CrowRouter {}
 
 impl CrowRouter {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {}
     }
 }

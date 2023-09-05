@@ -1,5 +1,5 @@
 use vrp::{
-    bin_utility::{create_cost_calculator, measure_time, print_solution, random_problem},
+    bin_utility::{create_cost_calculator, measure_time, print_solution, random_problem, ROUTER},
     route::CrowRouter,
     solve::{NearestNeighborSolver, RuinAndRecreateSolver, Solver},
 };
@@ -10,7 +10,8 @@ fn main() {
     let problem = random_problem();
     let mut solver = RuinAndRecreateSolver::new(
         create_cost_calculator(&problem),
-        NearestNeighborSolver::new(CrowRouter::new()),
+        &ROUTER,
+        NearestNeighborSolver::new(&ROUTER),
         ITERATION_COUNT,
     );
 

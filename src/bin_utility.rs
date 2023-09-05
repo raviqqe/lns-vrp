@@ -13,6 +13,8 @@ const VEHICLE_COUNT: usize = 3;
 const DISTANCE_COST: f64 = 1.0;
 const MISSED_DELIVERY_COST: f64 = 1e9;
 
+pub static ROUTER: CrowRouter = CrowRouter::new();
+
 fn random_longitude() -> f64 {
     0.1 * random::<f64>()
 }

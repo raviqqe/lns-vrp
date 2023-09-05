@@ -142,10 +142,20 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         }
 
         let regions = ((0..problem.stop_count()).map(|one| {
-            (
-                one,
-                (0..problem.stop_count()).min_by_key(|other| self.router.route(one, other)),
-            )
+            (one, {
+                let mut indexes = (0..problem.stop_count())
+                    .filter(|other| one != *other)
+                    .collect::<Vec<_>>();
+
+                indexes.sort_by_key(|other| {
+                    OrderedFloat(
+                        self.router
+                            .route(problem.stop_location(one), problem.stop_location(*other)),
+                    )
+                });
+
+                indexes
+            })
         }))
         .collect::<Vec<_>>();
 
@@ -189,15 +199,18 @@ mod tests {
     const MISSED_DELIVERY_COST: f64 = 1e9;
     const ITERATION_COUNT: usize = 100;
 
+    static ROUTER: CrowRouter = CrowRouter::new();
+
     fn solve(problem: &SimpleProblem) -> Solution {
         RuinAndRecreateSolver::new(
             DeliveryCostCalculator::new(
-                DistanceCostCalculator::new(CrowRouter::new(), problem),
+                DistanceCostCalculator::new(&ROUTER, problem),
                 problem.stops().len(),
                 MISSED_DELIVERY_COST,
                 DISTANCE_COST,
             ),
-            NearestNeighborSolver::new(CrowRouter::new()),
+            &ROUTER,
+            NearestNeighborSolver::new(&ROUTER),
             ITERATION_COUNT,
         )
         .solve(problem)
