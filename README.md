@@ -8,7 +8,7 @@ A number of total cases is `(s + v - 1)! / (v - 1)!` where `s` is a number of st
 
 ### Exact
 
-Note that those are currently equivalent to brute force unless you provide a cost calculator that may return infinity or proper lower bounds.
+Note that those are currently equivalent to a brute force one unless you provide a cost calculator that may return infinity or proper lower bounds.
 
 - Dynamic programming
 - Branch and bound
