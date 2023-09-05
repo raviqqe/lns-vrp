@@ -11,13 +11,13 @@ A number of total cases is `(s + v - 1)! / (v - 1)!` where `s` is a number of st
 Note that those are currently equivalent to a brute force one unless you provide a cost calculator that may return infinity or computes proper lower bounds.
 
 - Dynamic programming
-- Branch and bound
+- [Branch and bound](https://en.wikipedia.org/wiki/Branch_and_bound)
 
 ### Approximate
 
 - Nearest neighbor
 - [Ruin and recreate][ruin-and-recreate]
-  - Ruined regions are simply the top-k closest stops and their surrounding stops in routes in an existing solution.
+  - Ruined regions are the top-k closest stops and their surrounding stops in routes in an existing solution.
   - Sub-problems are solved by brute force.
 
 ## Examples
