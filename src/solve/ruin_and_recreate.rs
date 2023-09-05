@@ -1,11 +1,13 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, trace, Solution};
+use crate::{
+    cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, route::Router, trace, Solution,
+};
+use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
 use std::ops::Range;
 
 const SEED: [u8; 32] = [0u8; 32];
-const MAX_VEHICLE_REGION_SIZE: usize = 2;
 const MAX_STOP_REGION_SIZE: usize = 6;
 
 #[derive(Debug)]
@@ -14,56 +16,80 @@ struct RouteRegion {
     stop_range: Range<usize>,
 }
 
-pub struct RuinAndRecreateSolver<C: CostCalculator, S: Solver> {
-    cost_calculator: C,
+pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: Solver> {
     initial_solver: S,
+    cost_calculator: C,
+    router: R,
     iteration_count: usize,
     rng: SmallRng,
 }
 
-impl<C: CostCalculator, S: Solver> RuinAndRecreateSolver<C, S> {
-    pub fn new(cost_calculator: C, initial_solver: S, iteration_count: usize) -> Self {
+impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
+    pub fn new(cost_calculator: C, router: R, initial_solver: S, iteration_count: usize) -> Self {
         Self {
-            cost_calculator,
             initial_solver,
+            cost_calculator,
+            router,
             iteration_count,
             rng: SmallRng::from_seed(SEED),
         }
     }
 
-    // TODO Choose regions to ruin based on geography.
-    fn choose_regions(&mut self, solution: &Solution) -> Vec<RouteRegion> {
-        let vehicle_count = solution.routes().len();
-        let route_count = (1.min(vehicle_count)..(MAX_VEHICLE_REGION_SIZE.min(vehicle_count) + 1))
+    fn choose_regions(&mut self, solution: &Solution, closest_stops: &[usize]) -> Vec<RouteRegion> {
+        let (first_stop_index, second_stop_index) = closest_stops
+            .iter()
+            .enumerate()
+            .map(|(other, one)| (*one, other))
             .choose(&mut self.rng)
-            .expect("ruined route count");
+            .expect("stop pair");
 
-        (0..vehicle_count)
-            .choose_multiple(&mut self.rng, route_count)
+        let pairs = [first_stop_index, second_stop_index]
             .into_iter()
-            .map(|vehicle_index| RouteRegion {
-                vehicle_index,
-                stop_range: self.choose_range(
+            .flat_map(|stop_index| {
+                solution
+                    .routes()
+                    .iter()
+                    .enumerate()
+                    .find_map(|(vehicle_index, route)| {
+                        route
+                            .contains(&stop_index)
+                            .then_some((vehicle_index, stop_index))
+                    })
+            })
+            .unique_by(|(vehicle_index, _)| *vehicle_index)
+            .collect::<Vec<_>>();
+
+        pairs
+            .iter()
+            .map(|(vehicle_index, stop_index)| {
+                self.choose_region(
                     solution,
-                    vehicle_index,
-                    MAX_STOP_REGION_SIZE / route_count,
-                ),
+                    *vehicle_index,
+                    *stop_index,
+                    MAX_STOP_REGION_SIZE / pairs.len(),
+                )
             })
             .collect()
     }
 
-    fn choose_range(
+    fn choose_region(
         &mut self,
         solution: &Solution,
         vehicle_index: usize,
+        stop_index: usize,
         stop_region_size: usize,
-    ) -> Range<usize> {
-        let len = solution.routes()[vehicle_index].len();
-        let index = (0..len.saturating_sub(stop_region_size))
-            .choose(&mut self.rng)
-            .unwrap_or(0);
+    ) -> RouteRegion {
+        let route = &solution.routes()[vehicle_index];
+        let middle = route
+            .iter()
+            .position(|&other| other == stop_index)
+            .expect("stop index");
+        let start = middle.saturating_sub(stop_region_size / 2);
 
-        index..(index + stop_region_size).min(len)
+        RouteRegion {
+            vehicle_index,
+            stop_range: start..(start + stop_region_size).min(route.len()),
+        }
     }
 
     fn optimize_regions(
@@ -131,17 +157,38 @@ impl<C: CostCalculator, S: Solver> RuinAndRecreateSolver<C, S> {
     }
 }
 
-impl<C: CostCalculator, S: Solver> Solver for RuinAndRecreateSolver<C, S> {
+impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C, R, S> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         if problem.vehicle_count() == 0 {
             return Solution::new(vec![]);
+        } else if problem.stop_count() == 0 {
+            return Solution::new(
+                (0..problem.vehicle_count())
+                    .map(|_| vec![].into())
+                    .collect(),
+            );
+        } else if problem.stop_count() == 1 {
+            return self.initial_solver.solve(problem);
         }
+
+        let closest_stops = ((0..problem.stop_count()).map(|one| {
+            (0..problem.stop_count())
+                .filter(|other| one != *other)
+                .min_by_key(|other| {
+                    OrderedFloat(
+                        self.router
+                            .route(problem.stop_location(one), problem.stop_location(*other)),
+                    )
+                })
+                .expect("stop index")
+        }))
+        .collect::<Vec<_>>();
 
         let mut solution = self.initial_solver.solve(problem);
         let mut cost = self.cost_calculator.calculate(&solution);
 
         for _ in 0..self.iteration_count {
-            let regions = self.choose_regions(&solution);
+            let regions = self.choose_regions(&solution, &closest_stops);
             trace!("regions: {:?}", &regions);
             let new_solution = self.optimize_regions(&solution, &regions);
             let new_cost = self.cost_calculator.calculate(&new_solution);
@@ -177,15 +224,18 @@ mod tests {
     const MISSED_DELIVERY_COST: f64 = 1e9;
     const ITERATION_COUNT: usize = 100;
 
+    static ROUTER: CrowRouter = CrowRouter::new();
+
     fn solve(problem: &SimpleProblem) -> Solution {
         RuinAndRecreateSolver::new(
             DeliveryCostCalculator::new(
-                DistanceCostCalculator::new(CrowRouter::new(), problem),
+                DistanceCostCalculator::new(&ROUTER, problem),
                 problem.stops().len(),
                 MISSED_DELIVERY_COST,
                 DISTANCE_COST,
             ),
-            NearestNeighborSolver::new(CrowRouter::new()),
+            &ROUTER,
+            NearestNeighborSolver::new(&ROUTER),
             ITERATION_COUNT,
         )
         .solve(problem)

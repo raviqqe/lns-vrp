@@ -13,6 +13,8 @@ const VEHICLE_COUNT: usize = 3;
 const DISTANCE_COST: f64 = 1.0;
 const MISSED_DELIVERY_COST: f64 = 1e9;
 
+pub static ROUTER: CrowRouter = CrowRouter::new();
+
 fn random_longitude() -> f64 {
     145.00647210413496 + 0.1 * random::<f64>()
 }
@@ -36,9 +38,9 @@ pub fn random_problem() -> SimpleProblem {
 
 pub fn create_cost_calculator(
     problem: &SimpleProblem,
-) -> DeliveryCostCalculator<CrowRouter, &SimpleProblem> {
+) -> DeliveryCostCalculator<&CrowRouter, &SimpleProblem> {
     DeliveryCostCalculator::new(
-        DistanceCostCalculator::new(CrowRouter::new(), problem),
+        DistanceCostCalculator::new(&ROUTER, problem),
         problem.stops().len(),
         MISSED_DELIVERY_COST,
         DISTANCE_COST,
