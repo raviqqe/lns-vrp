@@ -14,11 +14,15 @@ const DISTANCE_COST: f64 = 1.0;
 const MISSED_DELIVERY_COST: f64 = 1e9;
 
 fn random_longitude() -> f64 {
-    0.1 * random::<f64>()
+    145.00647210413496 + 0.1 * random::<f64>()
+}
+
+fn random_latitude() -> f64 {
+    -37.948738444529 + 0.1 * random::<f64>()
 }
 
 fn random_location() -> Location {
-    Location::new(random_longitude(), 0.0)
+    Location::new(random_longitude(), random_latitude())
 }
 
 pub fn random_problem() -> SimpleProblem {
@@ -52,15 +56,5 @@ pub fn measure_time<T>(callback: impl FnOnce() -> T) -> T {
 }
 
 pub fn print_solution(problem: impl BaseProblem, solution: &Solution) {
-    println!(
-        "{:#?}",
-        solution
-            .routes()
-            .iter()
-            .map(|indexes| indexes
-                .iter()
-                .map(|index| problem.stop_location(*index).as_point().x())
-                .collect::<Vec<_>>())
-            .collect::<Vec<_>>()
-    );
+    println!("{}", solution.to_geojson(problem));
 }
