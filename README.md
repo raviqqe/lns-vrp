@@ -17,6 +17,7 @@ Note that those are currently equivalent to a brute force one unless you provide
 
 - Nearest neighbor
 - Ruin and recreate
+  - Ruined regions are simply a pair of the closest stops and their surrounding stops in routes in an existing solution.
 
 ## References
 
