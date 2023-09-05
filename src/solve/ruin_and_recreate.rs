@@ -139,6 +139,12 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         if problem.vehicle_count() == 0 {
             return Solution::new(vec![]);
+        } else if problem.stop_count() == 0 {
+            return Solution::new(
+                (0..problem.vehicle_count())
+                    .map(|_| vec![].into())
+                    .collect(),
+            );
         }
 
         let stop_pairs = ((0..problem.stop_count()).map(|one| {
