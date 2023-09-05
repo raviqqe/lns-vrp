@@ -101,14 +101,17 @@ impl<A: Allocator> Solution<A> {
             features: self
                 .routes
                 .iter()
+                .filter(|route| route.len() > 0)
                 .map(|route| Feature {
                     geometry: Some(Geometry {
                         bbox: None,
                         foreign_members: None,
                         value: Value::LineString(
-                            route
-                                .iter()
-                                .map(|&stop_index| {
+                            (route.len() == 1)
+                                .then_some(route[0])
+                                .into_iter()
+                                .chain(route.iter().copied())
+                                .map(|stop_index| {
                                     let coordinates =
                                         problem.stop_location(stop_index).as_point().0;
 
