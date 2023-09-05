@@ -1,5 +1,6 @@
 use crate::{problem::BaseProblem, route::Router};
 
+// TODO Should this be agnositc about problems?
 #[derive(Debug)]
 pub struct DistanceCostCalculator<R: Router, P: BaseProblem> {
     router: R,
