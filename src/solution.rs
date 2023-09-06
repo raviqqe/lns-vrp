@@ -9,7 +9,6 @@ use std::{
     rc::Rc,
 };
 
-// TODO Use persistent data structure.
 // TODO Make it more compact.
 #[derive(Clone, Debug)]
 pub struct Solution<A: Allocator = Global> {
