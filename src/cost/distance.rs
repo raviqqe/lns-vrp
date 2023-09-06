@@ -19,12 +19,28 @@ impl<R: Router, P: BaseProblem> DistanceCostCalculator<R, P> {
         }
     }
 
-    pub fn calculate_route(&mut self, stop_indexes: &[usize]) -> f64 {
-        stop_indexes
-            .iter()
-            .zip(stop_indexes.iter().skip(1))
-            .map(|(&one, &other)| self.calculate_segment(one, other))
-            .sum()
+    pub fn calculate_route(&mut self, vehicle_index: usize, stop_indexes: &[usize]) -> f64 {
+        if let (Some(&first_stop_index), Some(&last_stop_index)) =
+            (stop_indexes.first(), stop_indexes.last())
+        {
+            self.router.route(
+                self.problem.vehicle_start_location(vehicle_index),
+                self.problem.stop_location(first_stop_index),
+            ) + stop_indexes
+                .iter()
+                .zip(stop_indexes.iter().skip(1))
+                .map(|(&one, &other)| self.calculate_segment(one, other))
+                .sum::<f64>()
+                + self.router.route(
+                    self.problem.stop_location(last_stop_index),
+                    self.problem.vehicle_end_location(vehicle_index),
+                )
+        } else {
+            self.router.route(
+                self.problem.vehicle_start_location(vehicle_index),
+                self.problem.vehicle_end_location(vehicle_index),
+            )
+        }
     }
 
     fn calculate_segment(&mut self, one: usize, other: usize) -> f64 {

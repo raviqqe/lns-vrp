@@ -26,22 +26,18 @@ impl<R: Router> Solver for NearestNeighborSolver<R> {
         );
         let mut stops = HashSet::<usize>::from_iter(0..problem.stop_count());
 
-        for index in 0..problem.vehicle_count().min(problem.stop_count()) {
-            solution = solution.add_stop(index, index);
-            stops.remove(&index);
-        }
-
         loop {
             for vehicle_index in 0..problem.vehicle_count() {
                 if stops.is_empty() {
                     return solution;
                 }
 
-                let last_location = problem.stop_location(
-                    *solution.routes()[vehicle_index]
-                        .last()
-                        .expect("last location"),
-                );
+                let last_location =
+                    if let Some(&stop_index) = solution.routes()[vehicle_index].last() {
+                        problem.stop_location(stop_index)
+                    } else {
+                        problem.vehicle_start_location(vehicle_index)
+                    };
 
                 let stop_index = stops
                     .iter()
@@ -76,7 +72,13 @@ mod tests {
 
     #[test]
     fn do_nothing() {
-        let problem = SimpleProblem::new(vec![Vehicle::new()], vec![]);
+        let problem = SimpleProblem::new(
+            vec![Vehicle::new(
+                Location::new(0.0, 0.0),
+                Location::new(0.0, 0.0),
+            )],
+            vec![],
+        );
 
         assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
     }
@@ -84,7 +86,10 @@ mod tests {
     #[test]
     fn keep_one_stop() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new()],
+            vec![Vehicle::new(
+                Location::new(0.0, 0.0),
+                Location::new(0.0, 0.0),
+            )],
             vec![Stop::new(Location::new(0.0, 0.0))],
         );
 
@@ -94,7 +99,10 @@ mod tests {
     #[test]
     fn keep_two_stops() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new()],
+            vec![Vehicle::new(
+                Location::new(0.0, 0.0),
+                Location::new(0.0, 0.0),
+            )],
             vec![
                 Stop::new(Location::new(0.0, 0.0)),
                 Stop::new(Location::new(1.0, 0.0)),
@@ -107,7 +115,10 @@ mod tests {
     #[test]
     fn keep_three_stops() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new()],
+            vec![Vehicle::new(
+                Location::new(0.0, 0.0),
+                Location::new(0.0, 0.0),
+            )],
             vec![
                 Stop::new(Location::new(0.0, 0.0)),
                 Stop::new(Location::new(1.0, 0.0)),
@@ -121,11 +132,14 @@ mod tests {
     #[test]
     fn optimize_stop_order() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new()],
+            vec![Vehicle::new(
+                Location::new(0.0, 0.0),
+                Location::new(4.0, 0.0),
+            )],
             vec![
-                Stop::new(Location::new(0.0, 0.0)),
-                Stop::new(Location::new(2.0, 0.0)),
                 Stop::new(Location::new(1.0, 0.0)),
+                Stop::new(Location::new(3.0, 0.0)),
+                Stop::new(Location::new(2.0, 0.0)),
             ],
         );
 
@@ -135,14 +149,17 @@ mod tests {
     #[test]
     fn distribute_to_two_vehicles() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new(), Vehicle::new()],
             vec![
-                Stop::new(Location::new(0.0, 0.0)),
-                Stop::new(Location::new(1.0, 0.0)),
+                Vehicle::new(Location::new(0.0, 0.0), Location::new(0.0, 0.0)),
+                Vehicle::new(Location::new(0.0, 1.0), Location::new(0.0, 1.0)),
+            ],
+            vec![
                 Stop::new(Location::new(0.1, 0.0)),
-                Stop::new(Location::new(1.1, 0.0)),
+                Stop::new(Location::new(0.1, 1.0)),
                 Stop::new(Location::new(0.2, 0.0)),
-                Stop::new(Location::new(1.3, 0.0)),
+                Stop::new(Location::new(0.2, 1.0)),
+                Stop::new(Location::new(0.3, 0.0)),
+                Stop::new(Location::new(0.3, 1.0)),
             ],
         );
 
@@ -155,13 +172,16 @@ mod tests {
     #[test]
     fn distribute_to_two_vehicles_with_uneven_stops() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new(), Vehicle::new()],
             vec![
-                Stop::new(Location::new(0.0, 0.0)),
-                Stop::new(Location::new(1.0, 0.0)),
+                Vehicle::new(Location::new(0.0, 0.0), Location::new(0.0, 0.0)),
+                Vehicle::new(Location::new(0.0, 1.0), Location::new(0.0, 1.0)),
+            ],
+            vec![
                 Stop::new(Location::new(0.1, 0.0)),
-                Stop::new(Location::new(1.1, 0.0)),
+                Stop::new(Location::new(0.1, 1.0)),
                 Stop::new(Location::new(0.2, 0.0)),
+                Stop::new(Location::new(0.2, 1.0)),
+                Stop::new(Location::new(0.3, 0.0)),
             ],
         );
 
