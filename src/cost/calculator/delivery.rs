@@ -31,8 +31,11 @@ impl<R: Router, P: BaseProblem> DeliveryCostCalculator<R, P> {
         solution
             .routes()
             .iter()
-            .map(|stop_indexes| {
-                self.distance_cost_calculator.calculate_route(stop_indexes) * self.distance_cost
+            .enumerate()
+            .map(|(vehicle_index, stop_indexes)| {
+                self.distance_cost_calculator
+                    .calculate_route(vehicle_index, stop_indexes)
+                    * self.distance_cost
             })
             .sum()
     }
