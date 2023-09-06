@@ -24,7 +24,7 @@ impl<A: Allocator> Solution<A> {
         }
     }
 
-    pub fn routes(&self) -> &[Rc<[usize], A>] {
+    pub fn routes(&self) -> &Vector<Vector<usize>> {
         &self.routes
     }
 
