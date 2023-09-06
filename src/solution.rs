@@ -1,3 +1,4 @@
+use crate::problem::BaseProblem;
 use alloc::vec::Vec;
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 use std::{
@@ -6,8 +7,6 @@ use std::{
     ops::Range,
     rc::Rc,
 };
-
-use crate::problem::BaseProblem;
 
 // TODO Use persistent data structure.
 // TODO Make it more compact.
