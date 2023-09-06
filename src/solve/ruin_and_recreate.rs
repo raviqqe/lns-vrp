@@ -2,6 +2,7 @@ use super::solver::Solver;
 use crate::{
     cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, route::Router, trace, Solution,
 };
+use im_rc::vector;
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
@@ -166,13 +167,9 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
 impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C, R, S> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         if problem.vehicle_count() == 0 {
-            return Solution::new(vec![]);
+            return Solution::new(vector![]);
         } else if problem.stop_count() == 0 {
-            return Solution::new(
-                (0..problem.vehicle_count())
-                    .map(|_| vec![].into())
-                    .collect(),
-            );
+            return Solution::new((0..problem.vehicle_count()).map(|_| vector![]).collect());
         } else if problem.stop_count() == 1 {
             return self.initial_solver.solve(problem);
         }
