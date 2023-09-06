@@ -10,18 +10,14 @@ use std::{
 };
 
 // TODO Make it more compact.
-#[derive(Clone, Debug)]
-pub struct Solution<A: Allocator = Global> {
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+pub struct Solution {
     routes: Vector<Vector<usize>>,
-    _allocator: PhantomData<A>,
 }
 
-impl<A: Allocator> Solution<A> {
+impl Solution {
     pub fn new(routes: Vector<Vector<usize>>) -> Self {
-        Self {
-            routes,
-            _allocator: Default::default(),
-        }
+        Self { routes }
     }
 
     pub fn routes(&self) -> &Vector<Vector<usize>> {
@@ -35,10 +31,7 @@ impl<A: Allocator> Solution<A> {
     }
 
     #[must_use]
-    pub fn add_stop(&self, vehicle_index: usize, stop_index: usize) -> Self
-    where
-        A: Clone,
-    {
+    pub fn add_stop(&self, vehicle_index: usize, stop_index: usize) -> Self {
         let mut route = self.clone_route(vehicle_index);
         route.push(stop_index);
 
@@ -54,10 +47,7 @@ impl<A: Allocator> Solution<A> {
         vehicle_index: usize,
         insertion_index: usize,
         stop_index: usize,
-    ) -> Self
-    where
-        A: Clone,
-    {
+    ) -> Self {
         let mut route = self.clone_route(vehicle_index);
         route.insert(insertion_index, stop_index);
 
@@ -68,10 +58,7 @@ impl<A: Allocator> Solution<A> {
     }
 
     #[must_use]
-    pub fn ruin_route(&self, vehicle_index: usize, stop_range: Range<usize>) -> Self
-    where
-        A: Clone,
-    {
+    pub fn ruin_route(&self, vehicle_index: usize, stop_range: Range<usize>) -> Self {
         let mut route = self.clone_route(vehicle_index);
         route.drain(stop_range);
 
@@ -90,10 +77,7 @@ impl<A: Allocator> Solution<A> {
         )
     }
 
-    fn clone_route(&self, vehicle_index: usize) -> Vec<usize, A>
-    where
-        A: Clone,
-    {
+    fn clone_route(&self, vehicle_index: usize) -> Vec<usize, A> {
         self.routes[vehicle_index].to_vec_in(self.routes.allocator().clone())
     }
 
@@ -131,27 +115,5 @@ impl<A: Allocator> Solution<A> {
                 .collect(),
         }
         .into()
-    }
-}
-
-impl<A: Allocator> Eq for Solution<A> {}
-
-impl<A: Allocator> PartialEq for Solution<A> {
-    fn eq(&self, other: &Self) -> bool {
-        self.routes.len() == other.routes.len()
-            && self.routes.iter().zip(&other.routes).all(|(one, other)| {
-                one.len() == other.len()
-                    && one
-                        .as_ref()
-                        .iter()
-                        .zip(other.as_ref())
-                        .all(|(one, other)| one == other)
-            })
-    }
-}
-
-impl<A: Allocator> Hash for Solution<A> {
-    fn hash<H: Hasher>(&self, hasher: &mut H) {
-        self.routes.hash(hasher)
     }
 }
