@@ -1,9 +1,8 @@
-use std::alloc::Global;
-
 use super::solver::Solver;
 use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, Solution};
 use bumpalo::Bump;
 use ordered_float::OrderedFloat;
+use std::alloc::Global;
 
 pub struct BranchAndBoundSolver<C: CostCalculator> {
     cost_calculator: C,
