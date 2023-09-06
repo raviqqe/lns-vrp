@@ -34,7 +34,7 @@ fn random_problem() -> SimpleProblem {
         (0..VEHICLE_COUNT)
             .map(|_| Vehicle::new(STOP_COUNT, STOP_COUNT))
             .collect(),
-        (0..STOP_COUNT).map(|index| Stop::new(index)).collect(),
+        (0..STOP_COUNT).map(Stop::new).collect(),
         (0..STOP_COUNT + 1).map(|_| random_location()).collect(),
     )
 }

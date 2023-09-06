@@ -32,7 +32,7 @@ pub fn random_problem(vehicle_count: usize, stop_count: usize) -> SimpleProblem 
         (0..vehicle_count)
             .map(|_| Vehicle::new(stop_count, stop_count))
             .collect(),
-        (0..stop_count).map(|index| Stop::new(index)).collect(),
+        (0..stop_count).map(Stop::new).collect(),
         (0..stop_count + 1).map(|_| random_location()).collect(),
     )
 }
