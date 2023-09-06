@@ -18,7 +18,7 @@ Note that those are currently equivalent to a brute force one unless you provide
 - Nearest neighbor
 - [Ruin and recreate][ruin-and-recreate]
   - Ruined regions are the top-k closest stops and their surrounding stops in routes in an existing solution.
-  - Sub-problems are solved by brute force.
+  - Sub-problems are solved by the 2-opt heuristics and brute force.
 
 ## Examples
 
