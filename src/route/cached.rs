@@ -20,15 +20,15 @@ impl<R: Router> CachedRouter<R> {
 impl<R: Router> Router for &CachedRouter<R> {
     fn route(&self, start: &Location, end: &Location) -> f64 {
         if let Some(&cached) = self.cache.borrow().get(&(start.clone(), end.clone())) {
-            cached
-        } else {
-            let value = self.router.route(start, end);
-
-            self.cache
-                .borrow_mut()
-                .insert((start.clone(), end.clone()), value);
-
-            value
+            return cached;
         }
+
+        let value = self.router.route(start, end);
+
+        self.cache
+            .borrow_mut()
+            .insert((start.clone(), end.clone()), value);
+
+        value
     }
 }
