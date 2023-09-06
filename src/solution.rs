@@ -46,7 +46,12 @@ impl Solution {
         stop_index: usize,
     ) -> Self {
         let mut route = self.routes[vehicle_index].clone();
-        route.insert(insertion_index, stop_index);
+
+        if insertion_index >= route.len() {
+            route.push_back(stop_index);
+        } else {
+            route.insert(insertion_index, stop_index);
+        }
 
         Self::new(self.routes.update(vehicle_index, route))
     }
