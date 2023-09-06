@@ -1,5 +1,3 @@
-use crate::location::Location;
-
 #[derive(Debug, Eq, Hash, PartialEq)]
 pub struct Stop {
     location: usize,

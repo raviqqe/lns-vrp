@@ -1,5 +1,3 @@
-use crate::Location;
-
 #[derive(Debug, Eq, Hash, PartialEq)]
 pub struct Vehicle {
     start_location: usize,
