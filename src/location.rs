@@ -2,7 +2,7 @@ use geo::Point;
 use ordered_float::OrderedFloat;
 use std::hash::{Hash, Hasher};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Location(Point);
 
 impl Location {

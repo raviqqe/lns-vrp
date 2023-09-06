@@ -1,27 +1,34 @@
-use std::cell::RefMut;
-
 use super::Router;
 use crate::{hash_map::HashMap, Location};
-use geo::GeodesicDistance;
-use ordered_float::OrderedFloat;
+use std::cell::RefCell;
 
 #[derive(Debug, Default)]
 pub struct CachedRouter<R: Router> {
     router: R,
-    cache: RefMut<HashMap<(OrderedFloat<f64>, OrderedFloat<f64>), f64>>,
+    cache: RefCell<HashMap<(Location, Location), f64>>,
 }
 
 impl<R: Router> CachedRouter<R> {
-    pub const fn new(router: R) -> Self {
+    pub fn new(router: R) -> Self {
         Self {
             router,
-            cache: Default::default(),
+            cache: RefCell::new(HashMap::default()),
         }
     }
 }
 
 impl<R: Router> Router for &CachedRouter<R> {
     fn route(&self, start: &Location, end: &Location) -> f64 {
-        let cached = cache.get((location.clone(), location.clone()));
+        if let Some(&cached) = self.cache.borrow().get(&(start.clone(), end.clone())) {
+            cached
+        } else {
+            let value = self.router.route(start, end);
+
+            self.cache
+                .borrow_mut()
+                .insert((start.clone(), end.clone()), value);
+
+            value
+        }
     }
 }
