@@ -1,4 +1,5 @@
 use crate::{problem::BaseProblem, route::Router};
+use im_rc::Vector;
 use std::cell::RefCell;
 
 #[derive(Debug)]
@@ -19,7 +20,7 @@ impl<R: Router, P: BaseProblem> DistanceCostCalculator<R, P> {
         }
     }
 
-    pub fn calculate_route(&self, vehicle_index: usize, stop_indexes: &[usize]) -> f64 {
+    pub fn calculate_route(&self, vehicle_index: usize, stop_indexes: &Vector<usize>) -> f64 {
         [self.problem.vehicle_start_location(vehicle_index)]
             .into_iter()
             .chain(

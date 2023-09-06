@@ -32,11 +32,11 @@ impl Solution {
 
     #[must_use]
     pub fn add_stop(&self, vehicle_index: usize, stop_index: usize) -> Self {
-        let mut route = self.clone_route(vehicle_index);
-        route.push(stop_index);
+        let mut route = self.routes[vehicle_index].clone();
+        route.push_back(stop_index);
 
         let mut routes = self.routes.clone();
-        routes[vehicle_index] = route.into();
+        routes.update(vehicle_index, route);
 
         Self::new(routes)
     }
@@ -48,37 +48,24 @@ impl Solution {
         insertion_index: usize,
         stop_index: usize,
     ) -> Self {
-        let mut route = self.clone_route(vehicle_index);
+        let mut route = self.routes[vehicle_index].clone();
         route.insert(insertion_index, stop_index);
 
         let mut routes = self.routes.clone();
-        routes[vehicle_index] = route.into();
+        routes.update(vehicle_index, route);
 
         Self::new(routes)
     }
 
     #[must_use]
     pub fn ruin_route(&self, vehicle_index: usize, stop_range: Range<usize>) -> Self {
-        let mut route = self.clone_route(vehicle_index);
+        let mut route = self.routes[vehicle_index].clone();
         route.drain(stop_range);
 
         let mut routes = self.routes.clone();
-        routes[vehicle_index] = route.into();
+        routes.update(vehicle_index, route);
 
         Self::new(routes)
-    }
-
-    pub fn to_global(&self) -> Solution<Global> {
-        Solution::new(
-            self.routes()
-                .iter()
-                .map(|route| route.to_vec().into())
-                .collect(),
-        )
-    }
-
-    fn clone_route(&self, vehicle_index: usize) -> Vec<usize, A> {
-        self.routes[vehicle_index].to_vec_in(self.routes.allocator().clone())
     }
 
     pub fn to_geojson(&self, problem: impl BaseProblem) -> GeoJson {

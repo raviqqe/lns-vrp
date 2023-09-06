@@ -1,5 +1,6 @@
 use super::solver::Solver;
 use crate::{problem::BaseProblem, route::Router, Solution};
+use im_rc::vector;
 use ordered_float::OrderedFloat;
 use std::collections::HashSet;
 
@@ -16,7 +17,7 @@ impl<R: Router> NearestNeighborSolver<R> {
 impl<R: Router> Solver for NearestNeighborSolver<R> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         if problem.vehicle_count() == 0 {
-            return Solution::new(vec![]);
+            return Solution::new(vector![]);
         }
 
         let mut solution = Solution::new(

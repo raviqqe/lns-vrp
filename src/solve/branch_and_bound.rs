@@ -18,9 +18,9 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
         let allocator = Bump::new();
         let mut solutions = HashMap::default();
         let solution = Solution::new({
-            let mut routes = Vec::with_capacity_in(problem.vehicle_count(), &allocator);
-            routes.extend((0..problem.vehicle_count()).map(|_| Vec::new_in(&allocator).into()));
-            routes
+            (0..problem.vehicle_count())
+                .map(|_| Default::default())
+                .collect()
         });
         let cost = self.cost_calculator.calculate(&solution);
         solutions.insert(solution, cost);
@@ -50,13 +50,11 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
             solutions.extend(new_solutions.drain(..));
         }
 
-        let solution = solutions
+        solutions
             .into_iter()
-            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
+            .min_by_key(|(_, cost)| OrderedFloat(*cost))
             .expect("at least one solution")
-            .0;
-
-        solution.to_global()
+            .0
     }
 }
 

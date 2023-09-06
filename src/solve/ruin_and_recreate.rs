@@ -256,7 +256,7 @@ mod tests {
             vec![Location::new(0.0, 0.0), Location::new(1.0, 0.0)],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
+        assert_eq!(solve(&problem), Solution::new(vector![vector![].into()]));
     }
 
     #[test]
@@ -271,7 +271,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0].into()]));
+        assert_eq!(solve(&problem), Solution::new(vector![vector![0].into()]));
     }
 
     #[test]
@@ -287,7 +287,10 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1].into()]));
+        assert_eq!(
+            solve(&problem),
+            Solution::new(vector![vector![0, 1].into()])
+        );
     }
 
     #[test]
@@ -304,7 +307,10 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1, 2].into()]));
+        assert_eq!(
+            solve(&problem),
+            Solution::new(vector![vector![0, 1, 2].into()])
+        );
     }
 
     #[test]
