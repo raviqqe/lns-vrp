@@ -1,4 +1,5 @@
 use crate::{problem::BaseProblem, route::Router};
+use pvec::PVec;
 use std::cell::RefCell;
 
 #[derive(Debug)]
@@ -19,18 +20,18 @@ impl<R: Router, P: BaseProblem> DistanceCostCalculator<R, P> {
         }
     }
 
-    pub fn calculate_route(&self, vehicle_index: usize, stop_indexes: &[usize]) -> f64 {
+    pub fn calculate_route(&self, vehicle_index: usize, stop_indexes: &PVec<usize>) -> f64 {
         [self.problem.vehicle_start_location(vehicle_index)]
             .into_iter()
             .chain(
                 stop_indexes
-                    .iter()
-                    .map(|&index| self.problem.stop_location(index)),
+                    .into_iter()
+                    .map(|index| self.problem.stop_location(index)),
             )
             .zip(
                 stop_indexes
-                    .iter()
-                    .map(|&index| self.problem.stop_location(index))
+                    .into_iter()
+                    .map(|index| self.problem.stop_location(index))
                     .chain([self.problem.vehicle_end_location(vehicle_index)]),
             )
             .map(|(one, other)| self.calculate_segment(one, other))

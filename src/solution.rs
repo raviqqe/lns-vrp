@@ -1,6 +1,7 @@
 use crate::problem::BaseProblem;
 use alloc::vec::Vec;
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
+use pvec::PVec;
 use std::{
     alloc::{Allocator, Global},
     hash::{Hash, Hasher},
@@ -8,38 +9,32 @@ use std::{
     rc::Rc,
 };
 
-#[derive(Clone, Debug)]
-pub struct Solution<A: Allocator = Global> {
-    routes: PVec<PVec<usize>, A>, A>,
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Solution {
+    routes: PVec<PVec<usize>>,
 }
 
-impl<A: Allocator> Solution<A> {
-    pub fn new(routes: Vec<Rc<[usize], A>, A>) -> Self {
+impl Solution {
+    pub fn new(routes: Vec<Rc<[usize]>>) -> Self {
         Self { routes }
     }
 
-    pub fn routes(&self) -> &[Rc<[usize], A>] {
+    pub fn routes(&self) -> &[Rc<[usize]>] {
         &self.routes
     }
 
     pub fn has_stop(&self, stop_index: usize) -> bool {
         self.routes
-            .iter()
+            .into_iter()
             .any(|stop_indexes| stop_indexes.contains(&stop_index))
     }
 
     #[must_use]
-    pub fn add_stop(&self, vehicle_index: usize, stop_index: usize) -> Self
-    where
-        A: Clone,
-    {
-        let mut route = self.clone_route(vehicle_index);
-        route.push(stop_index);
-
-        let mut routes = self.routes.clone();
-        routes[vehicle_index] = route.into();
-
-        Self::new(routes)
+    pub fn add_stop(&self, vehicle_index: usize, stop_index: usize) -> Self {
+        Self::new(self.routes.update(
+            vehicle_index,
+            self.clone_route(vehicle_index).push(stop_index),
+        ))
     }
 
     #[must_use]
@@ -48,24 +43,15 @@ impl<A: Allocator> Solution<A> {
         vehicle_index: usize,
         insertion_index: usize,
         stop_index: usize,
-    ) -> Self
-    where
-        A: Clone,
-    {
-        let mut route = self.clone_route(vehicle_index);
-        route.insert(insertion_index, stop_index);
-
-        let mut routes = self.routes.clone();
-        routes[vehicle_index] = route.into();
-
-        Self::new(routes)
+    ) -> Self {
+        Self::new(self.routes.update(
+            vehicle_index,
+            self.routes[vehicle_index].insert(insertion_index, stop_index),
+        ))
     }
 
     #[must_use]
-    pub fn ruin_route(&self, vehicle_index: usize, stop_range: Range<usize>) -> Self
-    where
-        A: Clone,
-    {
+    pub fn ruin_route(&self, vehicle_index: usize, stop_range: Range<usize>) -> Self {
         let mut route = self.clone_route(vehicle_index);
         route.drain(stop_range);
 
@@ -75,29 +61,13 @@ impl<A: Allocator> Solution<A> {
         Self::new(routes)
     }
 
-    pub fn to_global(&self) -> Solution<Global> {
-        Solution::new(
-            self.routes()
-                .iter()
-                .map(|route| route.to_vec().into())
-                .collect(),
-        )
-    }
-
-    fn clone_route(&self, vehicle_index: usize) -> Vec<usize, A>
-    where
-        A: Clone,
-    {
-        self.routes[vehicle_index].to_vec_in(self.routes.allocator().clone())
-    }
-
     pub fn to_geojson(&self, problem: impl BaseProblem) -> GeoJson {
         FeatureCollection {
             bbox: None,
             foreign_members: None,
             features: self
                 .routes
-                .iter()
+                .into_iter()
                 .enumerate()
                 .map(|(vehicle_index, route)| Feature {
                     geometry: Some(Geometry {
@@ -108,8 +78,8 @@ impl<A: Allocator> Solution<A> {
                                 .into_iter()
                                 .chain(
                                     route
-                                        .iter()
-                                        .map(|&stop_index| problem.stop_location(stop_index)),
+                                        .into_iter()
+                                        .map(|stop_index| problem.stop_location(stop_index)),
                                 )
                                 .chain([problem.vehicle_end_location(vehicle_index)])
                                 .map(|index| {
@@ -128,24 +98,13 @@ impl<A: Allocator> Solution<A> {
     }
 }
 
-impl<A: Allocator> Eq for Solution<A> {}
-
-impl<A: Allocator> PartialEq for Solution<A> {
-    fn eq(&self, other: &Self) -> bool {
-        self.routes.len() == other.routes.len()
-            && self.routes.iter().zip(&other.routes).all(|(one, other)| {
-                one.len() == other.len()
-                    && one
-                        .as_ref()
-                        .iter()
-                        .zip(other.as_ref())
-                        .all(|(one, other)| one == other)
-            })
-    }
-}
-
-impl<A: Allocator> Hash for Solution<A> {
+// TODO Implement Hash.
+impl Hash for Solution {
     fn hash<H: Hasher>(&self, hasher: &mut H) {
-        self.routes.hash(hasher)
+        for route in self.routes {
+            for index in route {
+                index.hash(hasher);
+            }
+        }
     }
 }

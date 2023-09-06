@@ -27,7 +27,7 @@ impl<R: Router, P: BaseProblem> DeliveryCostCalculator<R, P> {
         }
     }
 
-    fn calculate_distance_cost(&mut self, solution: &Solution<impl Allocator>) -> f64 {
+    fn calculate_distance_cost(&mut self, solution: &Solution) -> f64 {
         solution
             .routes()
             .iter()
@@ -40,7 +40,7 @@ impl<R: Router, P: BaseProblem> DeliveryCostCalculator<R, P> {
             .sum()
     }
 
-    fn calculate_delivery_cost(&self, solution: &Solution<impl Allocator>) -> f64 {
+    fn calculate_delivery_cost(&self, solution: &Solution) -> f64 {
         (self.delivery_count
             - solution
                 .routes()
@@ -52,11 +52,11 @@ impl<R: Router, P: BaseProblem> DeliveryCostCalculator<R, P> {
 }
 
 impl<R: Router, P: BaseProblem> CostCalculator for DeliveryCostCalculator<R, P> {
-    fn calculate(&mut self, solution: &Solution<impl Allocator>) -> f64 {
+    fn calculate(&mut self, solution: &Solution) -> f64 {
         self.calculate_distance_cost(solution) + self.calculate_delivery_cost(solution)
     }
 
-    fn calculate_lower_bound(&mut self, solution: &Solution<impl Allocator>) -> f64 {
+    fn calculate_lower_bound(&mut self, solution: &Solution) -> f64 {
         self.calculate_distance_cost(solution)
     }
 }

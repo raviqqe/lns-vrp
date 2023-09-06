@@ -53,13 +53,11 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
             solutions.extend(new_solutions.drain(..));
         }
 
-        let solution = solutions
+        solutions
             .into_iter()
-            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
+            .min_by_key(|(_, one)| OrderedFloat(*one))
             .expect("at least one solution")
-            .0;
-
-        solution.to_global()
+            .0
     }
 }
 
