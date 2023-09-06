@@ -35,10 +35,7 @@ impl Solution {
         let mut route = self.routes[vehicle_index].clone();
         route.push_back(stop_index);
 
-        let mut routes = self.routes.clone();
-        routes.update(vehicle_index, route);
-
-        Self::new(routes)
+        Self::new(self.routes.update(vehicle_index, route))
     }
 
     #[must_use]
@@ -51,21 +48,16 @@ impl Solution {
         let mut route = self.routes[vehicle_index].clone();
         route.insert(insertion_index, stop_index);
 
-        let mut routes = self.routes.clone();
-        routes.update(vehicle_index, route);
-
-        Self::new(routes)
+        Self::new(self.routes.update(vehicle_index, route))
     }
 
     #[must_use]
     pub fn ruin_route(&self, vehicle_index: usize, stop_range: Range<usize>) -> Self {
-        let mut route = self.routes[vehicle_index].clone();
-        route.drain(stop_range);
+        let (mut one, other) = self.routes[vehicle_index].clone().split_at(stop_range.end);
+        one.truncate(stop_range.end.saturating_sub(stop_range.start));
+        one.append(other);
 
-        let mut routes = self.routes.clone();
-        routes.update(vehicle_index, route);
-
-        Self::new(routes)
+        Self::new(self.routes.update(vehicle_index, one))
     }
 
     pub fn to_geojson(&self, problem: impl BaseProblem) -> GeoJson {
