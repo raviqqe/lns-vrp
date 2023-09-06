@@ -182,11 +182,11 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
                 .filter(|other| one != *other)
                 .collect::<Vec<_>>();
 
-            stops.sort_by_key(|other| {
-                OrderedFloat(
-                    self.router
-                        .route(problem.stop_location(one), problem.stop_location(*other)),
-                )
+            stops.sort_by_key(|&other| {
+                OrderedFloat(self.router.route(
+                    problem.location(problem.stop_location(one)),
+                    problem.location(problem.stop_location(other)),
+                ))
             });
             stops.truncate(CLOSEST_STOP_COUNT);
 

@@ -115,8 +115,8 @@ impl<A: Allocator> Solution<A> {
                                         .map(|&stop_index| problem.stop_location(stop_index)),
                                 )
                                 .chain([problem.vehicle_end_location(vehicle_index)])
-                                .map(|location| {
-                                    let coordinates = location.as_point();
+                                .map(|index| {
+                                    let coordinates = problem.location(index).as_point();
 
                                     vec![coordinates.x(), coordinates.y()]
                                 })

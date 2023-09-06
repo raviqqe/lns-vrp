@@ -32,25 +32,24 @@ impl<R: Router> Solver for NearestNeighborSolver<R> {
                     return solution;
                 }
 
-                let last_location =
+                let last_location = problem.location(
                     if let Some(&stop_index) = solution.routes()[vehicle_index].last() {
                         problem.stop_location(stop_index)
                     } else {
                         problem.vehicle_start_location(vehicle_index)
-                    };
+                    },
+                );
 
                 let stop_index = stops
                     .iter()
-                    .map(|&index| {
-                        (
-                            index,
-                            self.router
-                                .route(last_location, problem.stop_location(index)),
-                        )
+                    .copied()
+                    .min_by_key(|index| {
+                        OrderedFloat(self.router.route(
+                            last_location,
+                            problem.location(problem.stop_location(*index)),
+                        ))
                     })
-                    .min_by_key(|(_, distance)| OrderedFloat(*distance))
-                    .expect("stop index")
-                    .0;
+                    .expect("stop index");
 
                 solution = solution.add_stop(vehicle_index, stop_index);
                 stops.remove(&stop_index);
