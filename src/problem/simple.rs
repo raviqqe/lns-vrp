@@ -27,6 +27,14 @@ impl BaseProblem for &SimpleProblem {
         self.vehicles.len()
     }
 
+    fn vehicle_start_location(&self, index: usize) -> &Location {
+        self.vehicles[index].start_location()
+    }
+
+    fn vehicle_end_location(&self, index: usize) -> &Location {
+        self.vehicles[index].end_location()
+    }
+
     fn stop_count(&self) -> usize {
         self.stops.len()
     }

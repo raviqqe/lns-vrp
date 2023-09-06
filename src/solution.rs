@@ -101,28 +101,27 @@ impl<A: Allocator> Solution<A> {
             features: self
                 .routes
                 .iter()
-                .filter(|route| route.len() > 0)
-                .map(|route| Feature {
+                .enumerate()
+                .map(|(vehicle_index, route)| Feature {
                     geometry: Some(Geometry {
                         bbox: None,
                         foreign_members: None,
-                        value: if route.len() == 1 {
-                            let point = problem.stop_location(route[0]).as_point();
-                            Value::Point(vec![point.x(), point.y()])
-                        } else {
-                            Value::LineString(
-                                route
-                                    .iter()
-                                    .copied()
-                                    .map(|stop_index| {
-                                        let coordinates =
-                                            problem.stop_location(stop_index).as_point();
+                        value: Value::LineString(
+                            [problem.vehicle_start_location(vehicle_index)]
+                                .into_iter()
+                                .chain(
+                                    route
+                                        .iter()
+                                        .map(|&stop_index| problem.stop_location(stop_index)),
+                                )
+                                .chain([problem.vehicle_end_location(vehicle_index)])
+                                .map(|location| {
+                                    let coordinates = location.as_point();
 
-                                        vec![coordinates.x(), coordinates.y()]
-                                    })
-                                    .collect(),
-                            )
-                        },
+                                    vec![coordinates.x(), coordinates.y()]
+                                })
+                                .collect(),
+                        ),
                     }),
                     ..Default::default()
                 })

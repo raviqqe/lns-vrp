@@ -89,7 +89,13 @@ mod tests {
 
     #[test]
     fn do_nothing() {
-        let problem = SimpleProblem::new(vec![Vehicle::new()], vec![]);
+        let problem = SimpleProblem::new(
+            vec![Vehicle::new(
+                Location::new(0.0, 0.0),
+                Location::new(1.0, 0.0),
+            )],
+            vec![],
+        );
 
         assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
     }
@@ -97,8 +103,11 @@ mod tests {
     #[test]
     fn keep_one_stop() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new()],
-            vec![Stop::new(Location::new(0.0, 0.0))],
+            vec![Vehicle::new(
+                Location::new(0.0, 0.0),
+                Location::new(2.0, 0.0),
+            )],
+            vec![Stop::new(Location::new(1.0, 0.0))],
         );
 
         assert_eq!(solve(&problem), Solution::new(vec![vec![0].into()]));
@@ -107,55 +116,52 @@ mod tests {
     #[test]
     fn keep_two_stops() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new()],
+            vec![Vehicle::new(
+                Location::new(0.0, 0.0),
+                Location::new(3.0, 0.0),
+            )],
             vec![
-                Stop::new(Location::new(0.0, 0.0)),
                 Stop::new(Location::new(1.0, 0.0)),
+                Stop::new(Location::new(2.0, 0.0)),
             ],
         );
 
-        assert_eq!(solve(&problem).routes()[0].len(), 2);
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1].into()]));
     }
 
     #[test]
     fn keep_three_stops() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new()],
+            vec![Vehicle::new(
+                Location::new(0.0, 0.0),
+                Location::new(4.0, 0.0),
+            )],
             vec![
-                Stop::new(Location::new(0.0, 0.0)),
                 Stop::new(Location::new(1.0, 0.0)),
                 Stop::new(Location::new(2.0, 0.0)),
+                Stop::new(Location::new(3.0, 0.0)),
             ],
         );
 
-        assert_eq!(solve(&problem).routes()[0][1], 1);
-    }
-
-    #[test]
-    fn optimize_stop_order() {
-        let problem = SimpleProblem::new(
-            vec![Vehicle::new()],
-            vec![
-                Stop::new(Location::new(0.0, 0.0)),
-                Stop::new(Location::new(2.0, 0.0)),
-                Stop::new(Location::new(1.0, 0.0)),
-            ],
-        );
-
-        assert_eq!(solve(&problem).routes()[0][1], 2);
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1, 2].into()]));
     }
 
     #[test]
     fn even_workload() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new(), Vehicle::new()],
             vec![
-                Stop::new(Location::new(0.0, 0.0)),
+                Vehicle::new(Location::new(0.0, 0.0), Location::new(2.0, 0.0)),
+                Vehicle::new(Location::new(0.0, 1.0), Location::new(2.0, 1.0)),
+            ],
+            vec![
                 Stop::new(Location::new(1.0, 0.0)),
-                Stop::new(Location::new(2.0, 0.0)),
+                Stop::new(Location::new(1.0, 1.0)),
             ],
         );
 
-        assert!(solve(&problem).routes().iter().all(|stops| stops.len() < 3));
+        assert!(solve(&problem)
+            .routes()
+            .iter()
+            .all(|stops| stops.len() == 1));
     }
 }
