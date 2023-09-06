@@ -1,3 +1,5 @@
+use std::alloc::Global;
+
 use super::solver::Solver;
 use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, Solution};
 use bumpalo::Bump;
@@ -54,7 +56,7 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
             .expect("at least one solution")
             .0;
 
-        solution.to_global()
+        solution.clone_in(Global)
     }
 }
 
