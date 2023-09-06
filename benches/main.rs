@@ -32,11 +32,10 @@ fn random_location() -> Location {
 fn random_problem() -> SimpleProblem {
     SimpleProblem::new(
         (0..VEHICLE_COUNT)
-            .map(|_| Vehicle::new(random_location(), random_location()))
+            .map(|_| Vehicle::new(STOP_COUNT, STOP_COUNT))
             .collect(),
-        (0..STOP_COUNT)
-            .map(|_| Stop::new(random_location()))
-            .collect(),
+        (0..STOP_COUNT).map(|index| Stop::new(index)).collect(),
+        (0..STOP_COUNT + 1).map(|_| random_location()).collect(),
     )
 }
 
