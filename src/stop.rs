@@ -1,16 +1,14 @@
-use crate::location::Location;
-
 #[derive(Debug, Eq, Hash, PartialEq)]
 pub struct Stop {
-    location: Location,
+    location: usize,
 }
 
 impl Stop {
-    pub fn new(location: Location) -> Self {
+    pub fn new(location: usize) -> Self {
         Self { location }
     }
 
-    pub fn location(&self) -> &Location {
-        &self.location
+    pub fn location(&self) -> usize {
+        self.location
     }
 }
