@@ -87,6 +87,18 @@ impl<A: Allocator> Solution<A> {
         )
     }
 
+    pub fn clone_in<B: Allocator + Clone>(&self, allocator: B) -> Solution<B> {
+        Solution::new({
+            let mut routes = Vec::with_capacity_in(self.routes.len(), allocator.clone());
+            routes.extend(self.routes().iter().map(|original| {
+                let mut route = Vec::with_capacity_in(original.len(), allocator.clone());
+                route.extend(original.iter().copied());
+                route.into()
+            }));
+            routes
+        })
+    }
+
     fn clone_route(&self, vehicle_index: usize) -> Vec<usize, A>
     where
         A: Clone,

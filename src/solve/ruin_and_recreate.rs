@@ -2,10 +2,11 @@ use super::solver::Solver;
 use crate::{
     cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, route::Router, trace, Solution,
 };
+use bumpalo::Bump;
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
-use std::ops::Range;
+use std::{alloc::Global, ops::Range};
 
 const SEED: [u8; 32] = [0u8; 32];
 const MAX_STOP_REGION_SIZE: usize = 6;
@@ -103,7 +104,8 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         initial_solution: &Solution,
         regions: &[RouteRegion],
     ) -> Solution {
-        let mut solution = initial_solution.clone();
+        let bump = Bump::new();
+        let mut solution = initial_solution.clone_in(&bump);
 
         for region in regions {
             solution = solution.ruin_route(region.vehicle_index, region.stop_range.clone())
@@ -143,11 +145,13 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             solutions.extend(new_solutions.drain(..));
         }
 
-        solutions
+        let solution = solutions
             .into_iter()
             .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
             .expect("at least one solution")
-            .0
+            .0;
+
+        solution.clone_in(Global)
     }
 
     fn region_stop_indexes<'a>(
