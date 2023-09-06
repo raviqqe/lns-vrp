@@ -27,8 +27,6 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
         let mut new_solutions = vec![];
 
         for _ in 0..problem.stop_count() {
-            new_solutions.clear();
-
             for (solution, upper_bound) in &solutions {
                 for stop_index in 0..problem.stop_count() {
                     if solution.has_stop(stop_index) {

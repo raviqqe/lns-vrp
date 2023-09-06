@@ -116,8 +116,6 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         let mut new_solutions = vec![];
 
         for _ in regions.iter().flat_map(|region| region.stop_range.clone()) {
-            new_solutions.clear();
-
             for solution in solutions.keys() {
                 for stop_index in regions
                     .iter()
