@@ -1,7 +1,7 @@
 use crate::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},
     problem::BaseProblem,
-    route::CrowRouter,
+    route::{CachedRouter, CrowRouter, Router},
     Location, SimpleProblem, Solution, Stop, Vehicle,
 };
 use rand::random;
@@ -10,7 +10,9 @@ use std::time::Instant;
 const DISTANCE_COST: f64 = 1.0;
 const MISSED_DELIVERY_COST: f64 = 1e9;
 
-pub static ROUTER: CrowRouter = CrowRouter::new();
+pub fn create_router() -> CachedRouter<CrowRouter> {
+    CachedRouter::new(CrowRouter::new())
+}
 
 fn random_longitude() -> f64 {
     145.00647210413496 + 0.1 * random::<f64>()
@@ -36,10 +38,11 @@ pub fn random_problem(vehicle_count: usize, stop_count: usize) -> SimpleProblem 
 }
 
 pub fn create_cost_calculator(
+    router: impl Router,
     problem: &SimpleProblem,
-) -> DeliveryCostCalculator<&CrowRouter, &SimpleProblem> {
+) -> DeliveryCostCalculator<impl Router, &SimpleProblem> {
     DeliveryCostCalculator::new(
-        DistanceCostCalculator::new(&ROUTER, problem),
+        DistanceCostCalculator::new(router, problem),
         problem.stops().len(),
         MISSED_DELIVERY_COST,
         DISTANCE_COST,
