@@ -1,6 +1,7 @@
 use crate::problem::BaseProblem;
 use alloc::vec::Vec;
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
+use im_rc::Vector;
 use std::{
     alloc::{Allocator, Global},
     hash::{Hash, Hasher},
@@ -12,12 +13,16 @@ use std::{
 // TODO Make it more compact.
 #[derive(Clone, Debug)]
 pub struct Solution<A: Allocator = Global> {
-    routes: Vec<Rc<[usize], A>, A>,
+    routes: Vector<Vector<usize>>,
+    _allocator: PhantomData<A>,
 }
 
 impl<A: Allocator> Solution<A> {
-    pub fn new(routes: Vec<Rc<[usize], A>, A>) -> Self {
-        Self { routes }
+    pub fn new(routes: Vector<Vector<usize>>) -> Self {
+        Self {
+            routes,
+            _allocator: Default::default(),
+        }
     }
 
     pub fn routes(&self) -> &[Rc<[usize], A>] {
