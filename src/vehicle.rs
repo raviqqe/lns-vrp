@@ -1,6 +1,6 @@
 use crate::Location;
 
-#[derive(Debug, Default, Eq, Hash, PartialEq)]
+#[derive(Debug, Eq, Hash, PartialEq)]
 pub struct Vehicle {
     start_location: Location,
     end_location: Location,
