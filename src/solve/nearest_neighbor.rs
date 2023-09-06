@@ -151,15 +151,15 @@ mod tests {
         let problem = SimpleProblem::new(
             vec![
                 Vehicle::new(Location::new(0.0, 0.0), Location::new(0.0, 0.0)),
-                Vehicle::new(Location::new(0.0, 0.0), Location::new(0.0, 0.0)),
+                Vehicle::new(Location::new(0.0, 1.0), Location::new(0.0, 1.0)),
             ],
             vec![
-                Stop::new(Location::new(0.0, 0.0)),
-                Stop::new(Location::new(1.0, 0.0)),
                 Stop::new(Location::new(0.1, 0.0)),
-                Stop::new(Location::new(1.1, 0.0)),
+                Stop::new(Location::new(0.1, 1.0)),
                 Stop::new(Location::new(0.2, 0.0)),
-                Stop::new(Location::new(1.3, 0.0)),
+                Stop::new(Location::new(0.2, 1.0)),
+                Stop::new(Location::new(0.3, 0.0)),
+                Stop::new(Location::new(0.3, 1.0)),
             ],
         );
 
@@ -174,14 +174,14 @@ mod tests {
         let problem = SimpleProblem::new(
             vec![
                 Vehicle::new(Location::new(0.0, 0.0), Location::new(0.0, 0.0)),
-                Vehicle::new(Location::new(0.0, 0.0), Location::new(0.0, 0.0)),
+                Vehicle::new(Location::new(0.0, 1.0), Location::new(0.0, 1.0)),
             ],
             vec![
-                Stop::new(Location::new(0.0, 0.0)),
-                Stop::new(Location::new(1.0, 0.0)),
                 Stop::new(Location::new(0.1, 0.0)),
-                Stop::new(Location::new(1.1, 0.0)),
+                Stop::new(Location::new(0.1, 1.0)),
                 Stop::new(Location::new(0.2, 0.0)),
+                Stop::new(Location::new(0.2, 1.0)),
+                Stop::new(Location::new(0.3, 0.0)),
             ],
         );
 

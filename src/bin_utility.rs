@@ -27,9 +27,11 @@ fn random_location() -> Location {
 }
 
 pub fn random_problem(vehicle_count: usize, stop_count: usize) -> SimpleProblem {
+    let depot_location = random_location();
+
     SimpleProblem::new(
         (0..vehicle_count)
-            .map(|_| Vehicle::new(random_location(), random_location()))
+            .map(|_| Vehicle::new(depot_location.clone(), depot_location.clone()))
             .collect(),
         (0..stop_count)
             .map(|_| Stop::new(random_location()))
