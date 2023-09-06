@@ -609,6 +609,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "pvec"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c8a33f1001bd132cb71613d6c4160d90ae93e324c2ee1d863e462ea36033ca3"
+
+[[package]]
 name = "quote"
 version = "1.0.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -888,6 +894,7 @@ dependencies = [
  "itertools 0.11.0",
  "ordered-float",
  "pretty_assertions",
+ "pvec",
  "rand",
 ]
 

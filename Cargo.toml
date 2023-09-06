@@ -10,6 +10,7 @@ geo = "0.26.0"
 geojson = "0.24.1"
 itertools = "0.11.0"
 ordered-float = "3.9.1"
+pvec = "0.2.1"
 rand = { version = "0.8.5", features = ["small_rng"] }
 
 [dev-dependencies]
