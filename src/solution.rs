@@ -59,7 +59,7 @@ impl Solution {
     #[must_use]
     pub fn ruin_route(&self, vehicle_index: usize, stop_range: Range<usize>) -> Self {
         let (mut one, other) = self.routes[vehicle_index].clone().split_at(stop_range.end);
-        one.truncate(stop_range.end.saturating_sub(stop_range.start));
+        one.truncate(one.len() - stop_range.end.saturating_sub(stop_range.start));
         one.append(other);
 
         Self::new(self.routes.update(vehicle_index, one))
