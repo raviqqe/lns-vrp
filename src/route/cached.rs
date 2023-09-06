@@ -8,7 +8,7 @@ use ordered_float::OrderedFloat;
 #[derive(Debug, Default)]
 pub struct CachedRouter<R: Router> {
     router: R,
-    cache: RefMut<HashMap<OrderedFloat<f64>, OrderedFloat<f64>>>,
+    cache: RefMut<HashMap<(OrderedFloat<f64>, OrderedFloat<f64>), f64>>,
 }
 
 impl<R: Router> CachedRouter<R> {
@@ -22,6 +22,6 @@ impl<R: Router> CachedRouter<R> {
 
 impl<R: Router> Router for &CachedRouter<R> {
     fn route(&self, start: &Location, end: &Location) -> f64 {
-        start.as_point().geodesic_distance(end.as_point())
+        let cached = cache.get((location.clone(), location.clone()));
     }
 }
