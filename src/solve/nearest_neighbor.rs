@@ -26,22 +26,18 @@ impl<R: Router> Solver for NearestNeighborSolver<R> {
         );
         let mut stops = HashSet::<usize>::from_iter(0..problem.stop_count());
 
-        for index in 0..problem.vehicle_count().min(problem.stop_count()) {
-            solution = solution.add_stop(index, index);
-            stops.remove(&index);
-        }
-
         loop {
             for vehicle_index in 0..problem.vehicle_count() {
                 if stops.is_empty() {
                     return solution;
                 }
 
-                let last_location = problem.stop_location(
-                    *solution.routes()[vehicle_index]
-                        .last()
-                        .expect("last location"),
-                );
+                let last_location =
+                    if let Some(&stop_index) = solution.routes()[vehicle_index].last() {
+                        problem.stop_location(stop_index)
+                    } else {
+                        problem.vehicle_start_location(vehicle_index)
+                    };
 
                 let stop_index = stops
                     .iter()
