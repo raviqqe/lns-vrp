@@ -51,10 +51,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         let regions = self.choose_regions(&solution, &closest_stops);
         trace!("regions: {:?}", &regions);
 
-        let solution = self.optimize_regions(&solution, &regions);
-        let cost = self.cost_calculator.calculate(&solution);
-
-        (solution, cost)
+        self.optimize_regions(&solution, &regions)
     }
 
     fn choose_regions(
@@ -128,7 +125,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         &mut self,
         initial_solution: &Solution,
         regions: &[RouteRegion],
-    ) -> Solution {
+    ) -> (Solution, f64) {
         let bump = Bump::new();
         let mut solution = initial_solution.clone_in(&bump);
 
@@ -170,13 +167,12 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             solutions.extend(new_solutions.drain(..));
         }
 
-        let solution = solutions
+        let (solution, cost) = solutions
             .into_iter()
             .min_by_key(|(_, cost)| OrderedFloat(*cost))
-            .expect("at least one solution")
-            .0;
+            .expect("at least one solution");
 
-        solution.clone_in(Global)
+        (solution.clone_in(Global), cost)
     }
 
     fn region_stop_indexes<'a>(
