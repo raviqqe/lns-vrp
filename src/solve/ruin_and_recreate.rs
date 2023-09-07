@@ -13,6 +13,7 @@ const MAX_FACTORIAL_SUB_PROBLEM_SIZE: usize = 8;
 const MAX_VEHICLE_REGION_SIZE: usize = 2;
 const CLOSEST_STOP_COUNT: usize = 8;
 const MAX_2_OPT_CLOSEST_STOP_COUNT: usize = 3;
+const TWO_OPT_ITERATION_COUNT: usize = 4;
 
 #[derive(Debug)]
 struct RouteRegion {
@@ -171,7 +172,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .map(|index| solution.routes()[region.vehicle_index][index])
     }
 
-    fn run_2_opt_heuristics(
+    fn run_two_opt(
         &mut self,
         initial_solution: &Solution,
         closest_stops: &[Vec<usize>],
@@ -328,11 +329,12 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         let mut cost = self.cost_calculator.calculate(&solution);
 
         for _ in 0..self.iteration_count {
-            if let Some((new_solution, new_cost)) =
-                self.run_2_opt_heuristics(&solution, &closest_stops)
-            {
-                solution = new_solution;
-                cost = new_cost;
+            for _ in 0..TWO_OPT_ITERATION_COUNT {
+                if let Some((new_solution, new_cost)) = self.run_two_opt(&solution, &closest_stops)
+                {
+                    solution = new_solution;
+                    cost = new_cost;
+                }
             }
 
             let regions = self.choose_regions(&solution, &closest_stops);
