@@ -68,22 +68,13 @@ impl<A: Allocator> Solution<A> {
     pub fn extend_route(
         &self,
         vehicle_index: usize,
-        stop_index: usize,
         stop_indexes: impl IntoIterator<Item = usize, IntoIter = impl ExactSizeIterator<Item = usize>>,
     ) -> Self
     where
         A: Clone,
     {
-        let stop_indexes = stop_indexes.into_iter();
-
-        let original_route = &self.routes[vehicle_index];
-        let mut route = Vec::with_capacity_in(
-            original_route.len() + stop_indexes.len(),
-            self.routes.allocator().clone(),
-        );
-        route.extend(&original_route[..stop_index]);
+        let mut route = self.clone_route(vehicle_index);
         route.extend(stop_indexes);
-        route.extend(&original_route[stop_index..]);
 
         let mut routes = self.routes.clone();
         routes[vehicle_index] = route.into();
