@@ -8,6 +8,7 @@ use rand::random;
 use std::time::Instant;
 
 const DISTANCE_COST: f64 = 1.0;
+const QUADRATIC_DISTANCE_COST: f64 = 1e-6;
 const MISSED_DELIVERY_COST: f64 = 1e9;
 
 pub fn create_router() -> CachedRouter<CrowRouter> {
@@ -46,6 +47,7 @@ pub fn create_cost_calculator(
         problem.stops().len(),
         MISSED_DELIVERY_COST,
         DISTANCE_COST,
+        QUADRATIC_DISTANCE_COST,
     )
 }
 
