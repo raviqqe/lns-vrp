@@ -15,7 +15,7 @@ const MAX_FACTORIAL_SUB_PROBLEM_SIZE: usize = 8;
 const MAX_VEHICLE_REGION_SIZE: usize = 2;
 const CLOSEST_STOP_COUNT: usize = 8;
 
-const TWO_OPT_MAX_CLOSEST_STOP_COUNT: usize = 8;
+const TWO_OPT_MAX_STOP_COUNT: usize = 8;
 
 #[derive(Debug)]
 struct RouteRegion {
@@ -203,7 +203,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         for stop_indexes in [stop_index]
             .iter()
             .chain(stops)
-            .take(TWO_OPT_MAX_CLOSEST_STOP_COUNT)
+            .take(TWO_OPT_MAX_STOP_COUNT)
             .copied()
             .combinations(2)
             .filter(|indexes| indexes[0] != indexes[1])
