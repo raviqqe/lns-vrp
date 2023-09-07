@@ -181,18 +181,28 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 .choose(&mut self.rng)
                 .expect("at least one closest stop"),
         ];
-        let vehicle_indexes = stop_indexes
+        let vehicles = stop_indexes
             .iter()
-            .flat_map(|&stop_index| Self::find_vehicle(initial_solution, stop_index))
+            .flat_map(|&stop_index| {
+                Self::find_vehicle(initial_solution, stop_index).map(|vehicle_index| {
+                    (
+                        vehicle_index,
+                        initial_solution.routes()[vehicle_index]
+                            .iter()
+                            .position(|&other| other == stop_index)
+                            .expect("existent stop index"),
+                    )
+                })
+            })
             .collect::<Vec<_>>();
 
-        if vehicle_indexes.len() < 2 {
+        if vehicles.len() < 2 {
             return None;
         }
 
         let mut base_solution = initial_solution.clone();
 
-        for vehicle_index in vehicle_indexes {
+        for &(vehicle_index, _) in &vehicles {
             base_solution = base_solution.drain_route(
                 vehicle_index,
                 0..base_solution.routes()[vehicle_index].len(),
@@ -204,29 +214,38 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
 
         for head_source in 0..2 {
             for head_target in 0..2 {
+                let mut new_solution = base_solution.clone();
+
+                for (source, target) in [
+                    (head_source, head_target),
+                    (1 - head_source, 1 - head_target),
+                ] {
+                    let &(source_vehicle_index, source_stop_index) = &vehicles[source];
+                    let &(target_vehicle_index, _) = &vehicles[target];
+
+                    new_solution = new_solution.extend_route(
+                        target_vehicle_index,
+                        initial_solution.routes()[source_vehicle_index][source_stop_index..]
+                            .iter()
+                            .copied(),
+                    );
+                }
+
                 for tail_source in 0..2 {
                     for tail_target in 0..2 {
-                        let mut new_solution = base_solution.clone();
-
-                        for (source, target) in [
-                            (head_source, head_target),
-                            (1 - head_source, 1 - head_target),
-                        ] {
-                            new_solution = new_solution.extend_route(
-                                target,
-                                initial_solution.routes()[source][..stop_indexes[head_source]]
-                                    .iter()
-                                    .copied(),
-                            );
-                        }
+                        let mut new_solution = new_solution.clone();
 
                         for (source, target) in [
                             (tail_source, tail_target),
                             (1 - tail_source, 1 - tail_target),
                         ] {
+                            let &(source_vehicle_index, source_stop_index) = &vehicles[source];
+                            let &(target_vehicle_index, _) = &vehicles[target];
+
                             new_solution = new_solution.extend_route(
-                                target,
-                                initial_solution.routes()[source][stop_indexes[head_source]..]
+                                target_vehicle_index,
+                                initial_solution.routes()[source_vehicle_index]
+                                    [source_stop_index..]
                                     .iter()
                                     .copied(),
                             );
