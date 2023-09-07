@@ -212,11 +212,26 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .unique()
             .collect::<Vec<_>>();
 
-        // TODO Apply the intra-route 2-opt heuristics.
-        if vehicle_indexes.len() < 2 {
+        if vehicle_indexes.len() == 2 {
+            self.run_inter_route_two_opt(
+                initial_solution,
+                initial_cost,
+                &vehicle_indexes,
+                &stop_indexes,
+            )
+        } else {
+            // TODO Apply the intra-route 2-opt heuristics.
             return (initial_solution.clone(), initial_cost);
         }
+    }
 
+    fn run_inter_route_two_opt(
+        &mut self,
+        initial_solution: &Solution,
+        initial_cost: f64,
+        vehicle_indexes: &[usize],
+        stop_indexes: &[usize],
+    ) -> (Solution, f64) {
         let mut solution = initial_solution.clone();
         let mut cost = initial_cost;
 
@@ -233,7 +248,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         }) {
             let vehicles = vehicle_indexes
                 .iter()
-                .zip(&stop_indexes)
+                .zip(stop_indexes)
                 .map(|(&vehicle_index, &stop_index)| {
                     (
                         vehicle_index,
