@@ -51,7 +51,7 @@ impl<C: CostCalculator> Solver for BranchAndBoundSolver<C> {
 
         let solution = solutions
             .into_iter()
-            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
+            .min_by_key(|(_, cost)| OrderedFloat(*cost))
             .expect("at least one solution")
             .0;
 

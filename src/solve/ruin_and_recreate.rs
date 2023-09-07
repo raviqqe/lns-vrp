@@ -147,7 +147,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
 
         let solution = solutions
             .into_iter()
-            .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
+            .min_by_key(|(_, cost)| OrderedFloat(*cost))
             .expect("at least one solution")
             .0;
 
