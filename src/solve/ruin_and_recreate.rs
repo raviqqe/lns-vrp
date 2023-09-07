@@ -274,7 +274,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                                 let new_cost = self.cost_calculator.calculate(&new_solution);
 
                                 if new_cost < cost {
-                                    trace!("new solution found by swap!");
+                                    trace!("new solution found by 2-opt!");
                                     trace!("solution: {:?}", solution);
                                     trace!("cost: {:?}", cost);
 
