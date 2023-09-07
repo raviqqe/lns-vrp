@@ -1,6 +1,7 @@
 use super::solver::Solver;
 use crate::{
-    cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, route::Router, trace, Solution,
+    cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, route::Router, trace,
+    trace_solution, Solution,
 };
 use bumpalo::Bump;
 use itertools::Itertools;
@@ -274,9 +275,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                                 let new_cost = self.cost_calculator.calculate(&new_solution);
 
                                 if new_cost < cost {
-                                    trace!("new solution found by 2-opt!");
-                                    trace!("solution: {:?}", solution);
-                                    trace!("cost: {:?}", cost);
+                                    trace_solution!("2-opt", &solution, cost);
 
                                     solution = new_solution;
                                     cost = new_cost;
@@ -374,9 +373,7 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
             // TODO Save multiple solutions.
             // TODO Decide if a solution is good enough already.
             if new_cost < cost {
-                trace!("new solution found!");
-                trace!("solution: {:?}", solution);
-                trace!("cost: {:?}", cost);
+                trace_solution!("brute force", &solution, cost);
 
                 solution = new_solution;
                 cost = new_cost;
