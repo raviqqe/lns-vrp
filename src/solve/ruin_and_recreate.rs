@@ -201,56 +201,41 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             return None;
         }
 
-        let mut base_solution = initial_solution.clone();
+        let base_solution = {
+            let mut solution = initial_solution.clone();
 
-        for &(vehicle_index, _) in &vehicles {
-            base_solution = base_solution.drain_route(
-                vehicle_index,
-                0..base_solution.routes()[vehicle_index].len(),
-            );
-        }
+            for &(vehicle_index, _) in &vehicles {
+                solution =
+                    solution.drain_route(vehicle_index, 0..solution.routes()[vehicle_index].len());
+            }
+
+            solution
+        };
 
         let mut solution = initial_solution.clone();
         let mut cost = self.cost_calculator.calculate(&solution);
 
         for head_source in 0..2 {
             for head_target in 0..2 {
-                let mut new_solution = base_solution.clone();
-
-                for (source, target) in [
-                    (head_source, head_target),
-                    (1 - head_source, 1 - head_target),
-                ] {
-                    let &(source_vehicle_index, source_stop_index) = &vehicles[source];
-                    let &(target_vehicle_index, _) = &vehicles[target];
-
-                    new_solution = new_solution.extend_route(
-                        target_vehicle_index,
-                        initial_solution.routes()[source_vehicle_index][..source_stop_index]
-                            .iter()
-                            .copied(),
-                    );
-                }
+                let new_solution = Self::extend_routes(
+                    initial_solution,
+                    &base_solution,
+                    &vehicles,
+                    head_source,
+                    head_target,
+                    false,
+                );
 
                 for tail_source in 0..2 {
                     for tail_target in 0..2 {
-                        let mut new_solution = new_solution.clone();
-
-                        for (source, target) in [
-                            (tail_source, tail_target),
-                            (1 - tail_source, 1 - tail_target),
-                        ] {
-                            let &(source_vehicle_index, source_stop_index) = &vehicles[source];
-                            let &(target_vehicle_index, _) = &vehicles[target];
-
-                            new_solution = new_solution.extend_route(
-                                target_vehicle_index,
-                                initial_solution.routes()[source_vehicle_index]
-                                    [source_stop_index..]
-                                    .iter()
-                                    .copied(),
-                            );
-                        }
+                        let new_solution = Self::extend_routes(
+                            initial_solution,
+                            &new_solution,
+                            &vehicles,
+                            tail_source,
+                            tail_target,
+                            true,
+                        );
 
                         let new_cost = self.cost_calculator.calculate(&new_solution);
 
@@ -268,6 +253,36 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         }
 
         Some((solution, cost))
+    }
+
+    fn extend_routes(
+        initial_solution: &Solution,
+        solution: &Solution,
+        vehicles: &[(usize, usize)],
+        source: usize,
+        target: usize,
+        tail: bool,
+    ) -> Solution {
+        let mut solution = solution.clone();
+
+        for (source, target) in [(source, target), (1 - source, 1 - target)] {
+            let &(source_vehicle_index, source_stop_index) = &vehicles[source];
+            let &(target_vehicle_index, _) = &vehicles[target];
+            let source_route = &initial_solution.routes()[source_vehicle_index];
+
+            solution = solution.extend_route(
+                target_vehicle_index,
+                if tail {
+                    &source_route[source_stop_index..]
+                } else {
+                    &source_route[..source_stop_index]
+                }
+                .iter()
+                .copied(),
+            );
+        }
+
+        solution
     }
 }
 

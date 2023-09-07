@@ -68,7 +68,7 @@ impl<A: Allocator> Solution<A> {
     pub fn extend_route(
         &self,
         vehicle_index: usize,
-        stop_indexes: impl IntoIterator<Item = usize, IntoIter = impl ExactSizeIterator<Item = usize>>,
+        stop_indexes: impl IntoIterator<Item = usize>,
     ) -> Self
     where
         A: Clone,
