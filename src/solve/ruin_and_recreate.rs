@@ -254,7 +254,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 // Exclusive stop index
                 vehicles,
             ] {
-                let base_solution = {
+                let new_solution = {
                     let mut solution = initial_solution.clone();
 
                     for &(vehicle_index, _) in &vehicles {
@@ -269,7 +269,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                     for head_target in 0..2 {
                         let new_solution = Self::extend_routes(
                             &initial_solution,
-                            &base_solution,
+                            &new_solution,
                             &vehicles,
                             head_source,
                             head_target,
