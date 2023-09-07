@@ -165,6 +165,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 }
             }
 
+            // Keep existing solutions with stops not assigned.
             solutions.extend(new_solutions.drain(..));
         }
 
