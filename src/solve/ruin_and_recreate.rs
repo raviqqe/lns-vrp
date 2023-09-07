@@ -215,11 +215,8 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 .collect::<Vec<_>>();
 
             if vehicle_indexes.len() == 2 {
-                let (new_solution, new_cost) = self.run_inter_route_two_opt(
-                    &initial_solution,
-                    &vehicle_indexes,
-                    &stop_indexes,
-                );
+                let (new_solution, new_cost) =
+                    self.run_inter_route_two_opt(initial_solution, &vehicle_indexes, &stop_indexes);
 
                 if new_cost < cost {
                     trace_solution!("2-opt", &solution, cost);
