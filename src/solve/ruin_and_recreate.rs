@@ -212,50 +212,58 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             return None;
         }
 
-        let base_solution = {
-            let mut solution = initial_solution.clone();
-
-            for &(vehicle_index, _) in &vehicles {
-                solution =
-                    solution.drain_route(vehicle_index, 0..solution.routes()[vehicle_index].len());
-            }
-
-            solution
-        };
-
         let mut solution = initial_solution.clone();
         let mut cost = self.cost_calculator.calculate(&solution);
 
-        for head_source in 0..2 {
-            for head_target in 0..2 {
-                let new_solution = Self::extend_routes(
-                    initial_solution,
-                    &base_solution,
-                    &vehicles,
-                    head_source,
-                    head_target,
-                    false,
-                );
+        for vehicles in [
+            vehicles
+                .iter()
+                .map(|(vehicle_index, stop_index)| (*vehicle_index, stop_index + 1))
+                .collect::<Vec<_>>(),
+            vehicles,
+        ] {
+            let base_solution = {
+                let mut solution = initial_solution.clone();
 
-                for tail_source in 0..2 {
-                    for tail_target in 0..2 {
-                        let new_solution = Self::extend_routes(
-                            initial_solution,
-                            &new_solution,
-                            &vehicles,
-                            tail_source,
-                            tail_target,
-                            true,
-                        );
-                        let new_cost = self.cost_calculator.calculate(&new_solution);
+                for &(vehicle_index, _) in &vehicles {
+                    solution = solution
+                        .drain_route(vehicle_index, 0..solution.routes()[vehicle_index].len());
+                }
 
-                        if new_cost < cost {
-                            trace!("new solution found by swap!");
-                            trace!("solution: {:?}", solution);
-                            trace!("cost: {:?}", cost);
+                solution
+            };
 
-                            solution = new_solution;
-                            cost = new_cost;
+            for head_source in 0..2 {
+                for head_target in 0..2 {
+                    let new_solution = Self::extend_routes(
+                        initial_solution,
+                        &base_solution,
+                        &vehicles,
+                        head_source,
+                        head_target,
+                        false,
+                    );
+
+                    for tail_source in 0..2 {
+                        for tail_target in 0..2 {
+                            let new_solution = Self::extend_routes(
+                                initial_solution,
+                                &new_solution,
+                                &vehicles,
+                                tail_source,
+                                tail_target,
+                                true,
+                            );
+                            let new_cost = self.cost_calculator.calculate(&new_solution);
+
+                            if new_cost < cost {
+                                trace!("new solution found by swap!");
+                                trace!("solution: {:?}", solution);
+                                trace!("cost: {:?}", cost);
+
+                                solution = new_solution;
+                                cost = new_cost;
+                            }
                         }
                     }
                 }
