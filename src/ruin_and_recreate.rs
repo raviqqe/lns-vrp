@@ -176,8 +176,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         }
 
         for region in regions {
-            // TODO
-            // let solution = solution.add_stop();
+            let solution = solution.add_stop();
         }
     }
 }
