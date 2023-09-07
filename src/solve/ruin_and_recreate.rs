@@ -43,6 +43,19 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         }
     }
 
+    fn run_dynamic_programming(
+        &mut self,
+        solution: &Solution,
+        closest_stops: &[Vec<usize>],
+    ) -> (Solution, f64) {
+        let regions = self.choose_regions(&solution, &closest_stops);
+        trace!("regions: {:?}", &regions);
+        let solution = self.optimize_regions(&solution, &regions);
+        let cost = self.cost_calculator.calculate(&solution);
+
+        (solution, cost)
+    }
+
     fn choose_regions(
         &mut self,
         solution: &Solution,
@@ -179,7 +192,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         &mut self,
         initial_solution: &Solution,
         closest_stops: &[Vec<usize>],
-    ) -> Option<(Solution, f64)> {
+    ) -> (Solution, f64) {
         let (stop_index, stops) = closest_stops
             .iter()
             .enumerate()
@@ -200,7 +213,10 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .collect::<Vec<_>>();
 
         if vehicle_indexes.len() < 2 {
-            return None;
+            return (
+                initial_solution.clone(),
+                self.cost_calculator.calculate(initial_solution),
+            );
         }
 
         let mut solution = initial_solution.clone();
@@ -287,7 +303,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             }
         }
 
-        Some((solution, cost))
+        (solution, cost)
     }
 
     fn extend_routes(
@@ -357,27 +373,12 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
 
         for _ in 0..self.iteration_count {
             for _ in 0..TWO_OPT_ITERATION_COUNT {
-                if let Some((new_solution, new_cost)) = self.run_two_opt(&solution, &closest_stops)
-                {
-                    solution = new_solution;
-                    cost = new_cost;
-                }
+                (solution, cost) = self.run_two_opt(&solution, &closest_stops);
             }
 
-            let regions = self.choose_regions(&solution, &closest_stops);
-            trace!("regions: {:?}", &regions);
-            let new_solution = self.optimize_regions(&solution, &regions);
-            let new_cost = self.cost_calculator.calculate(&new_solution);
+            (solution, cost) = self.run_dynamic_programming(&solution, &closest_stops);
 
-            // TODO Consider a non-greedy strategy like simulated annealing.
-            // TODO Save multiple solutions.
             // TODO Decide if a solution is good enough already.
-            if new_cost < cost {
-                trace_solution!("brute force", &solution, cost);
-
-                solution = new_solution;
-                cost = new_cost;
-            }
         }
 
         solution
