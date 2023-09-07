@@ -74,9 +74,13 @@ impl<A: Allocator> Solution<A> {
     where
         A: Clone,
     {
+        let stop_indexes = stop_indexes.into_iter();
+
         let original_route = &self.routes[vehicle_index];
-        let mut route =
-            Vec::with_capacity_in(original_route.len(), self.routes.allocator().clone());
+        let mut route = Vec::with_capacity_in(
+            original_route.len() + stop_indexes.len(),
+            self.routes.allocator().clone(),
+        );
         route.extend(&original_route[..stop_index]);
         route.extend(stop_indexes);
         route.extend(&original_route[stop_index..]);

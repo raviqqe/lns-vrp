@@ -165,7 +165,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
     }
 
     fn insert_cross_solutions(
-        &self,
+        &mut self,
         solution: &Solution,
         regions: &[RouteRegion],
         solutions: &mut HashMap<Solution, f64>,
