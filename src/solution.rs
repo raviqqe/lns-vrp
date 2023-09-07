@@ -65,7 +65,25 @@ impl<A: Allocator> Solution<A> {
     }
 
     #[must_use]
-    pub fn ruin_route(&self, vehicle_index: usize, stop_range: Range<usize>) -> Self
+    pub fn extend_route(
+        &self,
+        vehicle_index: usize,
+        stop_indexes: impl IntoIterator<Item = usize>,
+    ) -> Self
+    where
+        A: Clone,
+    {
+        let mut route = self.clone_route(vehicle_index);
+        route.extend(stop_indexes);
+
+        let mut routes = self.routes.clone();
+        routes[vehicle_index] = route.into();
+
+        Self::new(routes)
+    }
+
+    #[must_use]
+    pub fn drain_route(&self, vehicle_index: usize, stop_range: Range<usize>) -> Self
     where
         A: Clone,
     {

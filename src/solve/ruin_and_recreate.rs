@@ -53,15 +53,8 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .chain(closest_stop_indexes)
             .copied()
             .flat_map(|stop_index| {
-                solution
-                    .routes()
-                    .iter()
-                    .enumerate()
-                    .find_map(|(vehicle_index, route)| {
-                        route
-                            .contains(&stop_index)
-                            .then_some((vehicle_index, stop_index))
-                    })
+                Self::find_vehicle(solution, stop_index)
+                    .map(|vehicle_index| (vehicle_index, stop_index))
             })
             .unique_by(|(vehicle_index, _)| *vehicle_index)
             .collect::<Vec<_>>();
@@ -77,6 +70,13 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 )
             })
             .collect()
+    }
+    fn find_vehicle(solution: &Solution, stop_index: usize) -> Option<usize> {
+        solution
+            .routes()
+            .iter()
+            .enumerate()
+            .find_map(|(vehicle_index, route)| route.contains(&stop_index).then_some(vehicle_index))
     }
 
     fn choose_region(
@@ -108,7 +108,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         let mut solution = initial_solution.clone_in(&bump);
 
         for region in regions {
-            solution = solution.ruin_route(region.vehicle_index, region.stop_range.clone())
+            solution = solution.drain_route(region.vehicle_index, region.stop_range.clone())
         }
 
         let cost = self.cost_calculator.calculate(&solution);
@@ -163,6 +163,126 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .clone()
             .map(|index| solution.routes()[region.vehicle_index][index])
     }
+
+    fn run_2_opt_heuristics(
+        &mut self,
+        initial_solution: &Solution,
+        closest_stops: &[Vec<usize>],
+    ) -> Option<(Solution, f64)> {
+        let (stop_index, stops) = closest_stops
+            .iter()
+            .enumerate()
+            .choose(&mut self.rng)
+            .expect("at least one route");
+        let stop_indexes = [
+            stop_index,
+            *stops
+                .iter()
+                .choose(&mut self.rng)
+                .expect("at least one closest stop"),
+        ];
+        let vehicles = stop_indexes
+            .iter()
+            .flat_map(|&stop_index| {
+                Self::find_vehicle(initial_solution, stop_index).map(|vehicle_index| {
+                    (
+                        vehicle_index,
+                        initial_solution.routes()[vehicle_index]
+                            .iter()
+                            .position(|&other| other == stop_index)
+                            .expect("existent stop index"),
+                    )
+                })
+            })
+            .unique_by(|(vehicle_index, _)| *vehicle_index)
+            .collect::<Vec<_>>();
+
+        if vehicles.len() < 2 {
+            return None;
+        }
+
+        let base_solution = {
+            let mut solution = initial_solution.clone();
+
+            for &(vehicle_index, _) in &vehicles {
+                solution =
+                    solution.drain_route(vehicle_index, 0..solution.routes()[vehicle_index].len());
+            }
+
+            solution
+        };
+
+        let mut solution = initial_solution.clone();
+        let mut cost = self.cost_calculator.calculate(&solution);
+
+        for head_source in 0..2 {
+            for head_target in 0..2 {
+                let new_solution = Self::extend_routes(
+                    initial_solution,
+                    &base_solution,
+                    &vehicles,
+                    head_source,
+                    head_target,
+                    false,
+                );
+
+                for tail_source in 0..2 {
+                    for tail_target in 0..2 {
+                        let new_solution = Self::extend_routes(
+                            initial_solution,
+                            &new_solution,
+                            &vehicles,
+                            tail_source,
+                            tail_target,
+                            true,
+                        );
+                        let new_cost = self.cost_calculator.calculate(&new_solution);
+
+                        if new_cost < cost {
+                            trace!("new solution found by swap!");
+                            trace!("solution: {:?}", solution);
+                            trace!("cost: {:?}", cost);
+
+                            solution = new_solution;
+                            cost = new_cost;
+                        }
+                    }
+                }
+            }
+        }
+
+        Some((solution, cost))
+    }
+
+    fn extend_routes(
+        initial_solution: &Solution,
+        solution: &Solution,
+        vehicles: &[(usize, usize)],
+        source: usize,
+        target: usize,
+        tail: bool,
+    ) -> Solution {
+        let mut solution = solution.clone();
+
+        for (source, target) in [(source, target), (1 - source, 1 - target)] {
+            let &(source_vehicle_index, source_stop_index) = &vehicles[source];
+            let &(target_vehicle_index, _) = &vehicles[target];
+            let source_route = &initial_solution.routes()[source_vehicle_index];
+
+            solution = solution.extend_route(
+                target_vehicle_index,
+                if tail {
+                    &source_route[source_stop_index..]
+                } else {
+                    &source_route[..source_stop_index]
+                }
+                .iter()
+                .copied(),
+            );
+        }
+
+        solution
+    }
 }
 
 impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C, R, S> {
@@ -200,6 +320,13 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         let mut cost = self.cost_calculator.calculate(&solution);
 
         for _ in 0..self.iteration_count {
+            if let Some((new_solution, new_cost)) =
+                self.run_2_opt_heuristics(&solution, &closest_stops)
+            {
+                solution = new_solution;
+                cost = new_cost;
+            }
+
             let regions = self.choose_regions(&solution, &closest_stops);
             trace!("regions: {:?}", &regions);
             let new_solution = self.optimize_regions(&solution, &regions);
