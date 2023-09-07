@@ -352,7 +352,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         solution
     }
 
-    fn moving_averange(&self, old: f64, new: f64) -> f64 {
+    fn moving_average(&self, old: f64, new: f64) -> f64 {
         let count = self.iteration_count;
 
         if old == 0.0 {
