@@ -395,7 +395,7 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         let mut cost = self.cost_calculator.calculate(&solution);
 
         for _ in 0..self.iteration_count {
-            (solution, cost) = self.run_two_opt(&solution, cost, &closest_stops);
+            (solution, _) = self.run_two_opt(&solution, cost, &closest_stops);
             (solution, cost) = self.run_dynamic_programming(&solution, &closest_stops);
 
             // TODO Decide if a solution is good enough already.
