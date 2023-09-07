@@ -50,6 +50,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
     ) -> (Solution, f64) {
         let regions = self.choose_regions(&solution, &closest_stops);
         trace!("regions: {:?}", &regions);
+
         let solution = self.optimize_regions(&solution, &regions);
         let cost = self.cost_calculator.calculate(&solution);
 
