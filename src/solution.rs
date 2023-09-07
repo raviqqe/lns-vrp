@@ -108,6 +108,20 @@ impl<A: Allocator> Solution<A> {
         })
     }
 
+    #[must_use]
+    pub fn reverse_route(&self, vehicle_index: usize) -> Self
+    where
+        A: Clone,
+    {
+        let mut route = self.clone_route(vehicle_index);
+        route.reverse();
+
+        let mut routes = self.routes.clone();
+        routes[vehicle_index] = route.into();
+
+        Self::new(routes)
+    }
+
     fn clone_route(&self, vehicle_index: usize) -> Vec<usize, A>
     where
         A: Clone,

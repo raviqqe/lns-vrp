@@ -205,7 +205,17 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         let mut solution = initial_solution.clone();
         let mut cost = self.cost_calculator.calculate(&solution);
 
-        for initial_solution in [initial_solution] {
+        for initial_solution in [false, true].into_iter().permutations(2).map(|flags| {
+            let mut solution = initial_solution.clone();
+
+            for (index, flag) in flags.into_iter().enumerate() {
+                if flag {
+                    solution = solution.reverse_route(vehicle_indexes[index]);
+                }
+            }
+
+            solution
+        }) {
             let vehicles = vehicle_indexes
                 .iter()
                 .zip(&stop_indexes)
@@ -243,7 +253,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 for head_source in 0..2 {
                     for head_target in 0..2 {
                         let new_solution = Self::extend_routes(
-                            initial_solution,
+                            &initial_solution,
                             &base_solution,
                             &vehicles,
                             head_source,
@@ -254,7 +264,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                         for tail_source in 0..2 {
                             for tail_target in 0..2 {
                                 let new_solution = Self::extend_routes(
-                                    initial_solution,
+                                    &initial_solution,
                                     &new_solution,
                                     &vehicles,
                                     tail_source,
