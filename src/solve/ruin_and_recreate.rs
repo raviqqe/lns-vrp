@@ -46,7 +46,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         &mut self,
         solution: &Solution,
         closest_stops: &[Vec<usize>],
-    ) -> (Solution, f64) {
+    ) -> Solution {
         let regions = self.choose_regions(solution, closest_stops);
         trace!("regions: {:?}", &regions);
 
@@ -125,7 +125,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         &mut self,
         initial_solution: &Solution,
         regions: &[RouteRegion],
-    ) -> (Solution, f64) {
+    ) -> Solution {
         let bump = Bump::new();
         let mut solution = initial_solution.clone_in(&bump);
 
@@ -168,12 +168,12 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             solutions.extend(new_solutions.drain(..));
         }
 
-        let (solution, cost) = solutions
+        let (solution, _) = solutions
             .into_iter()
             .min_by_key(|(_, cost)| OrderedFloat(*cost))
             .expect("at least one solution");
 
-        (solution.clone_in(Global), cost)
+        solution.clone_in(Global)
     }
 
     fn region_stop_indexes<'a>(
@@ -189,9 +189,8 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
     fn run_two_opt(
         &mut self,
         initial_solution: &Solution,
-        initial_cost: f64,
         closest_stops: &[Vec<usize>],
-    ) -> (Solution, f64) {
+    ) -> Solution {
         let (stop_index, stops) = closest_stops
             .iter()
             .enumerate()
@@ -199,7 +198,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .expect("at least one route");
 
         let mut solution = initial_solution.clone();
-        let mut cost = initial_cost;
+        let mut cost = self.cost_calculator.calculate(initial_solution);
 
         for stop_indexes in [stop_index]
             .iter()
@@ -234,7 +233,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             // TODO Apply the intra-route 2-opt heuristics.
         }
 
-        (solution, cost)
+        solution
     }
 
     fn run_inter_route_two_opt(
@@ -392,11 +391,10 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         .collect::<Vec<_>>();
 
         let mut solution = self.initial_solver.solve(problem);
-        let mut cost = self.cost_calculator.calculate(&solution);
 
         for _ in 0..self.iteration_count {
-            (solution, _) = self.run_two_opt(&solution, cost, &closest_stops);
-            (solution, cost) = self.run_dynamic_programming(&solution, &closest_stops);
+            solution = self.run_two_opt(&solution, &closest_stops);
+            solution = self.run_dynamic_programming(&solution, &closest_stops);
 
             // TODO Decide if a solution is good enough already.
         }
