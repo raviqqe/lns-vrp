@@ -48,10 +48,10 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         solution: &Solution,
         closest_stops: &[Vec<usize>],
     ) -> (Solution, f64) {
-        let regions = self.choose_regions(&solution, &closest_stops);
+        let regions = self.choose_regions(solution, closest_stops);
         trace!("regions: {:?}", &regions);
 
-        self.optimize_regions(&solution, &regions)
+        self.optimize_regions(solution, &regions)
     }
 
     fn choose_regions(
