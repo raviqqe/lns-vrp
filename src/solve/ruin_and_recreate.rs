@@ -15,7 +15,6 @@ const MAX_FACTORIAL_SUB_PROBLEM_SIZE: usize = 8;
 const MAX_VEHICLE_REGION_SIZE: usize = 2;
 const CLOSEST_STOP_COUNT: usize = 8;
 
-const TWO_OPT_ITERATION_COUNT: usize = 4;
 const TWO_OPT_MAX_CLOSEST_STOP_COUNT: usize = 3;
 
 #[derive(Debug)]
@@ -198,31 +197,44 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .enumerate()
             .choose(&mut self.rng)
             .expect("at least one route");
-        let stop_indexes = [
-            stop_index,
-            *stops
-                .iter()
-                .take(TWO_OPT_MAX_CLOSEST_STOP_COUNT)
-                .choose(&mut self.rng)
-                .expect("at least one closest stop"),
-        ];
-        let vehicle_indexes = stop_indexes
-            .iter()
-            .flat_map(|&stop_index| Self::find_vehicle(initial_solution, stop_index))
-            .unique()
-            .collect::<Vec<_>>();
 
-        if vehicle_indexes.len() == 2 {
-            self.run_inter_route_two_opt(
-                initial_solution,
-                initial_cost,
-                &vehicle_indexes,
-                &stop_indexes,
-            )
-        } else {
+        let mut solution = initial_solution.clone();
+        let mut cost = initial_cost;
+
+        for stop_indexes in [stop_index]
+            .iter()
+            .chain(stops)
+            .take(TWO_OPT_MAX_CLOSEST_STOP_COUNT)
+            .copied()
+            .combinations(2)
+            .filter(|indexes| indexes[0] != indexes[1])
+        {
+            let vehicle_indexes = stop_indexes
+                .iter()
+                .flat_map(|&stop_index| Self::find_vehicle(initial_solution, stop_index))
+                .unique()
+                .collect::<Vec<_>>();
+
+            if vehicle_indexes.len() == 2 {
+                let (new_solution, new_cost) = self.run_inter_route_two_opt(
+                    &initial_solution,
+                    cost,
+                    &vehicle_indexes,
+                    &stop_indexes,
+                );
+
+                if new_cost < cost {
+                    trace_solution!("2-opt", &solution, cost);
+
+                    solution = new_solution;
+                    cost = new_cost;
+                }
+            }
+
             // TODO Apply the intra-route 2-opt heuristics.
-            return (initial_solution.clone(), initial_cost);
         }
+
+        (solution, cost)
     }
 
     fn run_inter_route_two_opt(
@@ -304,8 +316,6 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                                 let new_cost = self.cost_calculator.calculate(&new_solution);
 
                                 if new_cost < cost {
-                                    trace_solution!("2-opt", &solution, cost);
-
                                     solution = new_solution;
                                     cost = new_cost;
                                 }
@@ -385,10 +395,7 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         let mut cost = self.cost_calculator.calculate(&solution);
 
         for _ in 0..self.iteration_count {
-            for _ in 0..TWO_OPT_ITERATION_COUNT {
-                (solution, cost) = self.run_two_opt(&solution, cost, &closest_stops);
-            }
-
+            (solution, cost) = self.run_two_opt(&solution, cost, &closest_stops);
             (solution, cost) = self.run_dynamic_programming(&solution, &closest_stops);
 
             // TODO Decide if a solution is good enough already.
