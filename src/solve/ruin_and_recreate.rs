@@ -383,15 +383,20 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         }))
         .collect::<Vec<_>>();
 
-        let mut average_update_delta = 0.0;
-        let mut average_delta = 0.0;
+        let mut update_delta = 0.0;
+        let mut delta = 0.0;
         let mut solution = self.initial_solver.solve(problem);
+        let mut cost = self.cost_calculator.calculate(&solution);
 
-        for _ in 0..self.iteration_count {
+        while delta < update_delta / 100 {
             solution = self.run_two_opt(&solution, &closest_stops);
             solution = self.run_dynamic_programming(&solution, &closest_stops);
 
-            // TODO Decide if a solution is good enough already.
+            let new_cost = self.cost_calculator.calculate(&solution);
+
+            if cost < new_cost {
+                foo
+            }
         }
 
         solution
