@@ -212,6 +212,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .unique()
             .collect::<Vec<_>>();
 
+        // TODO Apply the intra-route 2-opt heuristics.
         if vehicle_indexes.len() < 2 {
             return (initial_solution.clone(), initial_cost);
         }
