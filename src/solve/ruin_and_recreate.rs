@@ -15,7 +15,7 @@ const MAX_FACTORIAL_SUB_PROBLEM_SIZE: usize = 8;
 const MAX_VEHICLE_REGION_SIZE: usize = 2;
 const CLOSEST_STOP_COUNT: usize = 8;
 
-const TWO_OPT_MAX_CLOSEST_STOP_COUNT: usize = 3;
+const TWO_OPT_MAX_CLOSEST_STOP_COUNT: usize = 8;
 
 #[derive(Debug)]
 struct RouteRegion {
