@@ -236,7 +236,6 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                             tail_target,
                             true,
                         );
-
                         let new_cost = self.cost_calculator.calculate(&new_solution);
 
                         if new_cost < cost {
