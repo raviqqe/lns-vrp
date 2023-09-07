@@ -383,6 +383,8 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         }))
         .collect::<Vec<_>>();
 
+        let mut average_update_delta = 0.0;
+        let mut average_delta = 0.0;
         let mut solution = self.initial_solver.solve(problem);
 
         for _ in 0..self.iteration_count {
