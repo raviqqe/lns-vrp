@@ -93,6 +93,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             })
             .collect()
     }
+
     fn find_vehicle(solution: &Solution, stop_index: usize) -> Option<usize> {
         solution
             .routes()
