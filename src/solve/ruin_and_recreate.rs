@@ -9,6 +9,7 @@ use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
 use std::{alloc::Global, ops::Range};
 
 const SEED: [u8; 32] = [0u8; 32];
+
 const MAX_FACTORIAL_SUB_PROBLEM_SIZE: usize = 8;
 const MAX_VEHICLE_REGION_SIZE: usize = 2;
 const CLOSEST_STOP_COUNT: usize = 8;
