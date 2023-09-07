@@ -192,6 +192,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
     fn run_two_opt(
         &mut self,
         initial_solution: &Solution,
+        initial_cost: f64,
         closest_stops: &[Vec<usize>],
     ) -> (Solution, f64) {
         let (stop_index, stops) = closest_stops
@@ -214,14 +215,11 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .collect::<Vec<_>>();
 
         if vehicle_indexes.len() < 2 {
-            return (
-                initial_solution.clone(),
-                self.cost_calculator.calculate(initial_solution),
-            );
+            return (initial_solution.clone(), initial_cost);
         }
 
         let mut solution = initial_solution.clone();
-        let mut cost = self.cost_calculator.calculate(&solution);
+        let mut cost = initial_cost;
 
         for initial_solution in [false, true].into_iter().permutations(2).map(|flags| {
             let mut solution = initial_solution.clone();
@@ -374,7 +372,8 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
 
         for _ in 0..self.iteration_count {
             for _ in 0..TWO_OPT_ITERATION_COUNT {
-                (solution, cost) = self.run_two_opt(&solution, &closest_stops);
+                (solution, cost) = self.run_two_opt(&solution, cost, &closest_stops);
+
             }
 
             (solution, cost) = self.run_dynamic_programming(&solution, &closest_stops);
