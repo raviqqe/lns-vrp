@@ -9,8 +9,9 @@ use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
 use std::{alloc::Global, ops::Range};
 
 const SEED: [u8; 32] = [0u8; 32];
-const MAX_STOP_REGION_SIZE: usize = 6;
-const CLOSEST_STOP_COUNT: usize = 4;
+const MAX_FACTORIAL_SUB_PROBLEM_SIZE: usize = 8;
+const MAX_VEHICLE_REGION_SIZE: usize = 2;
+const CLOSEST_STOP_COUNT: usize = 10;
 
 #[derive(Debug)]
 struct RouteRegion {
@@ -42,16 +43,21 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         solution: &Solution,
         closest_stops: &[Vec<usize>],
     ) -> Vec<RouteRegion> {
+        let vehicle_count = (1..MAX_VEHICLE_REGION_SIZE + 1)
+            .choose(&mut self.rng)
+            .expect("vehicle count");
+
         let (stop_index, closest_stop_indexes) = closest_stops
             .iter()
             .enumerate()
             .choose(&mut self.rng)
             .expect("stop pair");
-
         let pairs = [stop_index]
             .iter()
             .chain(closest_stop_indexes)
             .copied()
+            .choose_multiple(&mut self.rng, vehicle_count)
+            .into_iter()
             .flat_map(|stop_index| {
                 Self::find_vehicle(solution, stop_index)
                     .map(|vehicle_index| (vehicle_index, stop_index))
@@ -66,7 +72,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                     solution,
                     *vehicle_index,
                     *stop_index,
-                    MAX_STOP_REGION_SIZE / pairs.len(),
+                    (MAX_FACTORIAL_SUB_PROBLEM_SIZE - vehicle_count) / pairs.len(),
                 )
             })
             .collect()
