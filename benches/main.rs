@@ -12,7 +12,7 @@ use vrp::{
 
 const STOP_COUNT: usize = 8;
 const VEHICLE_COUNT: usize = 2;
-const ITERATION_COUNT: usize = 100;
+const MOVING_AVERAGE_DATA_POINT_COUNT: usize = 100;
 
 const DISTANCE_COST: f64 = 1.0;
 const MISSED_DELIVERY_COST: f64 = 1e9;
@@ -76,7 +76,7 @@ fn ruin_and_recreate(bencher: &mut Bencher) {
         create_cost_calculator(&router, &problem),
         &router,
         NearestNeighborSolver::new(&router),
-        ITERATION_COUNT,
+        MOVING_AVERAGE_DATA_POINT_COUNT,
     );
 
     bencher.iter(|| solver.solve(&problem));
