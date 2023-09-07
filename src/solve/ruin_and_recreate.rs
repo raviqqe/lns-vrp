@@ -26,7 +26,7 @@ pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: Solver> {
     initial_solver: S,
     cost_calculator: C,
     router: R,
-    iteration_count: usize,
+    moving_average_data_point_count: usize,
     rng: SmallRng,
 }
 
@@ -36,7 +36,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             initial_solver,
             cost_calculator,
             router,
-            iteration_count,
+            moving_average_data_point_count: iteration_count,
             rng: SmallRng::from_seed(SEED),
         }
     }
@@ -353,7 +353,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
     }
 
     fn moving_average(&self, old: f64, new: f64) -> f64 {
-        let count = self.iteration_count;
+        let count = self.moving_average_data_point_count as f64;
 
         if old == 0.0 {
             new
@@ -398,17 +398,21 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         let mut solution = self.initial_solver.solve(problem);
         let mut cost = self.cost_calculator.calculate(&solution);
 
-        while delta < update_delta / self.iteration_count {
+        while delta >= update_delta / self.moving_average_data_point_count as f64 {
             solution = self.run_two_opt(&solution, &closest_stops);
             solution = self.run_dynamic_programming(&solution, &closest_stops);
 
             let new_cost = self.cost_calculator.calculate(&solution);
+            let new_delta = cost - new_cost;
 
-            delta = delta * (self.iteration_count as f64 - 1) + (new_cost - cost);
+            delta = self.moving_average(delta, new_delta);
 
             if new_cost < cost {
-                update_delta = update_delta * (self.iteration_count as f64 - 1) + (new_cost - cost);
+                cost = new_cost;
+                update_delta = self.moving_average(update_delta, new_delta);
             }
+
+            trace!("delta: {}, update delta: {}", delta, update_delta);
         }
 
         solution
