@@ -69,8 +69,8 @@ mod tests {
     };
 
     const DISTANCE_COST: f64 = 1.0;
+    const QUADRATIC_DISTANCE_COST: f64 = 1e-3;
     const MISSED_DELIVERY_COST: f64 = 1e9;
-    const QUADRATIC_DISTANCE_COST: f64 = 1e-9;
 
     static ROUTER: CrowRouter = CrowRouter::new();
 
