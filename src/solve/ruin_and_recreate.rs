@@ -11,8 +11,7 @@ use std::{alloc::Global, ops::Range};
 const SEED: [u8; 32] = [0u8; 32];
 const MAX_FACTORIAL_SUB_PROBLEM_SIZE: usize = 8;
 const MAX_VEHICLE_REGION_SIZE: usize = 2;
-const CLOSEST_STOP_COUNT: usize = 8;
-const MAX_2_OPT_CLOSEST_STOP_COUNT: usize = 3;
+const CLOSEST_STOP_COUNT: usize = 10;
 
 #[derive(Debug)]
 struct RouteRegion {
@@ -185,7 +184,6 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             stop_index,
             *stops
                 .iter()
-                .take(MAX_2_OPT_CLOSEST_STOP_COUNT)
                 .choose(&mut self.rng)
                 .expect("at least one closest stop"),
         ];
