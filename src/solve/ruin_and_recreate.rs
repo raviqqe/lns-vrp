@@ -369,7 +369,6 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         for _ in 0..self.iteration_count {
             for _ in 0..TWO_OPT_ITERATION_COUNT {
                 (solution, cost) = self.run_two_opt(&solution, cost, &closest_stops);
-
             }
 
             (solution, cost) = self.run_dynamic_programming(&solution, &closest_stops);
