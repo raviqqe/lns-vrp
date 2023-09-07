@@ -394,6 +394,7 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
 
             let new_cost = self.cost_calculator.calculate(&solution);
 
+            delta = delta * (1 - foo);
             if cost < new_cost {
                 foo
             }
