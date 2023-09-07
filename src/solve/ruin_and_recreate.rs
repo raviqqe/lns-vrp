@@ -351,6 +351,16 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
 
         solution
     }
+
+    fn moving_averange(&self, old: f64, new: f64) -> f64 {
+        let count = self.iteration_count;
+
+        if old == 0.0 {
+            new
+        } else {
+            old * (count - 1.0) + (new_cost - cost)
+        }
+    }
 }
 
 impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C, R, S> {
@@ -388,15 +398,16 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         let mut solution = self.initial_solver.solve(problem);
         let mut cost = self.cost_calculator.calculate(&solution);
 
-        while delta < update_delta / 100 {
+        while delta < update_delta / self.iteration_count {
             solution = self.run_two_opt(&solution, &closest_stops);
             solution = self.run_dynamic_programming(&solution, &closest_stops);
 
             let new_cost = self.cost_calculator.calculate(&solution);
 
-            delta = delta * (1 - foo);
-            if cost < new_cost {
-                foo
+            delta = delta * (self.iteration_count as f64 - 1) + (new_cost - cost);
+
+            if new_cost < cost {
+                update_delta = update_delta * (self.iteration_count as f64 - 1) + (new_cost - cost);
             }
         }
 
