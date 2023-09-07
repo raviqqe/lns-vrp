@@ -432,7 +432,7 @@ mod tests {
     const DISTANCE_COST: f64 = 1.0;
     const QUADRATIC_DISTANCE_COST: f64 = 1e-3;
     const MISSED_DELIVERY_COST: f64 = 1e9;
-    const ITERATION_COUNT: usize = 100;
+    const MOVING_AVERAGE_DATA_POINT_COUNT: usize = 100;
 
     static ROUTER: CrowRouter = CrowRouter::new();
 
@@ -447,7 +447,7 @@ mod tests {
             ),
             &ROUTER,
             NearestNeighborSolver::new(&ROUTER),
-            ITERATION_COUNT,
+            MOVING_AVERAGE_DATA_POINT_COUNT,
         )
         .solve(problem)
     }
