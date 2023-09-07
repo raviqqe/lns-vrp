@@ -217,7 +217,6 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             if vehicle_indexes.len() == 2 {
                 let (new_solution, new_cost) = self.run_inter_route_two_opt(
                     &initial_solution,
-                    cost,
                     &vehicle_indexes,
                     &stop_indexes,
                 );
@@ -239,12 +238,11 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
     fn run_inter_route_two_opt(
         &mut self,
         initial_solution: &Solution,
-        initial_cost: f64,
         vehicle_indexes: &[usize],
         stop_indexes: &[usize],
     ) -> (Solution, f64) {
         let mut solution = initial_solution.clone();
-        let mut cost = initial_cost;
+        let mut cost = self.cost_calculator.calculate(initial_solution);
 
         for initial_solution in [false, true].into_iter().permutations(2).map(|flags| {
             let mut solution = initial_solution.clone();
