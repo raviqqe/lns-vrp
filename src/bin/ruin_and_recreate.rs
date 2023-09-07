@@ -5,7 +5,7 @@ use vrp::{
     solve::{NearestNeighborSolver, RuinAndRecreateSolver, Solver},
 };
 
-const ITERATION_COUNT: usize = 2000;
+const ITERATION_COUNT: usize = 3000;
 
 fn main() {
     let router = create_router();
