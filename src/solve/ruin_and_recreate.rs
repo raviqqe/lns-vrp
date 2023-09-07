@@ -164,7 +164,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .map(|index| solution.routes()[region.vehicle_index][index])
     }
 
-    fn swap_heads_and_tails(
+    fn run_2_opt_heuristics(
         &mut self,
         initial_solution: &Solution,
         closest_stops: &[Vec<usize>],
@@ -307,7 +307,7 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
 
         for _ in 0..self.iteration_count {
             if let Some((new_solution, new_cost)) =
-                self.swap_heads_and_tails(&solution, &closest_stops)
+                self.run_2_opt_heuristics(&solution, &closest_stops)
             {
                 solution = new_solution;
                 cost = new_cost;
