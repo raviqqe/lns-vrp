@@ -282,6 +282,13 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         let mut cost = self.cost_calculator.calculate(&solution);
 
         for _ in 0..self.iteration_count {
+            if let Some((new_solution, new_cost)) =
+                self.swap_heads_and_tails(&solution, &closest_stops)
+            {
+                solution = new_solution;
+                cost = new_cost;
+            }
+
             let regions = self.choose_regions(&solution, &closest_stops);
             trace!("regions: {:?}", &regions);
             let new_solution = self.optimize_regions(&solution, &regions);
