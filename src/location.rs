@@ -16,8 +16,8 @@ impl Location {
 }
 
 impl From<Location> for Point {
-    fn from(val: Location) -> Self {
-        val.0
+    fn from(location: Location) -> Self {
+        location.0
     }
 }
 

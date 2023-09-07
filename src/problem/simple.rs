@@ -6,11 +6,16 @@ use alloc::vec::Vec;
 pub struct SimpleProblem {
     vehicles: Vec<Vehicle>,
     stops: Vec<Stop>,
+    locations: Vec<Location>,
 }
 
 impl SimpleProblem {
-    pub fn new(vehicles: Vec<Vehicle>, stops: Vec<Stop>) -> Self {
-        Self { vehicles, stops }
+    pub fn new(vehicles: Vec<Vehicle>, stops: Vec<Stop>, locations: Vec<Location>) -> Self {
+        Self {
+            vehicles,
+            stops,
+            locations,
+        }
     }
 
     pub fn vehicles(&self) -> &[Vehicle] {
@@ -27,11 +32,11 @@ impl BaseProblem for &SimpleProblem {
         self.vehicles.len()
     }
 
-    fn vehicle_start_location(&self, index: usize) -> &Location {
+    fn vehicle_start_location(&self, index: usize) -> usize {
         self.vehicles[index].start_location()
     }
 
-    fn vehicle_end_location(&self, index: usize) -> &Location {
+    fn vehicle_end_location(&self, index: usize) -> usize {
         self.vehicles[index].end_location()
     }
 
@@ -39,7 +44,15 @@ impl BaseProblem for &SimpleProblem {
         self.stops.len()
     }
 
-    fn stop_location(&self, index: usize) -> &Location {
+    fn stop_location(&self, index: usize) -> usize {
         self.stops[index].location()
+    }
+
+    fn location_count(&self) -> usize {
+        self.locations.len()
+    }
+
+    fn location(&self, index: usize) -> &Location {
+        &self.locations[index]
     }
 }

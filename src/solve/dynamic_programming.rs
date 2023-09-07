@@ -2,6 +2,7 @@ use super::solver::Solver;
 use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, Solution};
 use bumpalo::Bump;
 use ordered_float::OrderedFloat;
+use std::alloc::Global;
 
 /// Dynamic programming solver.
 ///
@@ -31,8 +32,6 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
         let mut new_solutions = vec![];
 
         for _ in 0..problem.stop_count() {
-            new_solutions.clear();
-
             for solution in solutions.keys() {
                 for stop_index in 0..problem.stop_count() {
                     if solution.has_stop(stop_index) {
@@ -59,7 +58,7 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
             .expect("at least one solution")
             .0;
 
-        solution.to_global()
+        solution.clone_in(Global)
     }
 }
 
@@ -90,11 +89,9 @@ mod tests {
     #[test]
     fn do_nothing() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new(
-                Location::new(0.0, 0.0),
-                Location::new(1.0, 0.0),
-            )],
+            vec![Vehicle::new(0, 1)],
             vec![],
+            vec![Location::new(0.0, 0.0), Location::new(1.0, 0.0)],
         );
 
         assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
@@ -103,11 +100,13 @@ mod tests {
     #[test]
     fn keep_one_stop() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new(
+            vec![Vehicle::new(0, 2)],
+            vec![Stop::new(1)],
+            vec![
                 Location::new(0.0, 0.0),
+                Location::new(1.0, 0.0),
                 Location::new(2.0, 0.0),
-            )],
-            vec![Stop::new(Location::new(1.0, 0.0))],
+            ],
         );
 
         assert_eq!(solve(&problem), Solution::new(vec![vec![0].into()]));
@@ -116,13 +115,13 @@ mod tests {
     #[test]
     fn keep_two_stops() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new(
-                Location::new(0.0, 0.0),
-                Location::new(3.0, 0.0),
-            )],
+            vec![Vehicle::new(0, 3)],
+            vec![Stop::new(1), Stop::new(2)],
             vec![
-                Stop::new(Location::new(1.0, 0.0)),
-                Stop::new(Location::new(2.0, 0.0)),
+                Location::new(0.0, 0.0),
+                Location::new(1.0, 0.0),
+                Location::new(2.0, 0.0),
+                Location::new(3.0, 0.0),
             ],
         );
 
@@ -132,14 +131,14 @@ mod tests {
     #[test]
     fn keep_three_stops() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new(
-                Location::new(0.0, 0.0),
-                Location::new(4.0, 0.0),
-            )],
+            vec![Vehicle::new(0, 4)],
+            vec![Stop::new(1), Stop::new(2), Stop::new(3)],
             vec![
-                Stop::new(Location::new(1.0, 0.0)),
-                Stop::new(Location::new(2.0, 0.0)),
-                Stop::new(Location::new(3.0, 0.0)),
+                Location::new(0.0, 0.0),
+                Location::new(1.0, 0.0),
+                Location::new(2.0, 0.0),
+                Location::new(3.0, 0.0),
+                Location::new(4.0, 0.0),
             ],
         );
 
@@ -149,13 +148,15 @@ mod tests {
     #[test]
     fn even_workload() {
         let problem = SimpleProblem::new(
+            vec![Vehicle::new(0, 2), Vehicle::new(3, 5)],
+            vec![Stop::new(1), Stop::new(4)],
             vec![
-                Vehicle::new(Location::new(0.0, 0.0), Location::new(2.0, 0.0)),
-                Vehicle::new(Location::new(0.0, 1.0), Location::new(2.0, 1.0)),
-            ],
-            vec![
-                Stop::new(Location::new(1.0, 0.0)),
-                Stop::new(Location::new(1.0, 1.0)),
+                Location::new(0.0, 0.0),
+                Location::new(1.0, 0.0),
+                Location::new(2.0, 0.0),
+                Location::new(0.0, 1.0),
+                Location::new(1.0, 1.0),
+                Location::new(2.0, 1.0),
             ],
         );
 

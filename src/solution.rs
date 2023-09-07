@@ -78,13 +78,16 @@ impl<A: Allocator> Solution<A> {
         Self::new(routes)
     }
 
-    pub fn to_global(&self) -> Solution<Global> {
-        Solution::new(
-            self.routes()
-                .iter()
-                .map(|route| route.to_vec().into())
-                .collect(),
-        )
+    pub fn clone_in<B: Allocator + Clone>(&self, allocator: B) -> Solution<B> {
+        Solution::new({
+            let mut routes = Vec::with_capacity_in(self.routes.len(), allocator.clone());
+            routes.extend(self.routes().iter().map(|original| {
+                let mut route = Vec::with_capacity_in(original.len(), allocator.clone());
+                route.extend(original.iter().copied());
+                route.into()
+            }));
+            routes
+        })
     }
 
     fn clone_route(&self, vehicle_index: usize) -> Vec<usize, A>
@@ -115,8 +118,8 @@ impl<A: Allocator> Solution<A> {
                                         .map(|&stop_index| problem.stop_location(stop_index)),
                                 )
                                 .chain([problem.vehicle_end_location(vehicle_index)])
-                                .map(|location| {
-                                    let coordinates = location.as_point();
+                                .map(|index| {
+                                    let coordinates = problem.location(index).as_point();
 
                                     vec![coordinates.x(), coordinates.y()]
                                 })

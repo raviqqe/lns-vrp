@@ -2,10 +2,11 @@ use super::solver::Solver;
 use crate::{
     cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, route::Router, trace, Solution,
 };
+use bumpalo::Bump;
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
-use std::ops::Range;
+use std::{alloc::Global, ops::Range};
 
 const SEED: [u8; 32] = [0u8; 32];
 const MAX_STOP_REGION_SIZE: usize = 6;
@@ -103,7 +104,8 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         initial_solution: &Solution,
         regions: &[RouteRegion],
     ) -> Solution {
-        let mut solution = initial_solution.clone();
+        let bump = Bump::new();
+        let mut solution = initial_solution.clone_in(&bump);
 
         for region in regions {
             solution = solution.ruin_route(region.vehicle_index, region.stop_range.clone())
@@ -143,11 +145,13 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             solutions.extend(new_solutions.drain(..));
         }
 
-        solutions
+        let solution = solutions
             .into_iter()
             .min_by(|(_, one), (_, other)| OrderedFloat(*one).cmp(&OrderedFloat(*other)))
             .expect("at least one solution")
-            .0
+            .0;
+
+        solution.clone_in(Global)
     }
 
     fn region_stop_indexes<'a>(
@@ -180,11 +184,11 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
                 .filter(|other| one != *other)
                 .collect::<Vec<_>>();
 
-            stops.sort_by_key(|other| {
-                OrderedFloat(
-                    self.router
-                        .route(problem.stop_location(one), problem.stop_location(*other)),
-                )
+            stops.sort_by_key(|&other| {
+                OrderedFloat(self.router.route(
+                    problem.location(problem.stop_location(one)),
+                    problem.location(problem.stop_location(other)),
+                ))
             });
             stops.truncate(CLOSEST_STOP_COUNT);
 
@@ -252,11 +256,9 @@ mod tests {
     #[test]
     fn do_nothing() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new(
-                Location::new(0.0, 0.0),
-                Location::new(1.0, 0.0),
-            )],
+            vec![Vehicle::new(0, 1)],
             vec![],
+            vec![Location::new(0.0, 0.0), Location::new(1.0, 0.0)],
         );
 
         assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
@@ -265,11 +267,13 @@ mod tests {
     #[test]
     fn keep_one_stop() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new(
+            vec![Vehicle::new(0, 2)],
+            vec![Stop::new(1)],
+            vec![
                 Location::new(0.0, 0.0),
+                Location::new(1.0, 0.0),
                 Location::new(2.0, 0.0),
-            )],
-            vec![Stop::new(Location::new(1.0, 0.0))],
+            ],
         );
 
         assert_eq!(solve(&problem), Solution::new(vec![vec![0].into()]));
@@ -278,13 +282,13 @@ mod tests {
     #[test]
     fn keep_two_stops() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new(
-                Location::new(0.0, 0.0),
-                Location::new(3.0, 0.0),
-            )],
+            vec![Vehicle::new(0, 3)],
+            vec![Stop::new(1), Stop::new(2)],
             vec![
-                Stop::new(Location::new(1.0, 0.0)),
-                Stop::new(Location::new(2.0, 0.0)),
+                Location::new(0.0, 0.0),
+                Location::new(1.0, 0.0),
+                Location::new(2.0, 0.0),
+                Location::new(3.0, 0.0),
             ],
         );
 
@@ -294,14 +298,14 @@ mod tests {
     #[test]
     fn keep_three_stops() {
         let problem = SimpleProblem::new(
-            vec![Vehicle::new(
-                Location::new(0.0, 0.0),
-                Location::new(4.0, 0.0),
-            )],
+            vec![Vehicle::new(0, 4)],
+            vec![Stop::new(1), Stop::new(2), Stop::new(3)],
             vec![
-                Stop::new(Location::new(1.0, 0.0)),
-                Stop::new(Location::new(2.0, 0.0)),
-                Stop::new(Location::new(3.0, 0.0)),
+                Location::new(0.0, 0.0),
+                Location::new(1.0, 0.0),
+                Location::new(2.0, 0.0),
+                Location::new(3.0, 0.0),
+                Location::new(4.0, 0.0),
             ],
         );
 
@@ -311,13 +315,15 @@ mod tests {
     #[test]
     fn even_workload() {
         let problem = SimpleProblem::new(
+            vec![Vehicle::new(0, 2), Vehicle::new(3, 5)],
+            vec![Stop::new(1), Stop::new(4)],
             vec![
-                Vehicle::new(Location::new(0.0, 0.0), Location::new(2.0, 0.0)),
-                Vehicle::new(Location::new(0.0, 1.0), Location::new(2.0, 1.0)),
-            ],
-            vec![
-                Stop::new(Location::new(1.0, 0.0)),
-                Stop::new(Location::new(1.0, 1.0)),
+                Location::new(0.0, 0.0),
+                Location::new(1.0, 0.0),
+                Location::new(2.0, 0.0),
+                Location::new(0.0, 1.0),
+                Location::new(1.0, 1.0),
+                Location::new(2.0, 1.0),
             ],
         );
 
