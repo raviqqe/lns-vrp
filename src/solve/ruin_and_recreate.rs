@@ -194,6 +194,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                     )
                 })
             })
+            .unique_by(|(vehicle_index, _)| *vehicle_index)
             .collect::<Vec<_>>();
 
         if vehicles.len() < 2 {
@@ -225,7 +226,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
 
                     new_solution = new_solution.extend_route(
                         target_vehicle_index,
-                        initial_solution.routes()[source_vehicle_index][source_stop_index..]
+                        initial_solution.routes()[source_vehicle_index][..source_stop_index]
                             .iter()
                             .copied(),
                     );
