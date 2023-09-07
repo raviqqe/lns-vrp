@@ -13,9 +13,8 @@ const SEED: [u8; 32] = [0u8; 32];
 
 const MAX_FACTORIAL_SUB_PROBLEM_SIZE: usize = 8;
 const MAX_VEHICLE_REGION_SIZE: usize = 2;
-const CLOSEST_STOP_COUNT: usize = 8;
 
-const TWO_OPT_MAX_STOP_COUNT: usize = 8;
+const TWO_OPT_MAX_STOP_COUNT: usize = 10;
 
 #[derive(Debug)]
 struct RouteRegion {
@@ -379,7 +378,6 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
                     problem.location(problem.stop_location(other)),
                 ))
             });
-            stops.truncate(CLOSEST_STOP_COUNT);
 
             stops
         }))
