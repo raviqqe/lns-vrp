@@ -358,7 +358,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         if old == 0.0 {
             new
         } else {
-            old * (count - 1.0) + (new_cost - cost)
+            (old * (count - 1.0) + new) / count
         }
     }
 }
