@@ -1,6 +1,7 @@
 use super::solver::Solver;
 use crate::{
-    cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, route::Router, trace, Solution,
+    cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, route::Router, trace,
+    trace_solution, Solution,
 };
 use bumpalo::Bump;
 use itertools::Itertools;
@@ -192,10 +193,34 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 .choose(&mut self.rng)
                 .expect("at least one closest stop"),
         ];
-        let vehicles = stop_indexes
+        let vehicle_indexes = stop_indexes
             .iter()
-            .flat_map(|&stop_index| {
-                Self::find_vehicle(initial_solution, stop_index).map(|vehicle_index| {
+            .flat_map(|&stop_index| Self::find_vehicle(initial_solution, stop_index))
+            .unique()
+            .collect::<Vec<_>>();
+
+        if vehicle_indexes.len() < 2 {
+            return None;
+        }
+
+        let mut solution = initial_solution.clone();
+        let mut cost = self.cost_calculator.calculate(&solution);
+
+        for initial_solution in [false, true].into_iter().permutations(2).map(|flags| {
+            let mut solution = initial_solution.clone();
+
+            for (index, flag) in flags.into_iter().enumerate() {
+                if flag {
+                    solution = solution.reverse_route(vehicle_indexes[index]);
+                }
+            }
+
+            solution
+        }) {
+            let vehicles = vehicle_indexes
+                .iter()
+                .zip(&stop_indexes)
+                .map(|(&vehicle_index, &stop_index)| {
                     (
                         vehicle_index,
                         initial_solution.routes()[vehicle_index]
@@ -204,58 +229,58 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                             .expect("existent stop index"),
                     )
                 })
-            })
-            .unique_by(|(vehicle_index, _)| *vehicle_index)
-            .collect::<Vec<_>>();
+                .collect::<Vec<_>>();
 
-        if vehicles.len() < 2 {
-            return None;
-        }
+            for vehicles in [
+                // Inclusive stop index
+                vehicles
+                    .iter()
+                    .map(|(vehicle_index, stop_index)| (*vehicle_index, stop_index + 1))
+                    .collect::<Vec<_>>(),
+                // Exclusive stop index
+                vehicles,
+            ] {
+                let base_solution = {
+                    let mut solution = initial_solution.clone();
 
-        let base_solution = {
-            let mut solution = initial_solution.clone();
+                    for &(vehicle_index, _) in &vehicles {
+                        solution = solution
+                            .drain_route(vehicle_index, 0..solution.routes()[vehicle_index].len());
+                    }
 
-            for &(vehicle_index, _) in &vehicles {
-                solution =
-                    solution.drain_route(vehicle_index, 0..solution.routes()[vehicle_index].len());
-            }
+                    solution
+                };
 
-            solution
-        };
-
-        let mut solution = initial_solution.clone();
-        let mut cost = self.cost_calculator.calculate(&solution);
-
-        for head_source in 0..2 {
-            for head_target in 0..2 {
-                let new_solution = Self::extend_routes(
-                    initial_solution,
-                    &base_solution,
-                    &vehicles,
-                    head_source,
-                    head_target,
-                    false,
-                );
-
-                for tail_source in 0..2 {
-                    for tail_target in 0..2 {
+                for head_source in 0..2 {
+                    for head_target in 0..2 {
                         let new_solution = Self::extend_routes(
-                            initial_solution,
-                            &new_solution,
+                            &initial_solution,
+                            &base_solution,
                             &vehicles,
-                            tail_source,
-                            tail_target,
-                            true,
+                            head_source,
+                            head_target,
+                            false,
                         );
-                        let new_cost = self.cost_calculator.calculate(&new_solution);
 
-                        if new_cost < cost {
-                            trace!("new solution found by swap!");
-                            trace!("solution: {:?}", solution);
-                            trace!("cost: {:?}", cost);
+                        for tail_source in 0..2 {
+                            for tail_target in 0..2 {
+                                let new_solution = Self::extend_routes(
+                                    &initial_solution,
+                                    &new_solution,
+                                    &vehicles,
+                                    tail_source,
+                                    tail_target,
+                                    true,
+                                );
+                                let new_cost = self.cost_calculator.calculate(&new_solution);
 
-                            solution = new_solution;
-                            cost = new_cost;
+                                if new_cost < cost {
+                                    trace_solution!("2-opt", &solution, cost);
+
+                                    solution = new_solution;
+                                    cost = new_cost;
+                                }
+                            }
                         }
                     }
                 }
@@ -348,9 +373,7 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
             // TODO Save multiple solutions.
             // TODO Decide if a solution is good enough already.
             if new_cost < cost {
-                trace!("new solution found!");
-                trace!("solution: {:?}", solution);
-                trace!("cost: {:?}", cost);
+                trace_solution!("brute force", &solution, cost);
 
                 solution = new_solution;
                 cost = new_cost;
