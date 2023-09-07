@@ -16,6 +16,7 @@ const ITERATION_COUNT: usize = 100;
 
 const DISTANCE_COST: f64 = 1.0;
 const MISSED_DELIVERY_COST: f64 = 1e9;
+const QUADRATIC_DISTANCE_COST: f64 = 1e-9;
 
 fn create_router() -> CachedRouter<CrowRouter> {
     CachedRouter::new(CrowRouter::new())
@@ -48,6 +49,7 @@ fn create_cost_calculator(
         problem.stops().len(),
         MISSED_DELIVERY_COST,
         DISTANCE_COST,
+        QUADRATIC_DISTANCE_COST,
     )
 }
 

@@ -10,6 +10,7 @@ pub struct DeliveryCostCalculator<R: Router, P: BaseProblem> {
     delivery_count: usize,
     missed_delivery_cost: f64,
     distance_cost: f64,
+    quadratic_distance_cost: f64,
 }
 
 impl<R: Router, P: BaseProblem> DeliveryCostCalculator<R, P> {
@@ -18,12 +19,14 @@ impl<R: Router, P: BaseProblem> DeliveryCostCalculator<R, P> {
         delivery_count: usize,
         missed_delivery_cost: f64,
         distance_cost: f64,
+        quadratic_distance_cost: f64,
     ) -> Self {
         Self {
             distance_cost_calculator,
             delivery_count,
             missed_delivery_cost,
             distance_cost,
+            quadratic_distance_cost,
         }
     }
 
@@ -33,9 +36,11 @@ impl<R: Router, P: BaseProblem> DeliveryCostCalculator<R, P> {
             .iter()
             .enumerate()
             .map(|(vehicle_index, stop_indexes)| {
-                self.distance_cost_calculator
-                    .calculate_route(vehicle_index, stop_indexes)
-                    * self.distance_cost
+                let cost = self
+                    .distance_cost_calculator
+                    .calculate_route(vehicle_index, stop_indexes);
+
+                cost * self.distance_cost + cost.powi(2) * self.quadratic_distance_cost
             })
             .sum()
     }
