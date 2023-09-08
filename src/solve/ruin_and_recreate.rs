@@ -250,6 +250,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         .into_iter()
         .map(|solution| {
             let route = &solution.routes()[vehicle_index];
+
             let mut positions = stop_indexes
                 .iter()
                 .map(|one| {
