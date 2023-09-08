@@ -1,5 +1,7 @@
+use crate::problem::BaseProblem;
 use alloc::vec::Vec;
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
+use serde::{Deserialize, Serialize};
 use std::{
     alloc::{Allocator, Global},
     hash::{Hash, Hasher},
@@ -7,11 +9,9 @@ use std::{
     rc::Rc,
 };
 
-use crate::problem::BaseProblem;
-
 // TODO Use persistent data structure.
 // TODO Make it more compact.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Solution<A: Allocator = Global> {
     routes: Vec<Rc<[usize], A>, A>,
 }
