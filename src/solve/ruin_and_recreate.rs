@@ -285,7 +285,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 let cost = self.cost_calculator.calculate(&solution);
                 (solution, cost)
             })
-            .max_by_key(|(_, cost)| OrderedFloat(*cost))
+            .min_by_key(|(_, cost)| OrderedFloat(*cost))
             .expect("at least one solution")
     }
 
