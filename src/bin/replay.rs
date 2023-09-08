@@ -1,8 +1,6 @@
 use std::{env::args, error::Error, fs::read_to_string};
 use vrp::{
-    bin_utility::{
-        create_cost_calculator, create_router, measure_time, print_solution, random_problem,
-    },
+    bin_utility::{create_cost_calculator, create_router, measure_time, print_solution},
     solve::{NearestNeighborSolver, RuinAndRecreateSolver, Solver},
     SimpleProblem,
 };
