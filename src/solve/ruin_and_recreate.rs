@@ -11,10 +11,10 @@ use std::{alloc::Global, ops::Range};
 
 const SEED: [u8; 32] = [0u8; 32];
 
+const MIN_ITERATION_COUNT: usize = 10;
 const MAX_FACTORIAL_SUB_PROBLEM_SIZE: usize = 8;
 const MAX_VEHICLE_REGION_SIZE: usize = 2;
 const MIN_DELTA_RATIO: f64 = 0.01;
-
 const TWO_OPT_MAX_STOP_COUNT: usize = 10;
 
 #[derive(Debug)]
@@ -398,8 +398,9 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         let mut delta = 0.0;
         let mut solution = self.initial_solver.solve(problem);
         let mut cost = self.cost_calculator.calculate(&solution);
+        let mut iteration_index = 0;
 
-        while delta >= update_delta * MIN_DELTA_RATIO {
+        while delta > update_delta * MIN_DELTA_RATIO || iteration_index < MIN_ITERATION_COUNT {
             solution = self.run_two_opt(&solution, &closest_stops);
             solution = self.run_dynamic_programming(&solution, &closest_stops);
 
@@ -414,6 +415,8 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
             }
 
             trace!("delta: {}, update delta: {}", delta, update_delta);
+
+            iteration_index += 1;
         }
 
         solution
