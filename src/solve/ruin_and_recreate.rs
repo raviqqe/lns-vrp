@@ -259,7 +259,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 };
 
                 let route = &solution.routes()[vehicle_index];
-                let positions = stop_indexes
+                let mut positions = stop_indexes
                     .iter()
                     .map(|one| {
                         route
@@ -269,6 +269,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                     })
                     .sorted()
                     .collect::<Vec<_>>();
+                positions[0] += 1;
 
                 solution
                     .drain_route(vehicle_index, 0..route.len())
@@ -279,7 +280,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                     )
                     .extend_route(vehicle_index, route[..positions[0]].iter().copied().rev())
             })
-            .chain([])
+            .chain([iniital_solution.clon()])
             .map(|solution| {
                 let cost = self.cost_calculator.calculate(&solution);
                 (solution, cost)
