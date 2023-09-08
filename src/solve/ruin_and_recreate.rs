@@ -269,7 +269,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 .extend_route(vehicle_index, route[..positions[0]].iter().copied().rev())
         })
         .chain([initial_solution.clone()])
-        .min_by_key(|solution| OrderedFloat(self.cost_calculator.calculate(&solution)))
+        .min_by_key(|solution| OrderedFloat(self.cost_calculator.calculate(solution)))
         .expect("at least one solution")
     }
 
@@ -450,6 +450,8 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
             delta = self.moving_average(delta, new_delta);
 
             if new_cost < cost {
+                trace_solution!(solution, new_cost);
+
                 cost = new_cost;
                 update_delta = self.moving_average(update_delta, new_delta);
             }
