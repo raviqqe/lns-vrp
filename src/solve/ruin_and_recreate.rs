@@ -32,12 +32,17 @@ pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: Solver> {
 }
 
 impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
-    pub fn new(cost_calculator: C, router: R, initial_solver: S, iteration_count: usize) -> Self {
+    pub fn new(
+        cost_calculator: C,
+        router: R,
+        initial_solver: S,
+        moving_average_data_point_count: usize,
+    ) -> Self {
         Self {
             initial_solver,
             cost_calculator,
             router,
-            moving_average_data_point_count: iteration_count,
+            moving_average_data_point_count,
             rng: SmallRng::from_seed(SEED),
         }
     }
