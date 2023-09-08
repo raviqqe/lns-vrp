@@ -5,7 +5,7 @@ use vrp::{
     solve::{NearestNeighborSolver, RuinAndRecreateSolver, Solver},
 };
 
-const MOVING_AVERAGE_DATA_POINT_COUNT: usize = 100;
+const MOVING_AVERAGE_DATA_POINT_COUNT: usize = 200;
 
 fn main() {
     let router = create_router();

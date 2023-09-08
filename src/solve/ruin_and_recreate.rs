@@ -1,7 +1,7 @@
 use super::solver::Solver;
 use crate::{
     cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, route::Router, trace,
-    trace_solution, Solution,
+    trace_solution, utility::permutations, Solution,
 };
 use bumpalo::Bump;
 use itertools::Itertools;
@@ -32,12 +32,17 @@ pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: Solver> {
 }
 
 impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
-    pub fn new(cost_calculator: C, router: R, initial_solver: S, iteration_count: usize) -> Self {
+    pub fn new(
+        cost_calculator: C,
+        router: R,
+        initial_solver: S,
+        moving_average_data_point_count: usize,
+    ) -> Self {
         Self {
             initial_solver,
             cost_calculator,
             router,
-            moving_average_data_point_count: iteration_count,
+            moving_average_data_point_count,
             rng: SmallRng::from_seed(SEED),
         }
     }
@@ -206,7 +211,6 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .take(TWO_OPT_MAX_STOP_COUNT)
             .copied()
             .combinations(2)
-            .filter(|indexes| indexes[0] != indexes[1])
         {
             let vehicle_indexes = stop_indexes
                 .iter()
@@ -293,7 +297,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         let mut solution = initial_solution.clone();
         let mut cost = self.cost_calculator.calculate(initial_solution);
 
-        for initial_solution in [false, true].into_iter().permutations(2).map(|flags| {
+        for initial_solution in permutations([false, true]).map(|flags| {
             let mut solution = initial_solution.clone();
 
             for (index, flag) in flags.into_iter().enumerate() {
@@ -318,7 +322,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 })
                 .collect::<Vec<_>>();
 
-            for vehicles in [0, 1].into_iter().permutations(2).map(|offsets| {
+            for vehicles in permutations(0..2).map(|offsets| {
                 vehicles
                     .iter()
                     .enumerate()
