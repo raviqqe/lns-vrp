@@ -214,14 +214,17 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         {
             let vehicle_indexes = stop_indexes
                 .iter()
-                .flat_map(|&stop_index| Self::find_vehicle(initial_solution, stop_index))
+                .flat_map(|&stop_index| Self::find_vehicle(&solution, stop_index))
                 .unique()
                 .collect::<Vec<_>>();
 
-            if vehicle_indexes.len() == 2 {
-                let (new_solution, new_cost) =
-                    self.run_inter_route_two_opt(initial_solution, &vehicle_indexes, &stop_indexes);
-
+            if let Some((new_solution, new_cost)) = match vehicle_indexes.len() {
+                1 => {
+                    Some(self.run_intra_route_two_opt(&solution, vehicle_indexes[0], &stop_indexes))
+                }
+                2 => Some(self.run_inter_route_two_opt(&solution, &vehicle_indexes, &stop_indexes)),
+                _ => None,
+            } {
                 if new_cost < cost {
                     trace_solution!("2-opt", &solution, cost);
 
@@ -229,11 +232,52 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                     cost = new_cost;
                 }
             }
-
-            // TODO Apply the intra-route 2-opt heuristics.
         }
 
         solution
+    }
+
+    fn run_intra_route_two_opt(
+        &mut self,
+        initial_solution: &Solution,
+        vehicle_index: usize,
+        stop_indexes: &[usize],
+    ) -> (Solution, f64) {
+        [
+            initial_solution.clone(),
+            initial_solution.reverse_route(vehicle_index),
+        ]
+        .into_iter()
+        .map(|solution| {
+            let route = &solution.routes()[vehicle_index];
+            let mut positions = stop_indexes
+                .iter()
+                .map(|one| {
+                    route
+                        .iter()
+                        .position(|other| one == other)
+                        .expect("stop index")
+                })
+                .sorted()
+                .collect::<Vec<_>>();
+            positions[0] += 1;
+
+            solution
+                .drain_route(vehicle_index, 0..route.len())
+                .extend_route(vehicle_index, route[positions[1]..].iter().copied().rev())
+                .extend_route(
+                    vehicle_index,
+                    route[positions[0]..positions[1]].iter().copied(),
+                )
+                .extend_route(vehicle_index, route[..positions[0]].iter().copied().rev())
+        })
+        .chain([initial_solution.clone()])
+        .map(|solution| {
+            let cost = self.cost_calculator.calculate(&solution);
+            (solution, cost)
+        })
+        .min_by_key(|(_, cost)| OrderedFloat(*cost))
+        .expect("at least one solution")
     }
 
     fn run_inter_route_two_opt(
