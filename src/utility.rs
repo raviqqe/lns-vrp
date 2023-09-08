@@ -20,7 +20,7 @@ mod tests {
         fn pairs() {
             assert_eq!(
                 permutations(0..2).collect::<Vec<_>>(),
-                vec![(0, 0), (0, 1), (1, 0), (1, 1)]
+                vec![[0, 0], [0, 1], [1, 0], [1, 1]]
             );
         }
     }
