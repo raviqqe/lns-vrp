@@ -399,7 +399,7 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         let mut solution = self.initial_solver.solve(problem);
         let mut cost = self.cost_calculator.calculate(&solution);
 
-        while delta / update_delta >= MIN_DELTA_RATIO {
+        while delta >= update_delta * MIN_DELTA_RATIO {
             solution = self.run_two_opt(&solution, &closest_stops);
             solution = self.run_dynamic_programming(&solution, &closest_stops);
 
