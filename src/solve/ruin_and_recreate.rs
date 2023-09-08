@@ -203,7 +203,6 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .expect("at least one route");
 
         let mut solution = initial_solution.clone();
-        let mut cost = self.cost_calculator.calculate(initial_solution);
 
         for stop_indexes in [stop_index]
             .iter()
@@ -218,19 +217,16 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 .unique()
                 .collect::<Vec<_>>();
 
-            if let Some((new_solution, new_cost)) = match vehicle_indexes.len() {
+            match vehicle_indexes.len() {
                 1 => {
-                    Some(self.run_intra_route_two_opt(&solution, vehicle_indexes[0], &stop_indexes))
+                    solution =
+                        self.run_intra_route_two_opt(&solution, vehicle_indexes[0], &stop_indexes)
                 }
-                2 => Some(self.run_inter_route_two_opt(&solution, &vehicle_indexes, &stop_indexes)),
-                _ => None,
-            } {
-                if new_cost < cost {
-                    trace_solution!("2-opt", &solution, cost);
-
-                    solution = new_solution;
-                    cost = new_cost;
+                2 => {
+                    solution =
+                        self.run_inter_route_two_opt(&solution, &vehicle_indexes, &stop_indexes)
                 }
+                _ => {}
             }
         }
 
@@ -242,7 +238,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         initial_solution: &Solution,
         vehicle_index: usize,
         stop_indexes: &[usize],
-    ) -> (Solution, f64) {
+    ) -> Solution {
         [
             initial_solution.clone(),
             initial_solution.reverse_route(vehicle_index),
@@ -273,11 +269,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 .extend_route(vehicle_index, route[..positions[0]].iter().copied().rev())
         })
         .chain([initial_solution.clone()])
-        .map(|solution| {
-            let cost = self.cost_calculator.calculate(&solution);
-            (solution, cost)
-        })
-        .min_by_key(|(_, cost)| OrderedFloat(*cost))
+        .min_by_key(|solution| OrderedFloat(self.cost_calculator.calculate(solution)))
         .expect("at least one solution")
     }
 
@@ -286,7 +278,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         initial_solution: &Solution,
         vehicle_indexes: &[usize],
         stop_indexes: &[usize],
-    ) -> (Solution, f64) {
+    ) -> Solution {
         let mut solution = initial_solution.clone();
         let mut cost = self.cost_calculator.calculate(initial_solution);
 
@@ -369,7 +361,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             }
         }
 
-        (solution, cost)
+        solution
     }
 
     fn extend_routes(
@@ -458,6 +450,8 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
             delta = self.moving_average(delta, new_delta);
 
             if new_cost < cost {
+                trace_solution!(solution, new_cost);
+
                 cost = new_cost;
                 update_delta = self.moving_average(update_delta, new_delta);
             }

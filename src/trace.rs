@@ -11,8 +11,8 @@ macro_rules! trace {
 
 #[macro_export]
 macro_rules! trace_solution {
-    ($name:literal, $solution:expr, $cost:expr) => {
-        trace!("new solution found by {}!", $name);
+    ($solution:expr, $cost:expr) => {
+        trace!("new solution found!");
         trace!("solution: {:?}", $solution);
         trace!("cost: {:?}", $cost);
     };
