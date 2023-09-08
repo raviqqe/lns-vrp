@@ -280,7 +280,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                     )
                     .extend_route(vehicle_index, route[..positions[0]].iter().copied().rev())
             })
-            .chain([inital_solution.clone()])
+            .chain([initial_solution.clone()])
             .map(|solution| {
                 let cost = self.cost_calculator.calculate(&solution);
                 (solution, cost)
