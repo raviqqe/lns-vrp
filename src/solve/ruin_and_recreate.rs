@@ -266,15 +266,22 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 })
                 .collect::<Vec<_>>();
 
-            for vehicles in [0, 1].into_iter().permutations(2).map(|offsets| {
-                vehicles
-                    .iter()
-                    .enumerate()
-                    .map(|(index, (vehicle_index, stop_index))| {
-                        (*vehicle_index, stop_index + offsets[index])
+            for vehicles in
+                (0..2)
+                    .into_iter()
+                    .cartesian_product(0..2)
+                    .map(|(first_offset, second_offset)| {
+                        let offsets = [first_offset, second_offset];
+
+                        vehicles
+                            .iter()
+                            .enumerate()
+                            .map(|(index, (vehicle_index, stop_index))| {
+                                (*vehicle_index, stop_index + offsets[index])
+                            })
+                            .collect::<Vec<_>>()
                     })
-                    .collect::<Vec<_>>()
-            }) {
+            {
                 let new_solution = {
                     let mut solution = initial_solution.clone();
 
