@@ -11,9 +11,10 @@ use std::{alloc::Global, ops::Range};
 
 const SEED: [u8; 32] = [0u8; 32];
 
+const MIN_ITERATION_COUNT: usize = 10;
 const MAX_FACTORIAL_SUB_PROBLEM_SIZE: usize = 8;
 const MAX_VEHICLE_REGION_SIZE: usize = 2;
-
+const MIN_DELTA_RATIO: f64 = 0.01;
 const TWO_OPT_MAX_STOP_COUNT: usize = 10;
 
 #[derive(Debug)]
@@ -26,7 +27,7 @@ pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: Solver> {
     initial_solver: S,
     cost_calculator: C,
     router: R,
-    iteration_count: usize,
+    moving_average_data_point_count: usize,
     rng: SmallRng,
 }
 
@@ -36,7 +37,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             initial_solver,
             cost_calculator,
             router,
-            iteration_count,
+            moving_average_data_point_count: iteration_count,
             rng: SmallRng::from_seed(SEED),
         }
     }
@@ -351,6 +352,16 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
 
         solution
     }
+
+    fn moving_average(&self, old: f64, new: f64) -> f64 {
+        let count = self.moving_average_data_point_count as f64;
+
+        if old == 0.0 {
+            new
+        } else {
+            (old * (count - 1.0) + new) / count
+        }
+    }
 }
 
 impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C, R, S> {
@@ -383,13 +394,29 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         }))
         .collect::<Vec<_>>();
 
+        let mut update_delta = 0.0;
+        let mut delta = 0.0;
         let mut solution = self.initial_solver.solve(problem);
+        let mut cost = self.cost_calculator.calculate(&solution);
+        let mut iteration_index = 0;
 
-        for _ in 0..self.iteration_count {
+        while delta > update_delta * MIN_DELTA_RATIO || iteration_index < MIN_ITERATION_COUNT {
             solution = self.run_two_opt(&solution, &closest_stops);
             solution = self.run_dynamic_programming(&solution, &closest_stops);
 
-            // TODO Decide if a solution is good enough already.
+            let new_cost = self.cost_calculator.calculate(&solution);
+            let new_delta = cost - new_cost;
+
+            delta = self.moving_average(delta, new_delta);
+
+            if new_cost < cost {
+                cost = new_cost;
+                update_delta = self.moving_average(update_delta, new_delta);
+            }
+
+            trace!("delta: {}, update delta: {}", delta, update_delta);
+
+            iteration_index += 1;
         }
 
         solution
@@ -409,7 +436,7 @@ mod tests {
     const DISTANCE_COST: f64 = 1.0;
     const QUADRATIC_DISTANCE_COST: f64 = 1e-3;
     const MISSED_DELIVERY_COST: f64 = 1e9;
-    const ITERATION_COUNT: usize = 100;
+    const MOVING_AVERAGE_DATA_POINT_COUNT: usize = 100;
 
     static ROUTER: CrowRouter = CrowRouter::new();
 
@@ -424,7 +451,7 @@ mod tests {
             ),
             &ROUTER,
             NearestNeighborSolver::new(&ROUTER),
-            ITERATION_COUNT,
+            MOVING_AVERAGE_DATA_POINT_COUNT,
         )
         .solve(problem)
     }

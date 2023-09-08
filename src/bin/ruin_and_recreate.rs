@@ -5,7 +5,7 @@ use vrp::{
     solve::{NearestNeighborSolver, RuinAndRecreateSolver, Solver},
 };
 
-const ITERATION_COUNT: usize = 3000;
+const MOVING_AVERAGE_DATA_POINT_COUNT: usize = 100;
 
 fn main() {
     let router = create_router();
@@ -14,7 +14,7 @@ fn main() {
         create_cost_calculator(&router, &problem),
         &router,
         NearestNeighborSolver::new(&router),
-        ITERATION_COUNT,
+        MOVING_AVERAGE_DATA_POINT_COUNT,
     );
 
     let solution = measure_time(|| solver.solve(&problem));
