@@ -179,14 +179,12 @@ impl<A: Allocator> Solution<A> {
                 .collect(),
         })
     }
+}
 
-    pub fn from_json(
-        value: serde_json::value::Value,
-    ) -> Result<Solution<Global>, serde_json::Error> {
-        let solution = serde_json::from_value::<SerializableSolution>(value)?;
-
-        Ok(Solution::new(
-            solution
+impl Solution<Global> {
+    pub fn from_json(value: serde_json::value::Value) -> Result<Self, serde_json::Error> {
+        Ok(Self::new(
+            serde_json::from_value::<SerializableSolution>(value)?
                 .routes
                 .into_iter()
                 .map(|route| route.into())
