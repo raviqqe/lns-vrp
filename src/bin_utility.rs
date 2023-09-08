@@ -55,7 +55,7 @@ pub fn measure_time<T>(callback: impl FnOnce() -> T) -> T {
 
     let value = callback();
 
-    dbg!(Instant::now().duration_since(instant));
+    println!("duration: {:?}", Instant::now().duration_since(instant));
 
     value
 }
