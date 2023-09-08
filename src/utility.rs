@@ -17,10 +17,28 @@ mod tests {
         use super::*;
 
         #[test]
-        fn pairs() {
+        fn two_elements() {
             assert_eq!(
                 permutations(0..2).collect::<Vec<_>>(),
                 vec![[0, 0], [0, 1], [1, 0], [1, 1]]
+            );
+        }
+
+        #[test]
+        fn three_elements() {
+            assert_eq!(
+                permutations(0..3).collect::<Vec<_>>(),
+                vec![
+                    [0, 0],
+                    [0, 1],
+                    [0, 2],
+                    [1, 0],
+                    [1, 1],
+                    [1, 2],
+                    [2, 0],
+                    [2, 1],
+                    [2, 2]
+                ]
             );
         }
     }
