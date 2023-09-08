@@ -214,19 +214,20 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                 .unique()
                 .collect::<Vec<_>>();
 
-            if vehicle_indexes.len() == 2 {
-                let (new_solution, new_cost) =
-                    self.run_inter_route_two_opt(initial_solution, &vehicle_indexes, &stop_indexes);
 
-                if new_cost < cost {
-                    trace_solution!("2-opt", &solution, cost);
+                if let Some((new_solution, new_cost)) = match vehicle_indexes.len() {
+                    1 => Some(self.run_inter_route_two_opt(initial_solution, &vehicle_indexes, &stop_indexes)),
+                    2 => Some(self.run_inter_route_two_opt(initial_solution, &vehicle_indexes, &stop_indexes)),
+                    _ => None,
+                } {
+                    if new_cost < cost {
+                        trace_solution!("2-opt", &solution, cost);
 
-                    solution = new_solution;
-                    cost = new_cost;
+                        solution = new_solution;
+                        cost = new_cost;
+                    }
                 }
             }
-
-            // TODO Apply the intra-route 2-opt heuristics.
         }
 
         solution
