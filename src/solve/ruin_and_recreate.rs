@@ -214,21 +214,15 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         {
             let vehicle_indexes = stop_indexes
                 .iter()
-                .flat_map(|&stop_index| Self::find_vehicle(initial_solution, stop_index))
+                .flat_map(|&stop_index| Self::find_vehicle(&solution, stop_index))
                 .unique()
                 .collect::<Vec<_>>();
 
             if let Some((new_solution, new_cost)) = match vehicle_indexes.len() {
-                1 => Some(self.run_intra_route_two_opt(
-                    initial_solution,
-                    vehicle_indexes[0],
-                    &stop_indexes,
-                )),
-                2 => Some(self.run_inter_route_two_opt(
-                    initial_solution,
-                    &vehicle_indexes,
-                    &stop_indexes,
-                )),
+                1 => {
+                    Some(self.run_intra_route_two_opt(&solution, vehicle_indexes[0], &stop_indexes))
+                }
+                2 => Some(self.run_inter_route_two_opt(&solution, &vehicle_indexes, &stop_indexes)),
                 _ => None,
             } {
                 if new_cost < cost {
