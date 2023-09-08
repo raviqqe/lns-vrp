@@ -206,7 +206,6 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .take(TWO_OPT_MAX_STOP_COUNT)
             .copied()
             .combinations(2)
-            .filter(|indexes| indexes[0] != indexes[1])
         {
             let vehicle_indexes = stop_indexes
                 .iter()
