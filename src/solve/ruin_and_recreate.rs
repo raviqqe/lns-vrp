@@ -258,8 +258,8 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
                         .position(|other| one == other)
                         .expect("stop index")
                 })
-                .sorted()
                 .collect::<Vec<_>>();
+            positions.sort();
             positions[0] += 1;
 
             solution
@@ -382,16 +382,15 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         let mut solution = solution.clone();
 
         for (source, target) in [(source, target), (1 - source, 1 - target)] {
-            let &(source_vehicle_index, source_stop_index) = &vehicles[source];
-            let &(target_vehicle_index, _) = &vehicles[target];
-            let source_route = &initial_solution.routes()[source_vehicle_index];
+            let &(vehicle_index, stop_index) = &vehicles[source];
+            let route = &initial_solution.routes()[vehicle_index];
 
             solution = solution.extend_route(
-                target_vehicle_index,
+                vehicles[target].0,
                 if tail {
-                    &source_route[source_stop_index..]
+                    &route[stop_index..]
                 } else {
-                    &source_route[..source_stop_index]
+                    &route[..stop_index]
                 }
                 .iter()
                 .copied(),
