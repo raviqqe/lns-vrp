@@ -261,7 +261,8 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
 
             stop_indexes
                 .iter()
-                .map(|one| route.position(|other| one == other).expect("stop index"));
+                .map(|one| route.position(|other| one == other).expect("stop index"))
+                .sorted();
         }
 
         (solution, cost)
