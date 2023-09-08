@@ -1,4 +1,6 @@
-#[derive(Debug, Eq, Hash, PartialEq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
 pub struct Vehicle {
     start_location: usize,
     end_location: usize,

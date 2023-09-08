@@ -1,8 +1,9 @@
 use geo::Point;
 use ordered_float::OrderedFloat;
+use serde::{Deserialize, Serialize};
 use std::hash::{Hash, Hasher};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Location(Point);
 
 impl Location {

@@ -1,8 +1,9 @@
 use super::BaseProblem;
 use crate::{Location, Stop, Vehicle};
 use alloc::vec::Vec;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct SimpleProblem {
     vehicles: Vec<Vehicle>,
     stops: Vec<Stop>,

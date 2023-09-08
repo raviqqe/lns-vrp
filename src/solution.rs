@@ -11,9 +11,14 @@ use std::{
 
 // TODO Use persistent data structure.
 // TODO Make it more compact.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug)]
 pub struct Solution<A: Allocator = Global> {
     routes: Vec<Rc<[usize], A>, A>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+struct SerializableSolution {
+    routes: Vec<Vec<usize>>,
 }
 
 impl<A: Allocator> Solution<A> {
