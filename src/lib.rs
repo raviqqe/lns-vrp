@@ -13,6 +13,7 @@ pub mod route;
 mod solution;
 pub mod solve;
 mod stop;
+mod utility;
 #[macro_use]
 mod trace;
 mod vehicle;
