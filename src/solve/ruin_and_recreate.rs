@@ -13,6 +13,7 @@ const SEED: [u8; 32] = [0u8; 32];
 
 const MAX_FACTORIAL_SUB_PROBLEM_SIZE: usize = 8;
 const MAX_VEHICLE_REGION_SIZE: usize = 2;
+const MIN_DELTA_RATIO: f64 = 0.01;
 
 const TWO_OPT_MAX_STOP_COUNT: usize = 10;
 
@@ -398,7 +399,7 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
         let mut solution = self.initial_solver.solve(problem);
         let mut cost = self.cost_calculator.calculate(&solution);
 
-        while delta >= update_delta / self.moving_average_data_point_count as f64 {
+        while delta / update_delta >= MIN_DELTA_RATIO {
             solution = self.run_two_opt(&solution, &closest_stops);
             solution = self.run_dynamic_programming(&solution, &closest_stops);
 
