@@ -1,8 +1,9 @@
 use super::BaseProblem;
 use crate::{Location, Stop, Vehicle};
 use alloc::vec::Vec;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct SimpleProblem {
     vehicles: Vec<Vehicle>,
     stops: Vec<Stop>,
@@ -24,6 +25,14 @@ impl SimpleProblem {
 
     pub fn stops(&self) -> &[Stop] {
         &self.stops
+    }
+
+    pub fn to_json(&self) -> Result<serde_json::value::Value, serde_json::Error> {
+        serde_json::to_value(self)
+    }
+
+    pub fn from_json(value: serde_json::value::Value) -> Result<Self, serde_json::Error> {
+        serde_json::from_value(value)
     }
 }
 

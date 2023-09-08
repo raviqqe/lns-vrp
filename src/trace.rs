@@ -13,7 +13,10 @@ macro_rules! trace {
 macro_rules! trace_solution {
     ($solution:expr, $cost:expr) => {
         trace!("new solution found!");
-        trace!("solution: {:?}", $solution);
+        trace!(
+            "solution: {}",
+            $solution.to_json().expect("valid solution").to_string()
+        );
         trace!("cost: {:?}", $cost);
     };
 }

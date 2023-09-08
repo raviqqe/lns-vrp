@@ -1,6 +1,5 @@
 use crate::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},
-    problem::BaseProblem,
     route::{CachedRouter, CrowRouter, Router},
     Location, SimpleProblem, Solution, Stop, Vehicle,
 };
@@ -61,6 +60,8 @@ pub fn measure_time<T>(callback: impl FnOnce() -> T) -> T {
     value
 }
 
-pub fn print_solution(problem: impl BaseProblem, solution: &Solution) {
-    println!("{}", solution.to_geojson(problem));
+pub fn print_solution(problem: &SimpleProblem, solution: &Solution) {
+    println!("problem: {}", problem.to_json().expect("valid problem"));
+    println!("solution: {}", solution.to_json().expect("valid solution"));
+    println!("geojson: {}", solution.to_geojson(problem));
 }

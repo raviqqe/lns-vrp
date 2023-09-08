@@ -1,5 +1,7 @@
+use crate::problem::BaseProblem;
 use alloc::vec::Vec;
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
+use serde::{Deserialize, Serialize};
 use std::{
     alloc::{Allocator, Global},
     hash::{Hash, Hasher},
@@ -7,13 +9,16 @@ use std::{
     rc::Rc,
 };
 
-use crate::problem::BaseProblem;
-
 // TODO Use persistent data structure.
 // TODO Make it more compact.
 #[derive(Clone, Debug)]
 pub struct Solution<A: Allocator = Global> {
     routes: Vec<Rc<[usize], A>, A>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+struct SerializableSolution {
+    routes: Vec<Vec<usize>>,
 }
 
 impl<A: Allocator> Solution<A> {
@@ -163,6 +168,28 @@ impl<A: Allocator> Solution<A> {
                 .collect(),
         }
         .into()
+    }
+
+    pub fn to_json(&self) -> Result<serde_json::value::Value, serde_json::Error> {
+        serde_json::to_value(SerializableSolution {
+            routes: self
+                .routes
+                .iter()
+                .map(|route| route.iter().copied().collect())
+                .collect(),
+        })
+    }
+}
+
+impl Solution<Global> {
+    pub fn from_json(value: serde_json::value::Value) -> Result<Self, serde_json::Error> {
+        Ok(Self::new(
+            serde_json::from_value::<SerializableSolution>(value)?
+                .routes
+                .into_iter()
+                .map(|route| route.into())
+                .collect(),
+        ))
     }
 }
 
