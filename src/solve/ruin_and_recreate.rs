@@ -217,7 +217,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             if let Some((new_solution, new_cost)) = match vehicle_indexes.len() {
                 1 => Some(self.run_intra_route_two_opt(
                     initial_solution,
-                    &vehicle_indexes,
+                    vehicle_indexes[0],
                     &stop_indexes,
                 )),
                 2 => Some(self.run_inter_route_two_opt(
