@@ -8,3 +8,20 @@ pub fn permutations<T: Clone>(
 
     xs.cartesian_product(ys).map(|(x, y)| [x, y])
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod permutations {
+        use super::*;
+
+        #[test]
+        fn pairs() {
+            assert_eq!(
+                permutations(0..2).collect::<Vec<_>>(),
+                vec![(0, 0), (0, 1), (1, 0), (1, 1)]
+            );
+        }
+    }
+}
