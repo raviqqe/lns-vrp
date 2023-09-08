@@ -169,6 +169,30 @@ impl<A: Allocator> Solution<A> {
         }
         .into()
     }
+
+    pub fn to_json(&self) -> Result<serde_json::value::Value, serde_json::Error> {
+        serde_json::to_value(SerializableSolution {
+            routes: self
+                .routes
+                .iter()
+                .map(|route| route.iter().copied().collect())
+                .collect(),
+        })
+    }
+
+    pub fn from_json(
+        value: serde_json::value::Value,
+    ) -> Result<Solution<Global>, serde_json::Error> {
+        let solution = serde_json::from_value::<SerializableSolution>(value)?;
+
+        Ok(Solution::new(
+            solution
+                .routes
+                .into_iter()
+                .map(|route| route.into())
+                .collect(),
+        ))
+    }
 }
 
 impl<A: Allocator> Eq for Solution<A> {}
