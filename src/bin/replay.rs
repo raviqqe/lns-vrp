@@ -7,7 +7,7 @@ use vrp::{
     SimpleProblem,
 };
 
-const MOVING_AVERAGE_DATA_POINT_COUNT: usize = 200;
+const MOVING_AVERAGE_DATA_POINT_COUNT: usize = 1000;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = args().collect::<Vec<_>>();
