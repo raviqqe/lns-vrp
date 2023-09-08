@@ -61,13 +61,7 @@ pub fn measure_time<T>(callback: impl FnOnce() -> T) -> T {
 }
 
 pub fn print_solution(problem: &SimpleProblem, solution: &Solution) {
-    println!(
-        "problem: {}",
-        problem.to_json().expect("valid problem").to_string()
-    );
-    println!(
-        "solution: {}",
-        solution.to_json().expect("valid solution").to_string()
-    );
+    println!("problem: {}", problem.to_json().expect("valid problem"));
+    println!("solution: {}", solution.to_json().expect("valid solution"));
     println!("geojson: {}", solution.to_geojson(problem));
 }
