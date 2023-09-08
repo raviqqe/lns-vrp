@@ -232,6 +232,97 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
         solution
     }
 
+    fn run_intra_route_two_opt(
+        &mut self,
+        initial_solution: &Solution,
+        vehicle_index: usize,
+        stop_indexes: &[usize],
+    ) -> (Solution, f64) {
+        let mut solution = initial_solution.clone();
+        let mut cost = self.cost_calculator.calculate(initial_solution);
+
+        for initial_solution in [false, true].into_iter().permutations(2).map(|flags| {
+            let mut solution = initial_solution.clone();
+
+            for (index, flag) in flags.into_iter().enumerate() {
+                if flag {
+                    solution = solution.reverse_route(vehicle_indexes[index]);
+                }
+            }
+
+            solution
+        }) {
+            let vehicles = vehicle_indexes
+                .iter()
+                .zip(stop_indexes)
+                .map(|(&vehicle_index, &stop_index)| {
+                    (
+                        vehicle_index,
+                        initial_solution.routes()[vehicle_index]
+                            .iter()
+                            .position(|&other| other == stop_index)
+                            .expect("existent stop index"),
+                    )
+                })
+                .collect::<Vec<_>>();
+
+            for vehicles in [0, 1].into_iter().permutations(2).map(|offsets| {
+                vehicles
+                    .iter()
+                    .enumerate()
+                    .map(|(index, (vehicle_index, stop_index))| {
+                        (*vehicle_index, stop_index + offsets[index])
+                    })
+                    .collect::<Vec<_>>()
+            }) {
+                let new_solution = {
+                    let mut solution = initial_solution.clone();
+
+                    for &(vehicle_index, _) in &vehicles {
+                        solution = solution
+                            .drain_route(vehicle_index, 0..solution.routes()[vehicle_index].len());
+                    }
+
+                    solution
+                };
+
+                for head_source in 0..2 {
+                    for head_target in 0..2 {
+                        let new_solution = Self::extend_routes(
+                            &initial_solution,
+                            &new_solution,
+                            &vehicles,
+                            head_source,
+                            head_target,
+                            false,
+                        );
+
+                        for tail_source in 0..2 {
+                            for tail_target in 0..2 {
+                                let new_solution = Self::extend_routes(
+                                    &initial_solution,
+                                    &new_solution,
+                                    &vehicles,
+                                    tail_source,
+                                    tail_target,
+                                    true,
+                                );
+                                let new_cost = self.cost_calculator.calculate(&new_solution);
+
+                                if new_cost < cost {
+                                    solution = new_solution;
+                                    cost = new_cost;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        (solution, cost)
+    }
+
     fn run_inter_route_two_opt(
         &mut self,
         initial_solution: &Solution,
