@@ -203,7 +203,6 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
             .expect("at least one route");
 
         let mut solution = initial_solution.clone();
-        let mut cost = self.cost_calculator.calculate(initial_solution);
 
         for stop_indexes in [stop_index]
             .iter()
