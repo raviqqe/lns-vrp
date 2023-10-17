@@ -16,7 +16,7 @@ impl Route {
         self.visited_stops
     }
 
-    pub fn visited_stops(self) -> usize {
-        self.visited_stops
+    pub fn current_stop(self) -> usize {
+        self.current_stop
     }
 }
