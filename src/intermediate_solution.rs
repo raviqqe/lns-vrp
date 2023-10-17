@@ -4,7 +4,6 @@ use self::intermediate_route::IntermediateRoute;
 use crate::problem::BaseProblem;
 use alloc::vec::Vec;
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
-use serde::{Deserialize, Serialize};
 use std::{
     alloc::{Allocator, Global},
     hash::{Hash, Hasher},
