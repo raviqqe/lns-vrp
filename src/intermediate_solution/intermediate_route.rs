@@ -1,10 +1,10 @@
 #[derive(Clone, Copy, Debug)]
-pub struct Route {
+pub struct IntermediateRoute {
     visited_stops: usize,
     current_stop: usize,
 }
 
-impl Route {
+impl IntermediateRoute {
     pub fn new(visited_stops: usize, current_stop: usize) -> Self {
         Self {
             visited_stops,

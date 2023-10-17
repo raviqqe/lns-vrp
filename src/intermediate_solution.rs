@@ -1,5 +1,6 @@
-mod route;
+mod intermediate_route;
 
+use self::intermediate_route::IntermediateRoute;
 use crate::problem::BaseProblem;
 use alloc::vec::Vec;
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
@@ -11,16 +12,9 @@ use std::{
     rc::Rc,
 };
 
-// TODO Use persistent data structure.
-// TODO Make it more compact.
 #[derive(Clone, Debug)]
 pub struct IntermediateSolution<A: Allocator = Global> {
-    routes: Vec<(usize, usize), A>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-struct SerializableSolution {
-    routes: Vec<Vec<usize>>,
+    routes: Vec<IntermediateRoute, A>,
 }
 
 impl<A: Allocator> Solution<A> {
@@ -171,28 +165,6 @@ impl<A: Allocator> Solution<A> {
         }
         .into()
     }
-
-    pub fn to_json(&self) -> Result<serde_json::value::Value, serde_json::Error> {
-        serde_json::to_value(SerializableSolution {
-            routes: self
-                .routes
-                .iter()
-                .map(|route| route.iter().copied().collect())
-                .collect(),
-        })
-    }
-}
-
-impl Solution<Global> {
-    pub fn from_json(value: serde_json::value::Value) -> Result<Self, serde_json::Error> {
-        Ok(Self::new(
-            serde_json::from_value::<SerializableSolution>(value)?
-                .routes
-                .into_iter()
-                .map(|route| route.into())
-                .collect(),
-        ))
-    }
 }
 
 impl<A: Allocator> Eq for Solution<A> {}
@@ -211,7 +183,7 @@ impl<A: Allocator> PartialEq for Solution<A> {
     }
 }
 
-impl<A: Allocator> Hash for Solution<A> {
+impl<A: Allocator> Hash for IntermediateSolution<A> {
     fn hash<H: Hasher>(&self, hasher: &mut H) {
         self.routes.hash(hasher)
     }
