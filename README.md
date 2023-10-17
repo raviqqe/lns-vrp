@@ -1,6 +1,6 @@
-# vrp
+# lns-vrp
 
-Vehicle Routing Problem (VRP) solver
+Vehicle Routing Problem (VRP) solver with Large Neighborhood Search (LNS)
 
 A number of total cases is `(s + v - 1)! / (v - 1)!` where `s` is a number of stops and `v` is a number of vehicles.
 
