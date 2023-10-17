@@ -1,5 +1,11 @@
 use super::solver::Solver;
-use crate::{cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, Solution};
+use crate::{
+    cost::CostCalculator,
+    hash_map::HashMap,
+    intermediate_solution::{IntermediateRoute, IntermediateSolution},
+    problem::BaseProblem,
+    Solution,
+};
 use bumpalo::Bump;
 use ordered_float::OrderedFloat;
 use std::alloc::Global;
@@ -22,9 +28,9 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
     fn solve(&mut self, problem: impl BaseProblem) -> Solution {
         let allocator = Bump::new();
         let mut solutions = HashMap::default();
-        let solution = Solution::new({
+        let solution = IntermediateSolution::new({
             let mut routes = Vec::with_capacity_in(problem.vehicle_count(), &allocator);
-            routes.extend((0..problem.vehicle_count()).map(|_| Vec::new_in(&allocator).into()));
+            routes.extend((0..problem.vehicle_count()).map(|_| IntermediateRoute::new(0, 0)));
             routes
         });
         let cost = self.cost_calculator.calculate(&solution);

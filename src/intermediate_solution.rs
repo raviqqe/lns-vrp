@@ -1,6 +1,6 @@
 mod intermediate_route;
 
-use self::intermediate_route::IntermediateRoute;
+pub(crate) use self::intermediate_route::IntermediateRoute;
 use alloc::vec::Vec;
 use std::{
     alloc::{Allocator, Global},
