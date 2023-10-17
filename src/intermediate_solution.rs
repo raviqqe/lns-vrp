@@ -1,14 +1,10 @@
 mod intermediate_route;
 
 use self::intermediate_route::IntermediateRoute;
-use crate::problem::BaseProblem;
 use alloc::vec::Vec;
-use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 use std::{
     alloc::{Allocator, Global},
-    hash::{Hash, Hasher},
-    ops::Range,
-    rc::Rc,
+    hash::Hash,
 };
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
