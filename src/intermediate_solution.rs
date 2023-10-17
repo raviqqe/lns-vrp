@@ -4,10 +4,10 @@ pub(crate) use self::intermediate_route::IntermediateRoute;
 use alloc::vec::Vec;
 use std::{
     alloc::{Allocator, Global},
-    hash::Hash,
+    hash::{Hash, Hasher},
 };
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct IntermediateSolution<A: Allocator = Global> {
     routes: Vec<IntermediateRoute, A>,
 }
@@ -19,5 +19,19 @@ impl<A: Allocator> IntermediateSolution<A> {
 
     pub fn routes(&self) -> &[IntermediateRoute] {
         &self.routes
+    }
+}
+
+impl<A: Allocator> Eq for IntermediateSolution<A> {}
+
+impl<A: Allocator> PartialEq for IntermediateSolution<A> {
+    fn eq(&self, other: &Self) -> bool {
+        self.routes == other.routes
+    }
+}
+
+impl<A: Allocator> Hash for IntermediateSolution<A> {
+    fn hash<H: Hasher>(&self, hasher: &mut H) {
+        self.routes.hash(hasher)
     }
 }

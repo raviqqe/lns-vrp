@@ -7,8 +7,6 @@ use crate::{
     Solution,
 };
 use bumpalo::Bump;
-use ordered_float::OrderedFloat;
-use std::alloc::Global;
 
 /// Dynamic programming solver.
 ///
@@ -36,34 +34,37 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
         solutions.insert(solution, 0.0);
         let mut new_solutions = vec![];
 
-        for _ in 0..problem.stop_count() {
-            for solution in solutions.keys() {
-                for stop_index in 0..problem.stop_count() {
-                    if solution.has_stop(stop_index) {
-                        continue;
-                    }
+        // for _ in 0..problem.stop_count() {
+        //     for solution in solutions.keys() {
+        //         for stop_index in 0..problem.stop_count() {
+        //             if solution.has_stop(stop_index) {
+        //                 continue;
+        //             }
 
-                    for vehicle_index in 0..solution.routes().len() {
-                        let solution = solution.add_stop(vehicle_index, stop_index);
-                        let cost = self.cost_calculator.calculate(&solution);
+        //             for vehicle_index in 0..solution.routes().len() {
+        //                 let solution = solution.add_stop(vehicle_index,
+        // stop_index);                 let cost =
+        // self.cost_calculator.calculate(&solution);
 
-                        if cost.is_finite() {
-                            new_solutions.push((solution, cost));
-                        }
-                    }
-                }
-            }
+        //                 if cost.is_finite() {
+        //                     new_solutions.push((solution, cost));
+        //                 }
+        //             }
+        //         }
+        //     }
 
-            solutions.extend(new_solutions.drain(..));
-        }
+        //     solutions.extend(new_solutions.drain(..));
+        // }
 
-        let solution = solutions
-            .into_iter()
-            .min_by_key(|(_, cost)| OrderedFloat(*cost))
-            .expect("at least one solution")
-            .0;
+        // let solution = solutions
+        //     .into_iter()
+        //     .min_by_key(|(_, cost)| OrderedFloat(*cost))
+        //     .expect("at least one solution")
+        //     .0;
 
-        solution.clone_in(Global)
+        // solution.clone_in(Global)
+
+        todo!()
     }
 }
 
