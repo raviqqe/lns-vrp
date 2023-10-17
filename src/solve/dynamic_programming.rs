@@ -33,8 +33,7 @@ impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
             routes.extend((0..problem.vehicle_count()).map(|_| IntermediateRoute::new(0, 0)));
             routes
         });
-        let cost = self.cost_calculator.calculate(&solution);
-        solutions.insert(solution, cost);
+        solutions.insert(solution, 0.0);
         let mut new_solutions = vec![];
 
         for _ in 0..problem.stop_count() {
