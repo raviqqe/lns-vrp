@@ -17,11 +17,11 @@ pub struct IntermediateSolution<A: Allocator = Global> {
 }
 
 impl<A: Allocator> Solution<A> {
-    pub fn new(routes: Vec<Rc<[usize], A>, A>) -> Self {
+    pub fn new(routes: Vec<IntermediateRoute, A>) -> Self {
         Self { routes }
     }
 
-    pub fn routes(&self) -> &[Rc<[usize], A>] {
+    pub fn routes(&self) -> &[IntermediateRoute] {
         &self.routes
     }
 
