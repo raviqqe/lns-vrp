@@ -1,3 +1,5 @@
+mod route;
+
 use crate::problem::BaseProblem;
 use alloc::vec::Vec;
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
@@ -13,7 +15,7 @@ use std::{
 // TODO Make it more compact.
 #[derive(Clone, Debug)]
 pub struct IntermediateSolution<A: Allocator = Global> {
-    routes: Vec<Rc<[usize], A>, A>,
+    routes: Vec<(usize, usize), A>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
