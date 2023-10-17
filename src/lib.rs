@@ -7,6 +7,7 @@ extern crate core;
 pub mod bin_utility;
 pub mod cost;
 mod hash_map;
+mod intermediate_solution;
 mod location;
 mod problem;
 pub mod route;
