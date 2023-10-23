@@ -1,4 +1,4 @@
-use crate::problem::BaseProblem;
+use crate::problem::BasicProblem;
 use alloc::vec::Vec;
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 use serde::{Deserialize, Serialize};
@@ -134,7 +134,7 @@ impl<A: Allocator> Solution<A> {
         self.routes[vehicle_index].to_vec_in(self.routes.allocator().clone())
     }
 
-    pub fn to_geojson(&self, problem: impl BaseProblem) -> GeoJson {
+    pub fn to_geojson(&self, problem: impl BasicProblem) -> GeoJson {
         FeatureCollection {
             bbox: None,
             foreign_members: None,

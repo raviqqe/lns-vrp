@@ -1,6 +1,6 @@
 use crate::Location;
 
-pub trait BaseProblem {
+pub trait BasicProblem {
     fn vehicle_count(&self) -> usize;
     // TODO Add a vehicle trait.
     fn vehicle_start_location(&self, index: usize) -> usize;

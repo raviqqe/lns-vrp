@@ -1,6 +1,6 @@
 use super::solver::Solver;
 use crate::{
-    cost::CostCalculator, hash_map::HashMap, problem::BaseProblem, route::Router, trace,
+    cost::CostCalculator, hash_map::HashMap, problem::BasicProblem, route::Router, trace,
     trace_solution, utility::permutations, Solution,
 };
 use bumpalo::Bump;
@@ -405,7 +405,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
 }
 
 impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C, R, S> {
-    fn solve(&mut self, problem: impl BaseProblem) -> Solution {
+    fn solve(&mut self, problem: impl BasicProblem) -> Solution {
         if problem.vehicle_count() == 0 {
             return Solution::new(vec![]);
         } else if problem.stop_count() == 0 {
