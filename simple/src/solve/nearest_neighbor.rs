@@ -1,5 +1,5 @@
-use crate::{route::Router, Problem, Solution, Stop, Vehicle};
-use core::{BasicProblem, BasicSolver, BasicStop, BasicVehicle};
+use crate::{Problem, Solution, Stop, Vehicle};
+use core::{BasicProblem, BasicSolver, BasicStop, BasicVehicle, Router};
 use ordered_float::OrderedFloat;
 use std::collections::HashSet;
 

@@ -1,9 +1,9 @@
 use crate::{
-    cost::CostCalculator, hash_map::HashMap, route::Router, trace, trace_solution,
-    utility::permutations, Problem, Solution, Stop, Vehicle,
+    cost::CostCalculator, hash_map::HashMap, trace, trace_solution, utility::permutations, Problem,
+    Solution, Stop, Vehicle,
 };
 use bumpalo::Bump;
-use core::{BasicProblem, BasicSolver, BasicStop};
+use core::{BasicProblem, BasicSolver, BasicStop, Router};
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};

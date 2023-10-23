@@ -1,5 +1,5 @@
-use crate::{route::Router, Stop, Vehicle};
-use core::{BasicProblem, BasicStop, BasicVehicle};
+use crate::{Stop, Vehicle};
+use core::{BasicProblem, BasicStop, BasicVehicle, Router};
 use std::cell::RefCell;
 
 #[derive(Debug)]
