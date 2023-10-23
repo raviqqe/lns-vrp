@@ -1,6 +1,6 @@
 use core::{BasicSolver, Location};
 use criterion::{criterion_group, criterion_main, Bencher, Criterion};
-use lns_vrp_app::{
+use lns_vrp_simple::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},
     route::{CachedRouter, CrowRouter, Router},
     solve::{

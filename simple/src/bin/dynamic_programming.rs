@@ -1,5 +1,5 @@
 use core::BasicSolver;
-use lns_vrp_app::{
+use lns_vrp_simple::{
     bin_utility::{
         create_cost_calculator, create_router, measure_time, print_solution, random_problem,
     },
