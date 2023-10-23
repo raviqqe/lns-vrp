@@ -3,7 +3,7 @@ use crate::{
     utility::permutations, SimpleProblem, Solution, Stop, Vehicle,
 };
 use bumpalo::Bump;
-use core::{BasicProblem, BasicSolution, BasicSolver, BasicStop, BasicVehicle};
+use core::{BasicProblem, BasicSolution, BasicSolver, BasicStop};
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};

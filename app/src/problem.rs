@@ -1,6 +1,6 @@
 use crate::{Stop, Vehicle};
 use alloc::vec::Vec;
-use core::{BasicProblem, BasicStop, BasicVehicle, Location};
+use core::{BasicProblem, Location};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]

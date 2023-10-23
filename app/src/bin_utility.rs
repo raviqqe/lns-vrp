@@ -3,7 +3,7 @@ use crate::{
     route::{CachedRouter, CrowRouter, Router},
     SimpleProblem, Solution, Stop, Vehicle,
 };
-use core::{BasicSolution, Location};
+use core::Location;
 use rand::random;
 use std::time::Instant;
 

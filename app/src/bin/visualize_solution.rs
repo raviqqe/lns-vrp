@@ -1,4 +1,3 @@
-use core::BasicSolution;
 use lns_vrp_app::{SimpleProblem, Solution};
 use std::{env::args, error::Error, fs::read_to_string};
 
