@@ -1,6 +1,6 @@
 use super::CostCalculator;
 use crate::{cost::distance::DistanceCostCalculator, route::Router};
-use core::{BasicProblem, Solution};
+use core::{BasicProblem, BasicSolution};
 use std::alloc::Allocator;
 
 #[derive(Debug)]
@@ -29,7 +29,7 @@ impl<R: Router, P: BasicProblem> DeliveryCostCalculator<R, P> {
         }
     }
 
-    fn calculate_distance_cost(&mut self, solution: &Solution<impl Allocator>) -> f64 {
+    fn calculate_distance_cost(&mut self, solution: &BasicSolution<impl Allocator>) -> f64 {
         solution
             .routes()
             .iter()
@@ -44,7 +44,7 @@ impl<R: Router, P: BasicProblem> DeliveryCostCalculator<R, P> {
             .sum()
     }
 
-    fn calculate_delivery_cost(&self, solution: &Solution<impl Allocator>) -> f64 {
+    fn calculate_delivery_cost(&self, solution: &BasicSolution<impl Allocator>) -> f64 {
         (self.delivery_count
             - solution
                 .routes()
@@ -56,11 +56,11 @@ impl<R: Router, P: BasicProblem> DeliveryCostCalculator<R, P> {
 }
 
 impl<R: Router, P: BasicProblem> CostCalculator for DeliveryCostCalculator<R, P> {
-    fn calculate(&mut self, solution: &Solution<impl Allocator>) -> f64 {
+    fn calculate(&mut self, solution: &BasicSolution<impl Allocator>) -> f64 {
         self.calculate_distance_cost(solution) + self.calculate_delivery_cost(solution)
     }
 
-    fn calculate_lower_bound(&mut self, solution: &Solution<impl Allocator>) -> f64 {
+    fn calculate_lower_bound(&mut self, solution: &BasicSolution<impl Allocator>) -> f64 {
         self.calculate_distance_cost(solution)
     }
 }

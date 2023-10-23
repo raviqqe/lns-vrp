@@ -3,7 +3,7 @@ use crate::{
     route::{CachedRouter, CrowRouter, Router},
     SimpleProblem, Stop, Vehicle,
 };
-use core::{Location, Solution};
+use core::{BasicSolution, Location};
 use rand::random;
 use std::time::Instant;
 
@@ -61,7 +61,7 @@ pub fn measure_time<T>(callback: impl FnOnce() -> T) -> T {
     value
 }
 
-pub fn print_solution(problem: &SimpleProblem, solution: &Solution) {
+pub fn print_solution(problem: &SimpleProblem, solution: &BasicSolution) {
     println!("problem: {}", problem.to_json().expect("valid problem"));
     println!("solution: {}", solution.to_json().expect("valid solution"));
     println!("geojson: {}", solution.to_geojson(problem));

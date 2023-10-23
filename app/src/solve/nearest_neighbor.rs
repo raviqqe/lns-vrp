@@ -1,5 +1,6 @@
-use crate::route::Router;
-use core::{BasicProblem, BasicSolver, Solution};
+use super::SimpleSolver;
+use crate::{route::Router, SimpleProblem, Solution, Stop, Vehicle};
+use core::{BasicProblem, BasicSolution, BasicSolver};
 use ordered_float::OrderedFloat;
 use std::collections::HashSet;
 
@@ -13,13 +14,13 @@ impl<R: Router> NearestNeighborSolver<R> {
     }
 }
 
-impl<R: Router> BasicSolver for NearestNeighborSolver<R> {
-    fn solve(&mut self, problem: impl BasicProblem) -> Solution {
+impl<R: Router> SimpleSolver for NearestNeighborSolver<R> {
+    fn solve(&mut self, problem: &SimpleProblem) -> Solution {
         if problem.vehicle_count() == 0 {
-            return Solution::new(vec![]);
+            return BasicSolution::new(vec![]);
         }
 
-        let mut solution = Solution::new(
+        let mut solution = BasicSolution::new(
             (0..problem.vehicle_count())
                 .map(|_| vec![].into())
                 .collect(),
@@ -78,7 +79,7 @@ mod tests {
             vec![Location::new(0.0, 0.0)],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
+        assert_eq!(solve(&problem), BasicSolution::new(vec![vec![].into()]));
     }
 
     #[test]
@@ -89,7 +90,7 @@ mod tests {
             vec![Location::new(0.0, 0.0)],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0].into()]));
+        assert_eq!(solve(&problem), BasicSolution::new(vec![vec![0].into()]));
     }
 
     #[test]
@@ -134,7 +135,10 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 2, 1].into()]));
+        assert_eq!(
+            solve(&problem),
+            BasicSolution::new(vec![vec![0, 2, 1].into()])
+        );
     }
 
     #[test]
@@ -163,7 +167,7 @@ mod tests {
 
         assert_eq!(
             solve(&problem),
-            Solution::new(vec![vec![0, 1, 2].into(), vec![3, 4, 5].into()])
+            BasicSolution::new(vec![vec![0, 1, 2].into(), vec![3, 4, 5].into()])
         );
     }
 
@@ -191,7 +195,7 @@ mod tests {
 
         assert_eq!(
             solve(&problem),
-            Solution::new(vec![vec![0, 1, 2].into(), vec![3, 4].into()])
+            BasicSolution::new(vec![vec![0, 1, 2].into(), vec![3, 4].into()])
         );
     }
 }
