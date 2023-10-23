@@ -17,5 +17,5 @@ mod trace;
 mod solution;
 mod vehicle;
 
-pub use self::{problem::SimpleProblem, stop::Stop, vehicle::Vehicle};
+pub use self::{problem::Problem, stop::Stop, vehicle::Vehicle};
 pub use solution::Solution;

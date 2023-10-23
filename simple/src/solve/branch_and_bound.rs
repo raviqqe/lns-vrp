@@ -1,27 +1,21 @@
-use crate::{cost::CostCalculator, hash_map::HashMap, SimpleProblem, Solution, Stop, Vehicle};
+use crate::{cost::CostCalculator, hash_map::HashMap, Problem, Solution, Stop, Vehicle};
 use bumpalo::Bump;
 use core::{BasicProblem, BasicSolver};
 use ordered_float::OrderedFloat;
 use std::alloc::Global;
 
-/// Dynamic programming solver.
-///
-/// Note that it doesn't use any dynamic programming if you don't provide a cost
-/// function that returns infinity.
-pub struct DynamicProgrammingSolver<C: CostCalculator> {
+pub struct BranchAndBoundSolver<C: CostCalculator> {
     cost_calculator: C,
 }
 
-impl<C: CostCalculator> DynamicProgrammingSolver<C> {
+impl<C: CostCalculator> BranchAndBoundSolver<C> {
     pub fn new(cost_calculator: C) -> Self {
         Self { cost_calculator }
     }
 }
 
-impl<C: CostCalculator> BasicSolver<Vehicle, Stop, SimpleProblem, Solution>
-    for DynamicProgrammingSolver<C>
-{
-    fn solve(&mut self, problem: &SimpleProblem) -> Solution {
+impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution> for BranchAndBoundSolver<C> {
+    fn solve(&mut self, problem: &Problem) -> Solution {
         let allocator = Bump::new();
         let mut solutions = HashMap::default();
         let solution = Solution::new({
@@ -34,7 +28,7 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, SimpleProblem, Solution>
         let mut new_solutions = vec![];
 
         for _ in 0..problem.stop_count() {
-            for solution in solutions.keys() {
+            for (solution, upper_bound) in &solutions {
                 for stop_index in 0..problem.stop_count() {
                     if solution.has_stop(stop_index) {
                         continue;
@@ -42,9 +36,10 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, SimpleProblem, Solution>
 
                     for vehicle_index in 0..solution.routes().len() {
                         let solution = solution.add_stop(vehicle_index, stop_index);
-                        let cost = self.cost_calculator.calculate(&solution);
+                        let lower_bound = self.cost_calculator.calculate_lower_bound(&solution);
 
-                        if cost.is_finite() {
+                        if lower_bound < *upper_bound {
+                            let cost = self.cost_calculator.calculate(&solution);
                             new_solutions.push((solution, cost));
                         }
                     }
@@ -70,7 +65,7 @@ mod tests {
     use crate::{
         cost::{DeliveryCostCalculator, DistanceCostCalculator},
         route::CrowRouter,
-        SimpleProblem, Stop, Vehicle,
+        Problem, Stop, Vehicle,
     };
     use core::Location;
 
@@ -80,8 +75,8 @@ mod tests {
 
     static ROUTER: CrowRouter = CrowRouter::new();
 
-    fn solve(problem: &SimpleProblem) -> Solution {
-        DynamicProgrammingSolver::new(DeliveryCostCalculator::new(
+    fn solve(problem: &Problem) -> Solution {
+        BranchAndBoundSolver::new(DeliveryCostCalculator::new(
             DistanceCostCalculator::new(&ROUTER, problem),
             problem.stops().len(),
             MISSED_DELIVERY_COST,
@@ -93,7 +88,7 @@ mod tests {
 
     #[test]
     fn do_nothing() {
-        let problem = SimpleProblem::new(
+        let problem = Problem::new(
             vec![Vehicle::new(0, 1)],
             vec![],
             vec![Location::new(0.0, 0.0), Location::new(1.0, 0.0)],
@@ -104,7 +99,7 @@ mod tests {
 
     #[test]
     fn keep_one_stop() {
-        let problem = SimpleProblem::new(
+        let problem = Problem::new(
             vec![Vehicle::new(0, 2)],
             vec![Stop::new(1)],
             vec![
@@ -119,7 +114,7 @@ mod tests {
 
     #[test]
     fn keep_two_stops() {
-        let problem = SimpleProblem::new(
+        let problem = Problem::new(
             vec![Vehicle::new(0, 3)],
             vec![Stop::new(1), Stop::new(2)],
             vec![
@@ -135,7 +130,7 @@ mod tests {
 
     #[test]
     fn keep_three_stops() {
-        let problem = SimpleProblem::new(
+        let problem = Problem::new(
             vec![Vehicle::new(0, 4)],
             vec![Stop::new(1), Stop::new(2), Stop::new(3)],
             vec![
@@ -152,7 +147,7 @@ mod tests {
 
     #[test]
     fn even_workload() {
-        let problem = SimpleProblem::new(
+        let problem = Problem::new(
             vec![Vehicle::new(0, 2), Vehicle::new(3, 5)],
             vec![Stop::new(1), Stop::new(4)],
             vec![
