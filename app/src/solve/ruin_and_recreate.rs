@@ -3,7 +3,7 @@ use crate::{
     utility::permutations,
 };
 use bumpalo::Bump;
-use core::{BasicProblem, Solution, Solver};
+use core::{BasicProblem, BasicSolver, Solution};
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
@@ -23,7 +23,7 @@ struct RouteRegion {
     stop_range: Range<usize>,
 }
 
-pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: Solver> {
+pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: BasicSolver> {
     initial_solver: S,
     cost_calculator: C,
     router: R,
@@ -31,7 +31,7 @@ pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: Solver> {
     rng: SmallRng,
 }
 
-impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
+impl<C: CostCalculator, R: Router, S: BasicSolver> RuinAndRecreateSolver<C, R, S> {
     pub fn new(
         cost_calculator: C,
         router: R,
@@ -404,7 +404,7 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
     }
 }
 
-impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C, R, S> {
+impl<C: CostCalculator, R: Router, S: BasicSolver> BasicSolver for RuinAndRecreateSolver<C, R, S> {
     fn solve(&mut self, problem: impl BasicProblem) -> Solution {
         if problem.vehicle_count() == 0 {
             return Solution::new(vec![]);

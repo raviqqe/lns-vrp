@@ -13,6 +13,6 @@ mod vehicle;
 pub use location::Location;
 pub use problem::BasicProblem;
 pub use solution::Solution;
-pub use solver::Solver;
+pub use solver::BasicSolver;
 pub use stop::BasicStop;
 pub use vehicle::BasicVehicle;

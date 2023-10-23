@@ -1,6 +1,6 @@
 use crate::{cost::CostCalculator, hash_map::HashMap};
 use bumpalo::Bump;
-use core::{BasicProblem, Solution, Solver};
+use core::{BasicProblem, BasicSolver, Solution};
 use ordered_float::OrderedFloat;
 use std::alloc::Global;
 
@@ -18,7 +18,7 @@ impl<C: CostCalculator> DynamicProgrammingSolver<C> {
     }
 }
 
-impl<C: CostCalculator> Solver for DynamicProgrammingSolver<C> {
+impl<C: CostCalculator> BasicSolver for DynamicProgrammingSolver<C> {
     fn solve(&mut self, problem: impl BasicProblem) -> Solution {
         let allocator = Bump::new();
         let mut solutions = HashMap::default();
