@@ -1,9 +1,9 @@
-use super::solver::Solver;
 use crate::{
-    cost::CostCalculator, hash_map::HashMap, problem::BasicProblem, route::Router, trace,
-    trace_solution, utility::permutations, Solution,
+    cost::CostCalculator, hash_map::HashMap, route::Router, trace, trace_solution,
+    utility::permutations,
 };
 use bumpalo::Bump;
+use core::{BasicProblem, Solution, Solver};
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
@@ -472,8 +472,9 @@ mod tests {
         cost::{DeliveryCostCalculator, DistanceCostCalculator},
         route::CrowRouter,
         solve::NearestNeighborSolver,
-        Location, SimpleProblem, Stop, Vehicle,
+        SimpleProblem, Stop, Vehicle,
     };
+    use core::Location;
 
     const DISTANCE_COST: f64 = 1.0;
     const QUADRATIC_DISTANCE_COST: f64 = 1e-3;

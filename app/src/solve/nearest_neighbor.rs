@@ -1,5 +1,5 @@
-use super::solver::Solver;
-use crate::{problem::BasicProblem, route::Router, Solution};
+use crate::route::Router;
+use core::{BasicProblem, Solution, Solver};
 use ordered_float::OrderedFloat;
 use std::collections::HashSet;
 
@@ -61,7 +61,8 @@ impl<R: Router> Solver for NearestNeighborSolver<R> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{route::CrowRouter, Location, SimpleProblem, Stop, Vehicle};
+    use crate::{route::CrowRouter, SimpleProblem, Stop, Vehicle};
+    use core::Location;
 
     static ROUTER: CrowRouter = CrowRouter::new();
 

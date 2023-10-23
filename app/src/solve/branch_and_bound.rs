@@ -1,6 +1,6 @@
-use super::solver::Solver;
-use crate::{cost::CostCalculator, hash_map::HashMap, problem::BasicProblem, Solution};
+use crate::{cost::CostCalculator, hash_map::HashMap};
 use bumpalo::Bump;
+use core::{BasicProblem, Solution, Solver};
 use ordered_float::OrderedFloat;
 use std::alloc::Global;
 
@@ -65,8 +65,9 @@ mod tests {
     use crate::{
         cost::{DeliveryCostCalculator, DistanceCostCalculator},
         route::CrowRouter,
-        Location, SimpleProblem, Stop, Vehicle,
+        SimpleProblem, Stop, Vehicle,
     };
+    use core::Location;
 
     const DISTANCE_COST: f64 = 1.0;
     const QUADRATIC_DISTANCE_COST: f64 = 1e-3;

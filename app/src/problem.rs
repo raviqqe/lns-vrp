@@ -1,5 +1,6 @@
-use crate::{Location, Stop, Vehicle};
+use crate::{Stop, Vehicle};
 use alloc::vec::Vec;
+use core::Location;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]

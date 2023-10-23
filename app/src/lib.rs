@@ -16,6 +16,4 @@ mod utility;
 mod trace;
 mod vehicle;
 
-pub use self::{
-    location::Location, problem::SimpleProblem, solution::Solution, stop::Stop, vehicle::Vehicle,
-};
+pub use self::{problem::SimpleProblem, stop::Stop, vehicle::Vehicle};

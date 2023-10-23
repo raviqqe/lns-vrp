@@ -1,5 +1,6 @@
 use super::Router;
-use crate::{trace, Location};
+use crate::trace;
+use core::Location;
 use geo::GeodesicDistance;
 
 #[derive(Debug, Default)]

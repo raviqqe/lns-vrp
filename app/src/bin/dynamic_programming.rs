@@ -1,8 +1,9 @@
+use core::Solver;
 use lns_vrp_app::{
     bin_utility::{
         create_cost_calculator, create_router, measure_time, print_solution, random_problem,
     },
-    solve::{DynamicProgrammingSolver, Solver},
+    solve::DynamicProgrammingSolver,
 };
 
 fn main() {
