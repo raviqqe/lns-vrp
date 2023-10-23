@@ -1,5 +1,5 @@
+use lns_vrp_app::{SimpleProblem, Solution};
 use std::{env::args, error::Error, fs::read_to_string};
-use vrp::{SimpleProblem, Solution};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = args().collect::<Vec<_>>();
