@@ -14,9 +14,7 @@ impl<C: CostCalculator> BranchAndBoundSolver<C> {
     }
 }
 
-impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
-    for BranchAndBoundSolver<C>
-{
+impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution> for BranchAndBoundSolver<C> {
     fn solve(&mut self, problem: &Problem) -> Solution {
         let allocator = Bump::new();
         let mut solutions = HashMap::default();
