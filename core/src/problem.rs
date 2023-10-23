@@ -1,14 +1,11 @@
-use crate::Location;
+use crate::{BasicStop, BasicVehicle, Location};
 
-pub trait BasicProblem {
+pub trait BasicProblem<V: BasicVehicle, S: BasicStop> {
     fn vehicle_count(&self) -> usize;
-    // TODO Add a vehicle trait.
-    fn vehicle_start_location(&self, index: usize) -> usize;
-    fn vehicle_end_location(&self, index: usize) -> usize;
+    fn vehicle(&self, index: usize) -> &V;
 
     fn stop_count(&self) -> usize;
-    // TODO Add a stop trait.
-    fn stop_location(&self, index: usize) -> usize;
+    fn stop(&self, index: usize) -> &S;
 
     fn location_count(&self) -> usize;
     fn location(&self, index: usize) -> &Location;
