@@ -1,5 +1,6 @@
 use super::Router;
-use crate::{hash_map::HashMap, Location};
+use crate::hash_map::HashMap;
+use core::Location;
 use std::cell::RefCell;
 
 #[derive(Debug, Default)]

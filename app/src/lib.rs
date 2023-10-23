@@ -7,10 +7,8 @@ extern crate core;
 pub mod bin_utility;
 pub mod cost;
 mod hash_map;
-mod location;
 mod problem;
 pub mod route;
-mod solution;
 pub mod solve;
 mod stop;
 mod utility;
@@ -18,6 +16,4 @@ mod utility;
 mod trace;
 mod vehicle;
 
-pub use self::{
-    location::Location, problem::SimpleProblem, solution::Solution, stop::Stop, vehicle::Vehicle,
-};
+pub use self::{problem::SimpleProblem, stop::Stop, vehicle::Vehicle};

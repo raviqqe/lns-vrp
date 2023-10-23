@@ -1,4 +1,5 @@
-use crate::{problem::BasicProblem, route::Router};
+use crate::route::Router;
+use core::BasicProblem;
 use std::cell::RefCell;
 
 #[derive(Debug)]

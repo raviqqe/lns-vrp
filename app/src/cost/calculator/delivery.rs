@@ -1,7 +1,6 @@
 use super::CostCalculator;
-use crate::{
-    cost::distance::DistanceCostCalculator, problem::BasicProblem, route::Router, Solution,
-};
+use crate::{cost::distance::DistanceCostCalculator, route::Router};
+use core::{BasicProblem, Solution};
 use std::alloc::Allocator;
 
 #[derive(Debug)]

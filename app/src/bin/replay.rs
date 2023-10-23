@@ -1,9 +1,10 @@
-use std::{env::args, error::Error, fs::read_to_string};
-use vrp::{
+use core::Solver;
+use lns_vrp_app::{
     bin_utility::{create_cost_calculator, create_router, measure_time, print_solution},
-    solve::{NearestNeighborSolver, RuinAndRecreateSolver, Solver},
+    solve::{NearestNeighborSolver, RuinAndRecreateSolver},
     SimpleProblem,
 };
+use std::{env::args, error::Error, fs::read_to_string};
 
 const MOVING_AVERAGE_DATA_POINT_COUNT: usize = 1000;
 

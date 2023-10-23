@@ -1,8 +1,9 @@
-use vrp::{
+use core::Solver;
+use lns_vrp_app::{
     bin_utility::{
         create_cost_calculator, create_router, measure_time, print_solution, random_problem,
     },
-    solve::{NearestNeighborSolver, RuinAndRecreateSolver, Solver},
+    solve::{NearestNeighborSolver, RuinAndRecreateSolver},
 };
 
 const MOVING_AVERAGE_DATA_POINT_COUNT: usize = 200;

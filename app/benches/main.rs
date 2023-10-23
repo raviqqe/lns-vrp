@@ -1,14 +1,15 @@
+use core::{Location, Solver};
 use criterion::{criterion_group, criterion_main, Bencher, Criterion};
-use rand::random;
-use vrp::{
+use lns_vrp_app::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},
     route::{CachedRouter, CrowRouter, Router},
     solve::{
         BranchAndBoundSolver, DynamicProgrammingSolver, NearestNeighborSolver,
-        RuinAndRecreateSolver, Solver,
+        RuinAndRecreateSolver,
     },
-    Location, SimpleProblem, Stop, Vehicle,
+    SimpleProblem, Stop, Vehicle,
 };
+use rand::random;
 
 const STOP_COUNT: usize = 8;
 const VEHICLE_COUNT: usize = 2;
