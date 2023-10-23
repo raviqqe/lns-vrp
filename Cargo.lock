@@ -507,7 +507,6 @@ name = "lns-vrp-core"
 version = "0.1.0"
 dependencies = [
  "geo",
- "geojson",
  "ordered-float",
  "serde",
 ]
