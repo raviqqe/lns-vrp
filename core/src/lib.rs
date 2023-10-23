@@ -7,8 +7,12 @@ mod location;
 mod problem;
 mod solution;
 mod solver;
+mod stop;
+mod vehicle;
 
 pub use location::Location;
 pub use problem::BasicProblem;
 pub use solution::Solution;
 pub use solver::Solver;
+pub use stop::BasicStop;
+pub use vehicle::BasicVehicle;
