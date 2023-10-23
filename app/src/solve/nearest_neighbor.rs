@@ -1,6 +1,5 @@
-use super::SimpleSolver;
 use crate::{route::Router, SimpleProblem, Solution, Stop, Vehicle};
-use core::{BasicProblem, BasicSolution, BasicSolver};
+use core::{BasicProblem, BasicSolution, BasicSolver, BasicStop, BasicVehicle};
 use ordered_float::OrderedFloat;
 use std::collections::HashSet;
 
@@ -14,13 +13,13 @@ impl<R: Router> NearestNeighborSolver<R> {
     }
 }
 
-impl<R: Router> SimpleSolver for NearestNeighborSolver<R> {
+impl<R: Router> BasicSolver<Vehicle, Stop, SimpleProblem, Solution> for NearestNeighborSolver<R> {
     fn solve(&mut self, problem: &SimpleProblem) -> Solution {
         if problem.vehicle_count() == 0 {
-            return BasicSolution::new(vec![]);
+            return Solution::new(vec![]);
         }
 
-        let mut solution = BasicSolution::new(
+        let mut solution = Solution::new(
             (0..problem.vehicle_count())
                 .map(|_| vec![].into())
                 .collect(),
@@ -35,9 +34,9 @@ impl<R: Router> SimpleSolver for NearestNeighborSolver<R> {
 
                 let last_location = problem.location(
                     if let Some(&stop_index) = solution.routes()[vehicle_index].last() {
-                        problem.stop_location(stop_index)
+                        problem.stop(stop_index).location()
                     } else {
-                        problem.vehicle_start_location(vehicle_index)
+                        problem.vehicle(vehicle_index).start_location()
                     },
                 );
 
@@ -47,7 +46,7 @@ impl<R: Router> SimpleSolver for NearestNeighborSolver<R> {
                     .min_by_key(|index| {
                         OrderedFloat(self.router.route(
                             last_location,
-                            problem.location(problem.stop_location(*index)),
+                            problem.location(problem.stop(*index).location()),
                         ))
                     })
                     .expect("stop index");
@@ -79,7 +78,7 @@ mod tests {
             vec![Location::new(0.0, 0.0)],
         );
 
-        assert_eq!(solve(&problem), BasicSolution::new(vec![vec![].into()]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
     }
 
     #[test]
@@ -90,7 +89,7 @@ mod tests {
             vec![Location::new(0.0, 0.0)],
         );
 
-        assert_eq!(solve(&problem), BasicSolution::new(vec![vec![0].into()]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0].into()]));
     }
 
     #[test]
@@ -135,10 +134,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(
-            solve(&problem),
-            BasicSolution::new(vec![vec![0, 2, 1].into()])
-        );
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 2, 1].into()]));
     }
 
     #[test]
@@ -167,7 +163,7 @@ mod tests {
 
         assert_eq!(
             solve(&problem),
-            BasicSolution::new(vec![vec![0, 1, 2].into(), vec![3, 4, 5].into()])
+            Solution::new(vec![vec![0, 1, 2].into(), vec![3, 4, 5].into()])
         );
     }
 
@@ -195,7 +191,7 @@ mod tests {
 
         assert_eq!(
             solve(&problem),
-            BasicSolution::new(vec![vec![0, 1, 2].into(), vec![3, 4].into()])
+            Solution::new(vec![vec![0, 1, 2].into(), vec![3, 4].into()])
         );
     }
 }

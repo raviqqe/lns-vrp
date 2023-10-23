@@ -1,5 +1,6 @@
-use crate::problem::BasicProblem;
+use crate::{problem::BasicProblem, SimpleProblem};
 use alloc::vec::Vec;
+use core::{BasicProblem, BasicSolution, BasicStop, BasicVehicle};
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -134,7 +135,7 @@ impl<A: Allocator> Solution<A> {
         self.routes[vehicle_index].to_vec_in(self.routes.allocator().clone())
     }
 
-    pub fn to_geojson(&self, problem: impl BasicProblem) -> GeoJson {
+    pub fn to_geojson(&self, problem: &SimpleProblem) -> GeoJson {
         FeatureCollection {
             bbox: None,
             foreign_members: None,
@@ -147,14 +148,14 @@ impl<A: Allocator> Solution<A> {
                         bbox: None,
                         foreign_members: None,
                         value: Value::LineString(
-                            [problem.vehicle_start_location(vehicle_index)]
+                            [problem.vehicle(vehicle_index).start_location()]
                                 .into_iter()
                                 .chain(
                                     route
                                         .iter()
-                                        .map(|&stop_index| problem.stop_location(stop_index)),
+                                        .map(|&stop_index| problem.stop(stop_index).location()),
                                 )
-                                .chain([problem.vehicle_end_location(vehicle_index)])
+                                .chain([problem.vehicle(vehicle_index).end_location()])
                                 .map(|index| {
                                     let coordinates = problem.location(index).as_point();
 
@@ -190,6 +191,12 @@ impl Solution<Global> {
                 .map(|route| route.into())
                 .collect(),
         ))
+    }
+}
+
+impl<A: Allocator> BasicSolution for Solution<A> {
+    fn routes(&self) -> impl Iterator<Item = impl Iterator<Item = usize>> {
+        self.routes.iter().map(|indexes| indexes.iter().copied())
     }
 }
 

@@ -1,6 +1,6 @@
 use crate::{Stop, Vehicle};
 use alloc::vec::Vec;
-use core::Location;
+use core::{BasicProblem, BasicStop, BasicVehicle, Location};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -36,25 +36,21 @@ impl SimpleProblem {
     }
 }
 
-impl core::BasicProblem for &SimpleProblem {
+impl core::BasicProblem<Vehicle, Stop> for SimpleProblem {
     fn vehicle_count(&self) -> usize {
         self.vehicles.len()
     }
 
-    fn vehicle_start_location(&self, index: usize) -> usize {
-        self.vehicles[index].start_location()
-    }
-
-    fn vehicle_end_location(&self, index: usize) -> usize {
-        self.vehicles[index].end_location()
+    fn vehicle(&self, index: usize) -> &Vehicle {
+        &self.vehicles[index]
     }
 
     fn stop_count(&self) -> usize {
         self.stops.len()
     }
 
-    fn stop_location(&self, index: usize) -> usize {
-        self.stops[index].location()
+    fn stop(&self, index: usize) -> &Stop {
+        &self.stops[index]
     }
 
     fn location_count(&self) -> usize {

@@ -1,10 +1,9 @@
-use super::SimpleSolver;
 use crate::{
     cost::CostCalculator, hash_map::HashMap, route::Router, trace, trace_solution,
     utility::permutations, SimpleProblem, Solution, Stop, Vehicle,
 };
 use bumpalo::Bump;
-use core::{BasicProblem, BasicSolution, BasicSolver};
+use core::{BasicProblem, BasicSolution, BasicSolver, BasicStop, BasicVehicle};
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
@@ -24,7 +23,11 @@ struct RouteRegion {
     stop_range: Range<usize>,
 }
 
-pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: SimpleSolver> {
+pub struct RuinAndRecreateSolver<
+    C: CostCalculator,
+    R: Router,
+    S: BasicSolver<Vehicle, Stop, SimpleProblem, Solution>,
+> {
     initial_solver: S,
     cost_calculator: C,
     router: R,
@@ -32,7 +35,9 @@ pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: SimpleSolver> 
     rng: SmallRng,
 }
 
-impl<C: CostCalculator, R: Router, S: SimpleSolver> RuinAndRecreateSolver<C, R, S> {
+impl<C: CostCalculator, R: Router, S: BasicSolver<Vehicle, Stop, SimpleProblem, Solution>>
+    RuinAndRecreateSolver<C, R, S>
+{
     pub fn new(
         cost_calculator: C,
         router: R,
@@ -50,9 +55,9 @@ impl<C: CostCalculator, R: Router, S: SimpleSolver> RuinAndRecreateSolver<C, R, 
 
     fn run_dynamic_programming(
         &mut self,
-        solution: &BasicSolution,
+        solution: &Solution,
         closest_stops: &[Vec<usize>],
-    ) -> BasicSolution {
+    ) -> Solution {
         let regions = self.choose_regions(solution, closest_stops);
         trace!("regions: {:?}", &regions);
 
@@ -61,7 +66,7 @@ impl<C: CostCalculator, R: Router, S: SimpleSolver> RuinAndRecreateSolver<C, R, 
 
     fn choose_regions(
         &mut self,
-        solution: &BasicSolution,
+        solution: &Solution,
         closest_stops: &[Vec<usize>],
     ) -> Vec<RouteRegion> {
         let vehicle_count = (1..MAX_VEHICLE_REGION_SIZE + 1)
@@ -99,7 +104,7 @@ impl<C: CostCalculator, R: Router, S: SimpleSolver> RuinAndRecreateSolver<C, R, 
             .collect()
     }
 
-    fn find_vehicle(solution: &BasicSolution, stop_index: usize) -> Option<usize> {
+    fn find_vehicle(solution: &Solution, stop_index: usize) -> Option<usize> {
         solution
             .routes()
             .iter()
@@ -109,7 +114,7 @@ impl<C: CostCalculator, R: Router, S: SimpleSolver> RuinAndRecreateSolver<C, R, 
 
     fn choose_region(
         &mut self,
-        solution: &BasicSolution,
+        solution: &Solution,
         vehicle_index: usize,
         stop_index: usize,
         stop_region_size: usize,
@@ -129,9 +134,9 @@ impl<C: CostCalculator, R: Router, S: SimpleSolver> RuinAndRecreateSolver<C, R, 
 
     fn optimize_regions(
         &mut self,
-        initial_solution: &BasicSolution,
+        initial_solution: &Solution,
         regions: &[RouteRegion],
-    ) -> BasicSolution {
+    ) -> Solution {
         let bump = Bump::new();
         let mut solution = initial_solution.clone_in(&bump);
 
@@ -184,7 +189,7 @@ impl<C: CostCalculator, R: Router, S: SimpleSolver> RuinAndRecreateSolver<C, R, 
 
     fn region_stop_indexes<'a>(
         region: &'a RouteRegion,
-        solution: &'a BasicSolution,
+        solution: &'a Solution,
     ) -> impl Iterator<Item = usize> + 'a {
         region
             .stop_range
@@ -194,9 +199,9 @@ impl<C: CostCalculator, R: Router, S: SimpleSolver> RuinAndRecreateSolver<C, R, 
 
     fn run_two_opt(
         &mut self,
-        initial_solution: &BasicSolution,
+        initial_solution: &Solution,
         closest_stops: &[Vec<usize>],
-    ) -> BasicSolution {
+    ) -> Solution {
         let (stop_index, stops) = closest_stops
             .iter()
             .enumerate()
@@ -236,10 +241,10 @@ impl<C: CostCalculator, R: Router, S: SimpleSolver> RuinAndRecreateSolver<C, R, 
 
     fn run_intra_route_two_opt(
         &mut self,
-        initial_solution: &BasicSolution,
+        initial_solution: &Solution,
         vehicle_index: usize,
         stop_indexes: &[usize],
-    ) -> BasicSolution {
+    ) -> Solution {
         [
             initial_solution.clone(),
             initial_solution.reverse_route(vehicle_index),
@@ -276,10 +281,10 @@ impl<C: CostCalculator, R: Router, S: SimpleSolver> RuinAndRecreateSolver<C, R, 
 
     fn run_inter_route_two_opt(
         &mut self,
-        initial_solution: &BasicSolution,
+        initial_solution: &Solution,
         vehicle_indexes: &[usize],
         stop_indexes: &[usize],
-    ) -> BasicSolution {
+    ) -> Solution {
         let mut solution = initial_solution.clone();
         let mut cost = self.cost_calculator.calculate(initial_solution);
 
@@ -366,13 +371,13 @@ impl<C: CostCalculator, R: Router, S: SimpleSolver> RuinAndRecreateSolver<C, R, 
     }
 
     fn extend_routes(
-        initial_solution: &BasicSolution,
-        solution: &BasicSolution,
+        initial_solution: &Solution,
+        solution: &Solution,
         vehicles: &[(usize, usize)],
         source: usize,
         target: usize,
         tail: bool,
-    ) -> BasicSolution {
+    ) -> Solution {
         let mut solution = solution.clone();
 
         for (source, target) in [(source, target), (1 - source, 1 - target)] {
@@ -405,14 +410,14 @@ impl<C: CostCalculator, R: Router, S: SimpleSolver> RuinAndRecreateSolver<C, R, 
     }
 }
 
-impl<C: CostCalculator, R: Router, S: SimpleSolver> SimpleSolver
-    for RuinAndRecreateSolver<C, R, S>
+impl<C: CostCalculator, R: Router, S: BasicSolver<Vehicle, Stop, SimpleProblem, Solution>>
+    BasicSolver<Vehicle, Stop, SimpleProblem, Solution> for RuinAndRecreateSolver<C, R, S>
 {
-    fn solve(&mut self, problem: impl BasicProblem) -> BasicSolution {
+    fn solve(&mut self, problem: &SimpleProblem) -> Solution {
         if problem.vehicle_count() == 0 {
-            return BasicSolution::new(vec![]);
+            return Solution::new(vec![]);
         } else if problem.stop_count() == 0 {
-            return BasicSolution::new(
+            return Solution::new(
                 (0..problem.vehicle_count())
                     .map(|_| vec![].into())
                     .collect(),
@@ -428,8 +433,8 @@ impl<C: CostCalculator, R: Router, S: SimpleSolver> SimpleSolver
 
             stops.sort_by_key(|&other| {
                 OrderedFloat(self.router.route(
-                    problem.location(problem.stop_location(one)),
-                    problem.location(problem.stop_location(other)),
+                    problem.location(problem.stop(one).location()),
+                    problem.location(problem.stop(other).location()),
                 ))
             });
 
@@ -510,7 +515,7 @@ mod tests {
             vec![Location::new(0.0, 0.0), Location::new(1.0, 0.0)],
         );
 
-        assert_eq!(solve(&problem), BasicSolution::new(vec![vec![].into()]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
     }
 
     #[test]
@@ -525,7 +530,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), BasicSolution::new(vec![vec![0].into()]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0].into()]));
     }
 
     #[test]
@@ -541,7 +546,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), BasicSolution::new(vec![vec![0, 1].into()]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1].into()]));
     }
 
     #[test]
@@ -558,10 +563,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(
-            solve(&problem),
-            BasicSolution::new(vec![vec![0, 1, 2].into()])
-        );
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1, 2].into()]));
     }
 
     #[test]

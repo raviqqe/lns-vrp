@@ -1,10 +1,10 @@
 use super::CostCalculator;
-use crate::{cost::distance::DistanceCostCalculator, route::Router};
+use crate::{cost::distance::DistanceCostCalculator, route::Router, Solution, Stop, Vehicle};
 use core::{BasicProblem, BasicSolution};
 use std::alloc::Allocator;
 
 #[derive(Debug)]
-pub struct DeliveryCostCalculator<R: Router, P: BasicProblem> {
+pub struct DeliveryCostCalculator<R: Router, P: BasicProblem<Vehicle, Stop>> {
     distance_cost_calculator: DistanceCostCalculator<R, P>,
     delivery_count: usize,
     missed_delivery_cost: f64,
@@ -12,7 +12,7 @@ pub struct DeliveryCostCalculator<R: Router, P: BasicProblem> {
     quadratic_distance_cost: f64,
 }
 
-impl<R: Router, P: BasicProblem> DeliveryCostCalculator<R, P> {
+impl<R: Router, P: BasicProblem<Vehicle, Stop>> DeliveryCostCalculator<R, P> {
     pub fn new(
         distance_cost_calculator: DistanceCostCalculator<R, P>,
         delivery_count: usize,
@@ -29,7 +29,7 @@ impl<R: Router, P: BasicProblem> DeliveryCostCalculator<R, P> {
         }
     }
 
-    fn calculate_distance_cost(&mut self, solution: &BasicSolution<impl Allocator>) -> f64 {
+    fn calculate_distance_cost(&mut self, solution: &Solution<impl Allocator>) -> f64 {
         solution
             .routes()
             .iter()
@@ -44,7 +44,7 @@ impl<R: Router, P: BasicProblem> DeliveryCostCalculator<R, P> {
             .sum()
     }
 
-    fn calculate_delivery_cost(&self, solution: &BasicSolution<impl Allocator>) -> f64 {
+    fn calculate_delivery_cost(&self, solution: &Solution<impl Allocator>) -> f64 {
         (self.delivery_count
             - solution
                 .routes()
@@ -55,12 +55,12 @@ impl<R: Router, P: BasicProblem> DeliveryCostCalculator<R, P> {
     }
 }
 
-impl<R: Router, P: BasicProblem> CostCalculator for DeliveryCostCalculator<R, P> {
-    fn calculate(&mut self, solution: &BasicSolution<impl Allocator>) -> f64 {
+impl<R: Router, P: BasicProblem<Vehicle, Stop>> CostCalculator for DeliveryCostCalculator<R, P> {
+    fn calculate(&mut self, solution: &Solution<impl Allocator>) -> f64 {
         self.calculate_distance_cost(solution) + self.calculate_delivery_cost(solution)
     }
 
-    fn calculate_lower_bound(&mut self, solution: &BasicSolution<impl Allocator>) -> f64 {
+    fn calculate_lower_bound(&mut self, solution: &Solution<impl Allocator>) -> f64 {
         self.calculate_distance_cost(solution)
     }
 }

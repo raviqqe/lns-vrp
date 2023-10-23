@@ -15,11 +15,13 @@ impl<C: CostCalculator> BranchAndBoundSolver<C> {
     }
 }
 
-impl<C: CostCalculator> SimpleSolver for BranchAndBoundSolver<C> {
+impl<C: CostCalculator> BasicSolver<Vehicle, Stop, SimpleProblem, Solution>
+    for BranchAndBoundSolver<C>
+{
     fn solve(&mut self, problem: &SimpleProblem) -> Solution {
         let allocator = Bump::new();
         let mut solutions = HashMap::default();
-        let solution = BasicSolution::new({
+        let solution = Solution::new({
             let mut routes = Vec::with_capacity_in(problem.vehicle_count(), &allocator);
             routes.extend((0..problem.vehicle_count()).map(|_| Vec::new_in(&allocator).into()));
             routes
@@ -95,7 +97,7 @@ mod tests {
             vec![Location::new(0.0, 0.0), Location::new(1.0, 0.0)],
         );
 
-        assert_eq!(solve(&problem), BasicSolution::new(vec![vec![].into()]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
     }
 
     #[test]
@@ -110,7 +112,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), BasicSolution::new(vec![vec![0].into()]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0].into()]));
     }
 
     #[test]
@@ -126,7 +128,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), BasicSolution::new(vec![vec![0, 1].into()]));
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1].into()]));
     }
 
     #[test]
@@ -143,10 +145,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(
-            solve(&problem),
-            BasicSolution::new(vec![vec![0, 1, 2].into()])
-        );
+        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1, 2].into()]));
     }
 
     #[test]
