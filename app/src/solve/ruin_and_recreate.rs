@@ -1,6 +1,6 @@
 use crate::{
     cost::CostCalculator, hash_map::HashMap, route::Router, trace, trace_solution,
-    utility::permutations, SimpleProblem, Solution, Stop, Vehicle,
+    utility::permutations, Problem, Solution, Stop, Vehicle,
 };
 use bumpalo::Bump;
 use core::{BasicProblem, BasicSolver, BasicStop};
@@ -26,7 +26,7 @@ struct RouteRegion {
 pub struct RuinAndRecreateSolver<
     C: CostCalculator,
     R: Router,
-    S: BasicSolver<Vehicle, Stop, SimpleProblem, Solution>,
+    S: BasicSolver<Vehicle, Stop, Problem, Solution>,
 > {
     initial_solver: S,
     cost_calculator: C,
@@ -35,7 +35,7 @@ pub struct RuinAndRecreateSolver<
     rng: SmallRng,
 }
 
-impl<C: CostCalculator, R: Router, S: BasicSolver<Vehicle, Stop, SimpleProblem, Solution>>
+impl<C: CostCalculator, R: Router, S: BasicSolver<Vehicle, Stop, Problem, Solution>>
     RuinAndRecreateSolver<C, R, S>
 {
     pub fn new(
@@ -410,10 +410,10 @@ impl<C: CostCalculator, R: Router, S: BasicSolver<Vehicle, Stop, SimpleProblem, 
     }
 }
 
-impl<C: CostCalculator, R: Router, S: BasicSolver<Vehicle, Stop, SimpleProblem, Solution>>
-    BasicSolver<Vehicle, Stop, SimpleProblem, Solution> for RuinAndRecreateSolver<C, R, S>
+impl<C: CostCalculator, R: Router, S: BasicSolver<Vehicle, Stop, Problem, Solution>>
+    BasicSolver<Vehicle, Stop, Problem, Solution> for RuinAndRecreateSolver<C, R, S>
 {
-    fn solve(&mut self, problem: &SimpleProblem) -> Solution {
+    fn solve(&mut self, problem: &Problem) -> Solution {
         if problem.vehicle_count() == 0 {
             return Solution::new(vec![]);
         } else if problem.stop_count() == 0 {
@@ -480,7 +480,7 @@ mod tests {
         cost::{DeliveryCostCalculator, DistanceCostCalculator},
         route::CrowRouter,
         solve::NearestNeighborSolver,
-        SimpleProblem, Stop, Vehicle,
+        Problem, Stop, Vehicle,
     };
     use core::Location;
 
@@ -491,7 +491,7 @@ mod tests {
 
     static ROUTER: CrowRouter = CrowRouter::new();
 
-    fn solve(problem: &SimpleProblem) -> Solution {
+    fn solve(problem: &Problem) -> Solution {
         RuinAndRecreateSolver::new(
             DeliveryCostCalculator::new(
                 DistanceCostCalculator::new(&ROUTER, problem),
@@ -509,7 +509,7 @@ mod tests {
 
     #[test]
     fn do_nothing() {
-        let problem = SimpleProblem::new(
+        let problem = Problem::new(
             vec![Vehicle::new(0, 1)],
             vec![],
             vec![Location::new(0.0, 0.0), Location::new(1.0, 0.0)],
@@ -520,7 +520,7 @@ mod tests {
 
     #[test]
     fn keep_one_stop() {
-        let problem = SimpleProblem::new(
+        let problem = Problem::new(
             vec![Vehicle::new(0, 2)],
             vec![Stop::new(1)],
             vec![
@@ -535,7 +535,7 @@ mod tests {
 
     #[test]
     fn keep_two_stops() {
-        let problem = SimpleProblem::new(
+        let problem = Problem::new(
             vec![Vehicle::new(0, 3)],
             vec![Stop::new(1), Stop::new(2)],
             vec![
@@ -551,7 +551,7 @@ mod tests {
 
     #[test]
     fn keep_three_stops() {
-        let problem = SimpleProblem::new(
+        let problem = Problem::new(
             vec![Vehicle::new(0, 4)],
             vec![Stop::new(1), Stop::new(2), Stop::new(3)],
             vec![
@@ -568,7 +568,7 @@ mod tests {
 
     #[test]
     fn even_workload() {
-        let problem = SimpleProblem::new(
+        let problem = Problem::new(
             vec![Vehicle::new(0, 2), Vehicle::new(3, 5)],
             vec![Stop::new(1), Stop::new(4)],
             vec![

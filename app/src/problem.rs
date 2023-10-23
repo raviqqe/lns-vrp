@@ -4,13 +4,13 @@ use core::{BasicProblem, Location};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct SimpleProblem {
+pub struct Problem {
     vehicles: Vec<Vehicle>,
     stops: Vec<Stop>,
     locations: Vec<Location>,
 }
 
-impl SimpleProblem {
+impl Problem {
     pub fn new(vehicles: Vec<Vehicle>, stops: Vec<Stop>, locations: Vec<Location>) -> Self {
         Self {
             vehicles,
@@ -36,7 +36,7 @@ impl SimpleProblem {
     }
 }
 
-impl BasicProblem<Vehicle, Stop> for SimpleProblem {
+impl BasicProblem<Vehicle, Stop> for Problem {
     fn vehicle_count(&self) -> usize {
         self.vehicles.len()
     }

@@ -1,7 +1,7 @@
 use crate::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},
     route::{CachedRouter, CrowRouter, Router},
-    SimpleProblem, Solution, Stop, Vehicle,
+    Problem, Solution, Stop, Vehicle,
 };
 use core::Location;
 use rand::random;
@@ -27,9 +27,9 @@ fn random_location() -> Location {
     Location::new(random_longitude(), random_latitude())
 }
 
-pub fn random_problem(vehicle_count: usize, stop_count: usize) -> SimpleProblem {
+pub fn random_problem(vehicle_count: usize, stop_count: usize) -> Problem {
     // The last location is a depot location.
-    SimpleProblem::new(
+    Problem::new(
         (0..vehicle_count)
             .map(|_| Vehicle::new(stop_count, stop_count))
             .collect(),
@@ -40,8 +40,8 @@ pub fn random_problem(vehicle_count: usize, stop_count: usize) -> SimpleProblem 
 
 pub fn create_cost_calculator(
     router: impl Router,
-    problem: &SimpleProblem,
-) -> DeliveryCostCalculator<impl Router, &SimpleProblem> {
+    problem: &Problem,
+) -> DeliveryCostCalculator<impl Router, &Problem> {
     DeliveryCostCalculator::new(
         DistanceCostCalculator::new(router, problem),
         problem.stops().len(),
@@ -61,7 +61,7 @@ pub fn measure_time<T>(callback: impl FnOnce() -> T) -> T {
     value
 }
 
-pub fn print_solution(problem: &SimpleProblem, solution: &Solution) {
+pub fn print_solution(problem: &Problem, solution: &Solution) {
     println!("problem: {}", problem.to_json().expect("valid problem"));
     println!("solution: {}", solution.to_json().expect("valid solution"));
     println!("geojson: {}", solution.to_geojson(problem));

@@ -7,7 +7,7 @@ use lns_vrp_app::{
         BranchAndBoundSolver, DynamicProgrammingSolver, NearestNeighborSolver,
         RuinAndRecreateSolver,
     },
-    SimpleProblem, Stop, Vehicle,
+    Problem, Stop, Vehicle,
 };
 use rand::random;
 
@@ -31,8 +31,8 @@ fn random_location() -> Location {
     Location::new(random_longitude(), 0.0)
 }
 
-fn random_problem() -> SimpleProblem {
-    SimpleProblem::new(
+fn random_problem() -> Problem {
+    Problem::new(
         (0..VEHICLE_COUNT)
             .map(|_| Vehicle::new(STOP_COUNT, STOP_COUNT))
             .collect(),
@@ -43,8 +43,8 @@ fn random_problem() -> SimpleProblem {
 
 fn create_cost_calculator(
     router: impl Router,
-    problem: &SimpleProblem,
-) -> DeliveryCostCalculator<impl Router, &SimpleProblem> {
+    problem: &Problem,
+) -> DeliveryCostCalculator<impl Router, &Problem> {
     DeliveryCostCalculator::new(
         DistanceCostCalculator::new(router, problem),
         problem.stops().len(),
