@@ -1,4 +1,4 @@
-use crate::{problem::BasicProblem, SimpleProblem};
+use crate::SimpleProblem;
 use alloc::vec::Vec;
 use core::{BasicProblem, BasicSolution, BasicStop, BasicVehicle};
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};

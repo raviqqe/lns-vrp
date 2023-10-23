@@ -36,7 +36,7 @@ impl SimpleProblem {
     }
 }
 
-impl core::BasicProblem<Vehicle, Stop> for SimpleProblem {
+impl BasicProblem<Vehicle, Stop> for SimpleProblem {
     fn vehicle_count(&self) -> usize {
         self.vehicles.len()
     }

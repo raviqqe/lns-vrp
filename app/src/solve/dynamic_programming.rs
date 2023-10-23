@@ -1,4 +1,3 @@
-use super::SimpleSolver;
 use crate::{cost::CostCalculator, hash_map::HashMap, SimpleProblem, Solution, Stop, Vehicle};
 use bumpalo::Bump;
 use core::{BasicProblem, BasicSolution, BasicSolver};

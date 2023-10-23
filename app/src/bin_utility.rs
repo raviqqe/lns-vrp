@@ -41,7 +41,7 @@ pub fn random_problem(vehicle_count: usize, stop_count: usize) -> SimpleProblem 
 pub fn create_cost_calculator(
     router: impl Router,
     problem: &SimpleProblem,
-) -> DeliveryCostCalculator<impl Router, SimpleProblem> {
+) -> DeliveryCostCalculator<impl Router, &SimpleProblem> {
     DeliveryCostCalculator::new(
         DistanceCostCalculator::new(router, problem),
         problem.stops().len(),
