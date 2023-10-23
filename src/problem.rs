@@ -1,5 +1,5 @@
-mod base;
+mod basic;
 mod simple;
 
-pub use base::BaseProblem;
+pub use basic::BasicProblem;
 pub use simple::SimpleProblem;

@@ -1,4 +1,4 @@
-use super::BaseProblem;
+use super::BasicProblem;
 use crate::{Location, Stop, Vehicle};
 use alloc::vec::Vec;
 use serde::{Deserialize, Serialize};
@@ -36,7 +36,7 @@ impl SimpleProblem {
     }
 }
 
-impl BaseProblem for &SimpleProblem {
+impl BasicProblem for &SimpleProblem {
     fn vehicle_count(&self) -> usize {
         self.vehicles.len()
     }

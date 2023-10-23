@@ -1,14 +1,14 @@
-use crate::{problem::BaseProblem, route::Router};
+use crate::{problem::BasicProblem, route::Router};
 use std::cell::RefCell;
 
 #[derive(Debug)]
-pub struct DistanceCostCalculator<R: Router, P: BaseProblem> {
+pub struct DistanceCostCalculator<R: Router, P: BasicProblem> {
     router: R,
     problem: P,
     cache: RefCell<Vec<Vec<f64>>>,
 }
 
-impl<R: Router, P: BaseProblem> DistanceCostCalculator<R, P> {
+impl<R: Router, P: BasicProblem> DistanceCostCalculator<R, P> {
     pub fn new(router: R, problem: P) -> Self {
         let location_count = problem.location_count();
 

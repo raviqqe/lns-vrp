@@ -1,11 +1,11 @@
 use super::CostCalculator;
 use crate::{
-    cost::distance::DistanceCostCalculator, problem::BaseProblem, route::Router, Solution,
+    cost::distance::DistanceCostCalculator, problem::BasicProblem, route::Router, Solution,
 };
 use std::alloc::Allocator;
 
 #[derive(Debug)]
-pub struct DeliveryCostCalculator<R: Router, P: BaseProblem> {
+pub struct DeliveryCostCalculator<R: Router, P: BasicProblem> {
     distance_cost_calculator: DistanceCostCalculator<R, P>,
     delivery_count: usize,
     missed_delivery_cost: f64,
@@ -13,7 +13,7 @@ pub struct DeliveryCostCalculator<R: Router, P: BaseProblem> {
     quadratic_distance_cost: f64,
 }
 
-impl<R: Router, P: BaseProblem> DeliveryCostCalculator<R, P> {
+impl<R: Router, P: BasicProblem> DeliveryCostCalculator<R, P> {
     pub fn new(
         distance_cost_calculator: DistanceCostCalculator<R, P>,
         delivery_count: usize,
@@ -56,7 +56,7 @@ impl<R: Router, P: BaseProblem> DeliveryCostCalculator<R, P> {
     }
 }
 
-impl<R: Router, P: BaseProblem> CostCalculator for DeliveryCostCalculator<R, P> {
+impl<R: Router, P: BasicProblem> CostCalculator for DeliveryCostCalculator<R, P> {
     fn calculate(&mut self, solution: &Solution<impl Allocator>) -> f64 {
         self.calculate_distance_cost(solution) + self.calculate_delivery_cost(solution)
     }
