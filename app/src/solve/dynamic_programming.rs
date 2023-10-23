@@ -1,6 +1,6 @@
 use crate::{cost::CostCalculator, hash_map::HashMap, SimpleProblem, Solution, Stop, Vehicle};
 use bumpalo::Bump;
-use core::{BasicProblem, BasicSolution, BasicSolver};
+use core::{BasicProblem, BasicSolver};
 use ordered_float::OrderedFloat;
 use std::alloc::Global;
 
