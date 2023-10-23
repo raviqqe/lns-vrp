@@ -1,3 +1,4 @@
+use core::BasicStop;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
@@ -9,8 +10,10 @@ impl Stop {
     pub fn new(location: usize) -> Self {
         Self { location }
     }
+}
 
-    pub fn location(&self) -> usize {
+impl BasicStop for Stop {
+    fn location(&self) -> usize {
         self.location
     }
 }

@@ -1,5 +1,5 @@
-use crate::route::Router;
-use core::{BasicProblem, Solution, Solver};
+use crate::{route::Router, SimpleProblem, Solution, Stop, Vehicle};
+use core::{BasicProblem, BasicSolver, BasicStop, BasicVehicle};
 use ordered_float::OrderedFloat;
 use std::collections::HashSet;
 
@@ -13,8 +13,8 @@ impl<R: Router> NearestNeighborSolver<R> {
     }
 }
 
-impl<R: Router> Solver for NearestNeighborSolver<R> {
-    fn solve(&mut self, problem: impl BasicProblem) -> Solution {
+impl<R: Router> BasicSolver<Vehicle, Stop, SimpleProblem, Solution> for NearestNeighborSolver<R> {
+    fn solve(&mut self, problem: &SimpleProblem) -> Solution {
         if problem.vehicle_count() == 0 {
             return Solution::new(vec![]);
         }
@@ -34,9 +34,9 @@ impl<R: Router> Solver for NearestNeighborSolver<R> {
 
                 let last_location = problem.location(
                     if let Some(&stop_index) = solution.routes()[vehicle_index].last() {
-                        problem.stop_location(stop_index)
+                        problem.stop(stop_index).location()
                     } else {
-                        problem.vehicle_start_location(vehicle_index)
+                        problem.vehicle(vehicle_index).start_location()
                     },
                 );
 
@@ -46,7 +46,7 @@ impl<R: Router> Solver for NearestNeighborSolver<R> {
                     .min_by_key(|index| {
                         OrderedFloat(self.router.route(
                             last_location,
-                            problem.location(problem.stop_location(*index)),
+                            problem.location(problem.stop(*index).location()),
                         ))
                     })
                     .expect("stop index");

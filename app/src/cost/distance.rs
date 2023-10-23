@@ -1,15 +1,15 @@
-use crate::route::Router;
-use core::BasicProblem;
+use crate::{route::Router, Stop, Vehicle};
+use core::{BasicProblem, BasicStop, BasicVehicle};
 use std::cell::RefCell;
 
 #[derive(Debug)]
-pub struct DistanceCostCalculator<R: Router, P: BasicProblem> {
+pub struct DistanceCostCalculator<R: Router, P: BasicProblem<Vehicle, Stop>> {
     router: R,
     problem: P,
     cache: RefCell<Vec<Vec<f64>>>,
 }
 
-impl<R: Router, P: BasicProblem> DistanceCostCalculator<R, P> {
+impl<R: Router, P: BasicProblem<Vehicle, Stop>> DistanceCostCalculator<R, P> {
     pub fn new(router: R, problem: P) -> Self {
         let location_count = problem.location_count();
 
@@ -21,18 +21,18 @@ impl<R: Router, P: BasicProblem> DistanceCostCalculator<R, P> {
     }
 
     pub fn calculate_route(&self, vehicle_index: usize, stop_indexes: &[usize]) -> f64 {
-        [self.problem.vehicle_start_location(vehicle_index)]
+        [self.problem.vehicle(vehicle_index).start_location()]
             .into_iter()
             .chain(
                 stop_indexes
                     .iter()
-                    .map(|&index| self.problem.stop_location(index)),
+                    .map(|&index| self.problem.stop(index).location()),
             )
             .zip(
                 stop_indexes
                     .iter()
-                    .map(|&index| self.problem.stop_location(index))
-                    .chain([self.problem.vehicle_end_location(vehicle_index)]),
+                    .map(|&index| self.problem.stop(index).location())
+                    .chain([self.problem.vehicle(vehicle_index).end_location()]),
             )
             .map(|(one, other)| self.calculate_segment(one, other))
             .sum::<f64>()

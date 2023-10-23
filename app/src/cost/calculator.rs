@@ -1,6 +1,6 @@
 mod delivery;
 
-use core::Solution;
+use crate::Solution;
 pub use delivery::DeliveryCostCalculator;
 use std::alloc::Allocator;
 

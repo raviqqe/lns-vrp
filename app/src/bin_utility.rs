@@ -1,9 +1,9 @@
 use crate::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},
     route::{CachedRouter, CrowRouter, Router},
-    SimpleProblem, Stop, Vehicle,
+    SimpleProblem, Solution, Stop, Vehicle,
 };
-use core::{Location, Solution};
+use core::Location;
 use rand::random;
 use std::time::Instant;
 

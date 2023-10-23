@@ -1,4 +1,4 @@
-use core::{Location, Solver};
+use core::{BasicSolver, Location};
 use criterion::{criterion_group, criterion_main, Bencher, Criterion};
 use lns_vrp_app::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},

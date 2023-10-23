@@ -14,6 +14,8 @@ mod stop;
 mod utility;
 #[macro_use]
 mod trace;
+mod solution;
 mod vehicle;
 
 pub use self::{problem::SimpleProblem, stop::Stop, vehicle::Vehicle};
+pub use solution::Solution;

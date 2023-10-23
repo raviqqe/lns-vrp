@@ -1,9 +1,9 @@
 use crate::{
     cost::CostCalculator, hash_map::HashMap, route::Router, trace, trace_solution,
-    utility::permutations,
+    utility::permutations, SimpleProblem, Solution, Stop, Vehicle,
 };
 use bumpalo::Bump;
-use core::{BasicProblem, Solution, Solver};
+use core::{BasicProblem, BasicSolver, BasicStop};
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
@@ -23,7 +23,11 @@ struct RouteRegion {
     stop_range: Range<usize>,
 }
 
-pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: Solver> {
+pub struct RuinAndRecreateSolver<
+    C: CostCalculator,
+    R: Router,
+    S: BasicSolver<Vehicle, Stop, SimpleProblem, Solution>,
+> {
     initial_solver: S,
     cost_calculator: C,
     router: R,
@@ -31,7 +35,9 @@ pub struct RuinAndRecreateSolver<C: CostCalculator, R: Router, S: Solver> {
     rng: SmallRng,
 }
 
-impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
+impl<C: CostCalculator, R: Router, S: BasicSolver<Vehicle, Stop, SimpleProblem, Solution>>
+    RuinAndRecreateSolver<C, R, S>
+{
     pub fn new(
         cost_calculator: C,
         router: R,
@@ -404,8 +410,10 @@ impl<C: CostCalculator, R: Router, S: Solver> RuinAndRecreateSolver<C, R, S> {
     }
 }
 
-impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C, R, S> {
-    fn solve(&mut self, problem: impl BasicProblem) -> Solution {
+impl<C: CostCalculator, R: Router, S: BasicSolver<Vehicle, Stop, SimpleProblem, Solution>>
+    BasicSolver<Vehicle, Stop, SimpleProblem, Solution> for RuinAndRecreateSolver<C, R, S>
+{
+    fn solve(&mut self, problem: &SimpleProblem) -> Solution {
         if problem.vehicle_count() == 0 {
             return Solution::new(vec![]);
         } else if problem.stop_count() == 0 {
@@ -425,8 +433,8 @@ impl<C: CostCalculator, R: Router, S: Solver> Solver for RuinAndRecreateSolver<C
 
             stops.sort_by_key(|&other| {
                 OrderedFloat(self.router.route(
-                    problem.location(problem.stop_location(one)),
-                    problem.location(problem.stop_location(other)),
+                    problem.location(problem.stop(one).location()),
+                    problem.location(problem.stop(other).location()),
                 ))
             });
 

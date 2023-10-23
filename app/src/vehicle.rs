@@ -1,3 +1,4 @@
+use core::BasicVehicle;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
@@ -13,12 +14,14 @@ impl Vehicle {
             end_location,
         }
     }
+}
 
-    pub fn start_location(&self) -> usize {
+impl BasicVehicle for Vehicle {
+    fn start_location(&self) -> usize {
         self.start_location
     }
 
-    pub fn end_location(&self) -> usize {
+    fn end_location(&self) -> usize {
         self.end_location
     }
 }
