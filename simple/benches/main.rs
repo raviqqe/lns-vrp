@@ -1,8 +1,8 @@
-use core::{BasicSolver, Location};
+use core::{BasicSolver, Location, Router};
 use criterion::{criterion_group, criterion_main, Bencher, Criterion};
 use lns_vrp_simple::{
     cost::{DeliveryCostCalculator, DistanceCostCalculator},
-    route::{CachedRouter, CrowRouter, Router},
+    route::{CachedRouter, CrowRouter},
     solve::{
         BranchAndBoundSolver, DynamicProgrammingSolver, NearestNeighborSolver,
         RuinAndRecreateSolver,
