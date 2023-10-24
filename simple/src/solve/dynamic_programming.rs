@@ -48,10 +48,11 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
                             );
 
                         if vehicle_index + 1 < vehicle_count {
-                            for (ii, kk) in
+                            for (next_stop_set, next_stop_index) in
                                 [(stop_set, stop_index), (next_stop_set, next_stop_index)]
                             {
-                                dp[ii][vehicle_index + 1][kk] = dp[ii][vehicle_index + 1][kk]
+                                dp[next_stop_set][vehicle_index + 1][next_stop_index] = dp
+                                    [next_stop_set][vehicle_index + 1][next_stop_index]
                                     .min(dp[stop_set][vehicle_index][stop_index]);
                             }
                         }
