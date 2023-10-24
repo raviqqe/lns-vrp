@@ -20,7 +20,7 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
 {
     fn solve(&mut self, problem: &Problem) -> Solution {
         let stop_count = problem.stop_count();
-        let vehicle_count = problem.stop_count();
+        let vehicle_count = problem.vehicle_count();
         let mut dp = vec![vec![vec![f64::INFINITY; stop_count]; vehicle_count]; 1 << stop_count];
 
         for i in 0..stop_count {
