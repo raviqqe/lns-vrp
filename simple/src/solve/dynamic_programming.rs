@@ -39,14 +39,16 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
                             continue;
                         }
 
-                        let ii = stop_set | 1 << l;
+                        let next_stop_set = stop_set | 1 << l;
 
-                        dp[ii][vehicle_index][l] = dp[ii][vehicle_index][l].min(
-                            dp[stop_set][vehicle_index][stop_index] + distance(stop_index, l, xs),
-                        );
+                        dp[next_stop_set][vehicle_index][l] = dp[next_stop_set][vehicle_index][l]
+                            .min(
+                                dp[stop_set][vehicle_index][stop_index]
+                                    + distance(stop_index, l, xs),
+                            );
 
                         if vehicle_index + 1 < vehicle_count {
-                            for (ii, kk) in [(stop_set, stop_index), (ii, l)] {
+                            for (ii, kk) in [(stop_set, stop_index), (next_stop_set, l)] {
                                 dp[ii][vehicle_index + 1][kk] = dp[ii][vehicle_index + 1][kk]
                                     .min(dp[stop_set][vehicle_index][stop_index]);
                             }
