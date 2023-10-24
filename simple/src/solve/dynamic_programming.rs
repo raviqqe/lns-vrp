@@ -5,9 +5,6 @@ use ordered_float::OrderedFloat;
 use std::alloc::Global;
 
 /// Dynamic programming solver.
-///
-/// Note that it doesn't use any dynamic programming if you don't provide a cost
-/// function that returns infinity.
 pub struct DynamicProgrammingSolver<C: CostCalculator> {
     cost_calculator: C,
 }
@@ -22,45 +19,52 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
     for DynamicProgrammingSolver<C>
 {
     fn solve(&mut self, problem: &Problem) -> Solution {
-        let allocator = Bump::new();
-        let mut solutions = HashMap::default();
-        let solution = Solution::new({
-            let mut routes = Vec::with_capacity_in(problem.vehicle_count(), &allocator);
-            routes.extend((0..problem.vehicle_count()).map(|_| Vec::new_in(&allocator).into()));
-            routes
-        });
-        let cost = self.cost_calculator.calculate(&solution);
-        solutions.insert(solution, cost);
-        let mut new_solutions = vec![];
+        let n = xs.len();
+        let mut dp = vec![vec![vec![f64::INFINITY; n]; m]; 1 << n];
 
-        for _ in 0..problem.stop_count() {
-            for solution in solutions.keys() {
-                for stop_index in 0..problem.stop_count() {
-                    if solution.has_stop(stop_index) {
+        for i in 0..n {
+            dp[0][0][i] = 0.0;
+        }
+
+        for i in 0..1 << n {
+            for j in 0..m {
+                for k in 0..n {
+                    if dp[i][j][k].is_infinite() {
                         continue;
                     }
 
-                    for vehicle_index in 0..solution.routes().len() {
-                        let solution = solution.add_stop(vehicle_index, stop_index);
-                        let cost = self.cost_calculator.calculate(&solution);
+                    for l in 0..n {
+                        if 1 << l & i > 0 {
+                            continue;
+                        }
 
-                        if cost.is_finite() {
-                            new_solutions.push((solution, cost));
+                        let ii = i | 1 << l;
+
+                        dp[ii][j][l] = dp[ii][j][l].min(dp[i][j][k] + distance(k, l, xs));
+
+                        if j + 1 < m {
+                            // We change a vehicle and either:
+                            // - Stay at the same stop.
+                            // - "Warp" to a new stop.
+                            for (ii, kk) in [(i, k), (ii, l)] {
+                                dp[ii][j + 1][kk] = dp[ii][j + 1][kk].min(dp[i][j][k]);
+                            }
                         }
                     }
                 }
             }
-
-            solutions.extend(new_solutions.drain(..));
         }
 
-        let solution = solutions
-            .into_iter()
-            .min_by_key(|(_, cost)| OrderedFloat(*cost))
-            .expect("at least one solution")
-            .0;
+        let value = *dp
+            .last()
+            .unwrap()
+            .last()
+            .unwrap()
+            .iter()
+            .min_by_key(|&&x| OrderedFloat(x))
+            .unwrap();
 
-        solution.clone_in(Global)
+        todo!()
     }
 }
 
