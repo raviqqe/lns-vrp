@@ -28,7 +28,7 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
         }
 
         for i in 0..1 << stop_count {
-            for j in 0..m {
+            for j in 0..vehicle_count {
                 for k in 0..stop_count {
                     if dp[i][j][k].is_infinite() {
                         continue;
@@ -43,7 +43,7 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
 
                         dp[ii][j][l] = dp[ii][j][l].min(dp[i][j][k] + distance(k, l, xs));
 
-                        if j + 1 < m {
+                        if j + 1 < vehicle_count {
                             // We change a vehicle and either:
                             // - Stay at the same stop.
                             // - "Warp" to a new stop.
