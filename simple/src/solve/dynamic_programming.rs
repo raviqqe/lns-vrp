@@ -19,21 +19,22 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
     for DynamicProgrammingSolver<C>
 {
     fn solve(&mut self, problem: &Problem) -> Solution {
-        let n = xs.len();
-        let mut dp = vec![vec![vec![f64::INFINITY; n]; m]; 1 << n];
+        let stop_count = problem.stop_count();
+        let vehicle_count = problem.stop_count();
+        let mut dp = vec![vec![vec![f64::INFINITY; stop_count]; m]; 1 << stop_count];
 
-        for i in 0..n {
+        for i in 0..stop_count {
             dp[0][0][i] = 0.0;
         }
 
-        for i in 0..1 << n {
+        for i in 0..1 << stop_count {
             for j in 0..m {
-                for k in 0..n {
+                for k in 0..stop_count {
                     if dp[i][j][k].is_infinite() {
                         continue;
                     }
 
-                    for l in 0..n {
+                    for l in 0..stop_count {
                         if 1 << l & i > 0 {
                             continue;
                         }
