@@ -1,17 +1,17 @@
 use crate::{cost::CostCalculator, hash_map::HashMap, Problem, Solution, Stop, Vehicle};
 use bumpalo::Bump;
-use core::{BasicProblem, BasicSolver};
+use core::{BasicProblem, BasicSolver, Router};
 use ordered_float::OrderedFloat;
 use std::alloc::Global;
 
 /// Dynamic programming solver.
-pub struct DynamicProgrammingSolver<C: CostCalculator> {
-    cost_calculator: C,
+pub struct DynamicProgrammingSolver<R: Router> {
+    router: R,
 }
 
 impl<C: CostCalculator> DynamicProgrammingSolver<C> {
-    pub fn new(cost_calculator: C) -> Self {
-        Self { cost_calculator }
+    pub fn new(router: R) -> Self {
+        Self { router }
     }
 }
 
@@ -44,7 +44,7 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
                         dp[next_stop_set][vehicle_index][next_stop_index] =
                             dp[next_stop_set][vehicle_index][next_stop_index].min(
                                 dp[stop_set][vehicle_index][stop_index]
-                                    + distance(stop_index, next_stop_index, xs),
+                                    + router.route(stop_index, next_stop_index, xs),
                             );
 
                         if vehicle_index + 1 < vehicle_count {
