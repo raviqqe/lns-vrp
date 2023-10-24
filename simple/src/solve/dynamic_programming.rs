@@ -29,8 +29,8 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
 
         for stop_set in 0..1 << stop_count {
             for vehicle_index in 0..vehicle_count {
-                for k in 0..stop_count {
-                    if dp[stop_set][vehicle_index][k].is_infinite() {
+                for stop_index in 0..stop_count {
+                    if dp[stop_set][vehicle_index][stop_index].is_infinite() {
                         continue;
                     }
 
@@ -41,16 +41,14 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
 
                         let ii = stop_set | 1 << l;
 
-                        dp[ii][vehicle_index][l] = dp[ii][vehicle_index][l]
-                            .min(dp[stop_set][vehicle_index][k] + distance(k, l, xs));
+                        dp[ii][vehicle_index][l] = dp[ii][vehicle_index][l].min(
+                            dp[stop_set][vehicle_index][stop_index] + distance(stop_index, l, xs),
+                        );
 
                         if vehicle_index + 1 < vehicle_count {
-                            // We change a vehicle and either:
-                            // - Stay at the same stop.
-                            // - "Warp" to a new stop.
-                            for (ii, kk) in [(stop_set, k), (ii, l)] {
+                            for (ii, kk) in [(stop_set, stop_index), (ii, l)] {
                                 dp[ii][vehicle_index + 1][kk] = dp[ii][vehicle_index + 1][kk]
-                                    .min(dp[stop_set][vehicle_index][k]);
+                                    .min(dp[stop_set][vehicle_index][stop_index]);
                             }
                         }
                     }
