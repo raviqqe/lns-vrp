@@ -23,14 +23,14 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
         let vehicle_count = problem.vehicle_count();
         let mut dp = vec![vec![vec![f64::INFINITY; stop_count]; vehicle_count]; 1 << stop_count];
 
-        for i in 0..stop_count {
-            dp[0][0][i] = 0.0;
+        for index in 0..stop_count {
+            dp[0][0][index] = 0.0;
         }
 
         for i in 0..1 << stop_count {
-            for j in 0..vehicle_count {
+            for vehicle_index in 0..vehicle_count {
                 for k in 0..stop_count {
-                    if dp[i][j][k].is_infinite() {
+                    if dp[i][vehicle_index][k].is_infinite() {
                         continue;
                     }
 
@@ -41,14 +41,16 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
 
                         let ii = i | 1 << l;
 
-                        dp[ii][j][l] = dp[ii][j][l].min(dp[i][j][k] + distance(k, l, xs));
+                        dp[ii][vehicle_index][l] = dp[ii][vehicle_index][l]
+                            .min(dp[i][vehicle_index][k] + distance(k, l, xs));
 
-                        if j + 1 < vehicle_count {
+                        if vehicle_index + 1 < vehicle_count {
                             // We change a vehicle and either:
                             // - Stay at the same stop.
                             // - "Warp" to a new stop.
                             for (ii, kk) in [(i, k), (ii, l)] {
-                                dp[ii][j + 1][kk] = dp[ii][j + 1][kk].min(dp[i][j][k]);
+                                dp[ii][vehicle_index + 1][kk] =
+                                    dp[ii][vehicle_index + 1][kk].min(dp[i][vehicle_index][k]);
                             }
                         }
                     }
