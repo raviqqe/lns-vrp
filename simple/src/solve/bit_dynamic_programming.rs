@@ -1,8 +1,8 @@
 use crate::{Problem, Solution, Stop, Vehicle};
-use core::{BasicProblem, BasicSolver, Router};
+use core::{BasicProblem, BasicSolver, BasicStop, Router};
 use ordered_float::OrderedFloat;
 
-/// Dynamic programming solver.
+/// Bit dynamic programming solver.
 pub struct BitDynamicProgrammingSolver<R: Router> {
     router: R,
 }
@@ -13,7 +13,7 @@ impl<R: Router> BitDynamicProgrammingSolver<R> {
     }
 }
 
-impl<R: Router> BasicSolver<Vehicle, Stop, Problem, Solution> for BitDynamicProgrammingSolver<C> {
+impl<R: Router> BasicSolver<Vehicle, Stop, Problem, Solution> for BitDynamicProgrammingSolver<R> {
     fn solve(&mut self, problem: &Problem) -> Solution {
         let stop_count = problem.stop_count();
         let vehicle_count = problem.vehicle_count();
@@ -40,7 +40,10 @@ impl<R: Router> BasicSolver<Vehicle, Stop, Problem, Solution> for BitDynamicProg
                         dp[next_stop_set][vehicle_index][next_stop_index] =
                             dp[next_stop_set][vehicle_index][next_stop_index].min(
                                 dp[stop_set][vehicle_index][stop_index]
-                                    + router.route(stop_index, next_stop_index, xs),
+                                    + self.router.route(
+                                        problem.location(problem.stop(stop_index).location()),
+                                        problem.location(problem.stop(next_stop_index).location()),
+                                    ),
                             );
 
                         if vehicle_index + 1 < vehicle_count {
