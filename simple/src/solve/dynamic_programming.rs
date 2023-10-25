@@ -1,17 +1,20 @@
 use crate::{cost::CostCalculator, hash_map::HashMap, Problem, Solution, Stop, Vehicle};
 use bumpalo::Bump;
-use core::{BasicProblem, BasicSolver, Router};
+use core::{BasicProblem, BasicSolver};
 use ordered_float::OrderedFloat;
 use std::alloc::Global;
 
 /// Dynamic programming solver.
-pub struct DynamicProgrammingSolver<R: Router> {
-    router: R,
+///
+/// Note that it doesn't use any dynamic programming if you don't provide a cost
+/// function that returns infinity.
+pub struct DynamicProgrammingSolver<C: CostCalculator> {
+    cost_calculator: C,
 }
 
 impl<C: CostCalculator> DynamicProgrammingSolver<C> {
-    pub fn new(router: R) -> Self {
-        Self { router }
+    pub fn new(cost_calculator: C) -> Self {
+        Self { cost_calculator }
     }
 }
 
@@ -19,58 +22,45 @@ impl<C: CostCalculator> BasicSolver<Vehicle, Stop, Problem, Solution>
     for DynamicProgrammingSolver<C>
 {
     fn solve(&mut self, problem: &Problem) -> Solution {
-        let stop_count = problem.stop_count();
-        let vehicle_count = problem.vehicle_count();
-        let mut dp = vec![vec![vec![f64::INFINITY; stop_count]; vehicle_count]; 1 << stop_count];
+        let allocator = Bump::new();
+        let mut solutions = HashMap::default();
+        let solution = Solution::new({
+            let mut routes = Vec::with_capacity_in(problem.vehicle_count(), &allocator);
+            routes.extend((0..problem.vehicle_count()).map(|_| Vec::new_in(&allocator).into()));
+            routes
+        });
+        let cost = self.cost_calculator.calculate(&solution);
+        solutions.insert(solution, cost);
+        let mut new_solutions = vec![];
 
-        for index in 0..stop_count {
-            dp[0][0][index] = 0.0;
-        }
-
-        for stop_set in 0..1 << stop_count {
-            for vehicle_index in 0..vehicle_count {
-                for stop_index in 0..stop_count {
-                    if dp[stop_set][vehicle_index][stop_index].is_infinite() {
+        for _ in 0..problem.stop_count() {
+            for solution in solutions.keys() {
+                for stop_index in 0..problem.stop_count() {
+                    if solution.has_stop(stop_index) {
                         continue;
                     }
 
-                    for next_stop_index in 0..stop_count {
-                        if 1 << next_stop_index & stop_set > 0 {
-                            continue;
-                        }
+                    for vehicle_index in 0..solution.routes().len() {
+                        let solution = solution.add_stop(vehicle_index, stop_index);
+                        let cost = self.cost_calculator.calculate(&solution);
 
-                        let next_stop_set = stop_set | 1 << next_stop_index;
-
-                        dp[next_stop_set][vehicle_index][next_stop_index] =
-                            dp[next_stop_set][vehicle_index][next_stop_index].min(
-                                dp[stop_set][vehicle_index][stop_index]
-                                    + router.route(stop_index, next_stop_index, xs),
-                            );
-
-                        if vehicle_index + 1 < vehicle_count {
-                            for (next_stop_set, next_stop_index) in
-                                [(stop_set, stop_index), (next_stop_set, next_stop_index)]
-                            {
-                                dp[next_stop_set][vehicle_index + 1][next_stop_index] = dp
-                                    [next_stop_set][vehicle_index + 1][next_stop_index]
-                                    .min(dp[stop_set][vehicle_index][stop_index]);
-                            }
+                        if cost.is_finite() {
+                            new_solutions.push((solution, cost));
                         }
                     }
                 }
             }
+
+            solutions.extend(new_solutions.drain(..));
         }
 
-        let value = *dp
-            .last()
-            .unwrap()
-            .last()
-            .unwrap()
-            .iter()
-            .min_by_key(|&&x| OrderedFloat(x))
-            .unwrap();
+        let solution = solutions
+            .into_iter()
+            .min_by_key(|(_, cost)| OrderedFloat(*cost))
+            .expect("at least one solution")
+            .0;
 
-        todo!()
+        solution.clone_in(Global)
     }
 }
 
