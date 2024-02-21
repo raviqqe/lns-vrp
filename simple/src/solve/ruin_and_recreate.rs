@@ -480,7 +480,6 @@ mod tests {
         cost::{DeliveryCostCalculator, DistanceCostCalculator},
         route::CrowRouter,
         solve::NearestNeighborSolver,
-        Problem, Stop, Vehicle,
     };
     use core::Location;
 

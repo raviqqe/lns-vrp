@@ -65,7 +65,6 @@ mod tests {
     use crate::{
         cost::{DeliveryCostCalculator, DistanceCostCalculator},
         route::CrowRouter,
-        Problem, Stop, Vehicle,
     };
     use core::Location;
 
