@@ -1,5 +1,4 @@
 use crate::Problem;
-use alloc::vec::Vec;
 use core::{BasicProblem, BasicSolution, BasicStop, BasicVehicle};
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 use serde::{Deserialize, Serialize};

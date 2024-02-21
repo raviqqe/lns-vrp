@@ -1,5 +1,4 @@
 use crate::{Stop, Vehicle};
-use alloc::vec::Vec;
 use core::{BasicProblem, Location};
 use serde::{Deserialize, Serialize};
 

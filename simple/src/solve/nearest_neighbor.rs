@@ -61,7 +61,7 @@ impl<R: Router> BasicSolver<Vehicle, Stop, Problem, Solution> for NearestNeighbo
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{route::CrowRouter, Problem, Stop, Vehicle};
+    use crate::route::CrowRouter;
     use core::Location;
 
     static ROUTER: CrowRouter = CrowRouter::new();
