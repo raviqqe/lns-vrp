@@ -1,3 +1,9 @@
 [workspace]
 members = ["simple", "core"]
 resolver = "2"
+
+[workspace.lints.rust]
+warnings = "deny"
+
+[workspace.lints.clippy]
+mutable_key_type = "allow"
