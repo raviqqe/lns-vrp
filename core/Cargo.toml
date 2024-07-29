@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 geo = "0.28.0"
-ordered-float = "4.2.1"
+ordered-float = "4.2.2"
 serde = { version = "1.0.204", features = ["derive"] }
 
 [lints]
