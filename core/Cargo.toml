@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 geo = "0.28.0"
 ordered-float = "4.2.2"
-serde = { version = "1.0.205", features = ["derive"] }
+serde = { version = "1.0.206", features = ["derive"] }
 
 [lints]
 workspace = true
