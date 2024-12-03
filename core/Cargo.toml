@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-geo = "0.29.2"
+geo = "0.29.3"
 ordered-float = "4.5.0"
 serde = { version = "1.0.215", features = ["derive"] }
 
