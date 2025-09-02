@@ -7,7 +7,7 @@ edition = "2021"
 ahash = { version = "0.8.11", default-features = false }
 bumpalo = { version = "3.19.0", features = ["allocator_api"] }
 core = { package = "lns-vrp-core", path = "../core" }
-geo = "0.30.0"
+geo = "0.31.0"
 geojson = "0.24.2"
 itertools = "0.14.0"
 ordered-float = "5.0.0"
