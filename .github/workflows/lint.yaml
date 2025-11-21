@@ -8,18 +8,18 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: Swatinem/rust-cache@v2
       - run: cargo clippy -- -D warnings
   format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: cargo fmt -- --check
   unused_dependencies:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: rustup install nightly
       - uses: Swatinem/rust-cache@v2
       - run: |
@@ -31,12 +31,12 @@ jobs:
       pull-requests: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: streetsidesoftware/cspell-action@main
         with:
           files: "**/*.{md,rs,sh,toml}"
   readme:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: raviqqe/markdown-link-check@main
