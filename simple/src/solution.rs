@@ -1,6 +1,6 @@
 use crate::Problem;
 use core::{BasicProblem, BasicSolution, BasicStop, BasicVehicle};
-use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
+use geojson::{Feature, FeatureCollection, GeoJson, Geometry, GeometryValue};
 use serde::{Deserialize, Serialize};
 use std::{
     alloc::{Allocator, Global},
@@ -146,8 +146,8 @@ impl<A: Allocator> Solution<A> {
                     geometry: Some(Geometry {
                         bbox: None,
                         foreign_members: None,
-                        value: Value::LineString(
-                            [problem.vehicle(vehicle_index).start_location()]
+                        value: GeometryValue::LineString {
+                            coordinates: [problem.vehicle(vehicle_index).start_location()]
                                 .into_iter()
                                 .chain(
                                     route
@@ -158,10 +158,10 @@ impl<A: Allocator> Solution<A> {
                                 .map(|index| {
                                     let coordinates = problem.location(index).as_point();
 
-                                    vec![coordinates.x(), coordinates.y()]
+                                    [coordinates.x(), coordinates.y()].into()
                                 })
                                 .collect(),
-                        ),
+                        },
                     }),
                     ..Default::default()
                 })
