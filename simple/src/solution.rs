@@ -1,9 +1,12 @@
 use crate::Problem;
+use allocator_api2::{
+    alloc::{Allocator, Global},
+    vec::Vec,
+};
 use core::{BasicProblem, BasicSolution, BasicStop, BasicVehicle};
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, GeometryValue};
 use serde::{Deserialize, Serialize};
 use std::{
-    alloc::{Allocator, Global},
     hash::{Hash, Hasher},
     ops::Range,
     rc::Rc,
@@ -13,7 +16,7 @@ use std::{
 // TODO Make it more compact.
 #[derive(Clone, Debug)]
 pub struct Solution<A: Allocator = Global> {
-    routes: Vec<Rc<[usize], A>, A>,
+    routes: Vec<Rc<Vec<usize, A>>, A>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -22,11 +25,11 @@ struct SerializableSolution {
 }
 
 impl<A: Allocator> Solution<A> {
-    pub fn new(routes: Vec<Rc<[usize], A>, A>) -> Self {
+    pub fn new(routes: Vec<Rc<Vec<usize, A>>, A>) -> Self {
         Self { routes }
     }
 
-    pub fn routes(&self) -> &[Rc<[usize], A>] {
+    pub fn routes(&self) -> &[Rc<Vec<usize, A>>] {
         &self.routes
     }
 
@@ -131,7 +134,7 @@ impl<A: Allocator> Solution<A> {
     where
         A: Clone,
     {
-        self.routes[vehicle_index].to_vec_in(self.routes.allocator().clone())
+        self.routes[vehicle_index].as_ref().clone()
     }
 
     pub fn to_geojson(&self, problem: &Problem) -> GeoJson {
@@ -182,13 +185,18 @@ impl<A: Allocator> Solution<A> {
 }
 
 impl Solution<Global> {
-    pub fn from_json(value: serde_json::value::Value) -> Result<Self, serde_json::Error> {
-        Ok(Self::new(
-            serde_json::from_value::<SerializableSolution>(value)?
-                .routes
+    pub fn from_routes(routes: impl IntoIterator<Item = impl IntoIterator<Item = usize>>) -> Self {
+        Self::new(
+            routes
                 .into_iter()
-                .map(|route| route.into())
+                .map(|route| Rc::new(route.into_iter().collect()))
                 .collect(),
+        )
+    }
+
+    pub fn from_json(value: serde_json::value::Value) -> Result<Self, serde_json::Error> {
+        Ok(Self::from_routes(
+            serde_json::from_value::<SerializableSolution>(value)?.routes,
         ))
     }
 }

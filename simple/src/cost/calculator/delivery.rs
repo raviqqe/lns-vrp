@@ -1,7 +1,7 @@
 use super::CostCalculator;
 use crate::{cost::distance::DistanceCostCalculator, Solution, Stop, Vehicle};
+use allocator_api2::alloc::Allocator;
 use core::{BasicProblem, Router};
-use std::alloc::Allocator;
 
 #[derive(Debug)]
 pub struct DeliveryCostCalculator<R: Router, P: BasicProblem<Vehicle, Stop>> {

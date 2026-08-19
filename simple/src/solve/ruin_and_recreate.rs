@@ -2,12 +2,13 @@ use crate::{
     cost::CostCalculator, hash_map::HashMap, trace, trace_solution, utility::permutations, Problem,
     Solution, Stop, Vehicle,
 };
+use allocator_api2::alloc::Global;
 use bumpalo::Bump;
 use core::{BasicProblem, BasicSolver, BasicStop, Router};
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use rand::{rngs::SmallRng, seq::IteratorRandom, SeedableRng};
-use std::{alloc::Global, ops::Range};
+use std::ops::Range;
 
 const SEED: [u8; 32] = [0u8; 32];
 
@@ -414,14 +415,8 @@ impl<C: CostCalculator, R: Router, S: BasicSolver<Vehicle, Stop, Problem, Soluti
     BasicSolver<Vehicle, Stop, Problem, Solution> for RuinAndRecreateSolver<C, R, S>
 {
     fn solve(&mut self, problem: &Problem) -> Solution {
-        if problem.vehicle_count() == 0 {
-            return Solution::new(vec![]);
-        } else if problem.stop_count() == 0 {
-            return Solution::new(
-                (0..problem.vehicle_count())
-                    .map(|_| vec![].into())
-                    .collect(),
-            );
+        if problem.vehicle_count() == 0 || problem.stop_count() == 0 {
+            return Solution::from_routes((0..problem.vehicle_count()).map(|_| []));
         } else if problem.stop_count() == 1 {
             return self.initial_solver.solve(problem);
         }
@@ -514,7 +509,7 @@ mod tests {
             vec![Location::new(0.0, 0.0), Location::new(1.0, 0.0)],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
+        assert_eq!(solve(&problem), Solution::from_routes([vec![]]));
     }
 
     #[test]
@@ -529,7 +524,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0].into()]));
+        assert_eq!(solve(&problem), Solution::from_routes([vec![0]]));
     }
 
     #[test]
@@ -545,7 +540,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1].into()]));
+        assert_eq!(solve(&problem), Solution::from_routes([vec![0, 1]]));
     }
 
     #[test]
@@ -562,7 +557,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1, 2].into()]));
+        assert_eq!(solve(&problem), Solution::from_routes([vec![0, 1, 2]]));
     }
 
     #[test]
