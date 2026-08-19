@@ -1,6 +1,3 @@
-#![feature(allocator_api)]
-
-extern crate alloc;
 extern crate core;
 
 #[doc(hidden)]

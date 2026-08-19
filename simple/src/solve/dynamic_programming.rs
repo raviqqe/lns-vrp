@@ -1,8 +1,8 @@
 use crate::{cost::CostCalculator, hash_map::HashMap, Problem, Solution, Stop, Vehicle};
+use allocator_api2::{alloc::Global, vec::Vec};
 use bumpalo::Bump;
 use core::{BasicProblem, BasicSolver};
 use ordered_float::OrderedFloat;
-use std::alloc::Global;
 
 /// Dynamic programming solver.
 ///
@@ -98,7 +98,7 @@ mod tests {
             vec![Location::new(0.0, 0.0), Location::new(1.0, 0.0)],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
+        assert_eq!(solve(&problem), Solution::from_routes([vec![]]));
     }
 
     #[test]
@@ -113,7 +113,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0].into()]));
+        assert_eq!(solve(&problem), Solution::from_routes([vec![0]]));
     }
 
     #[test]
@@ -129,7 +129,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1].into()]));
+        assert_eq!(solve(&problem), Solution::from_routes([vec![0, 1]]));
     }
 
     #[test]
@@ -146,7 +146,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 1, 2].into()]));
+        assert_eq!(solve(&problem), Solution::from_routes([vec![0, 1, 2]]));
     }
 
     #[test]

@@ -1,4 +1,5 @@
 use crate::{Problem, Solution, Stop, Vehicle};
+use allocator_api2::vec::Vec;
 use core::{BasicProblem, BasicSolver, BasicStop, BasicVehicle, Router};
 use ordered_float::OrderedFloat;
 use std::collections::HashSet;
@@ -16,14 +17,10 @@ impl<R: Router> NearestNeighborSolver<R> {
 impl<R: Router> BasicSolver<Vehicle, Stop, Problem, Solution> for NearestNeighborSolver<R> {
     fn solve(&mut self, problem: &Problem) -> Solution {
         if problem.vehicle_count() == 0 {
-            return Solution::new(vec![]);
+            return Solution::new(Vec::new());
         }
 
-        let mut solution = Solution::new(
-            (0..problem.vehicle_count())
-                .map(|_| vec![].into())
-                .collect(),
-        );
+        let mut solution = Solution::from_routes((0..problem.vehicle_count()).map(|_| []));
         let mut stops = HashSet::<usize>::from_iter(0..problem.stop_count());
 
         loop {
@@ -78,7 +75,7 @@ mod tests {
             vec![Location::new(0.0, 0.0)],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![].into()]));
+        assert_eq!(solve(&problem), Solution::from_routes([vec![]]));
     }
 
     #[test]
@@ -89,7 +86,7 @@ mod tests {
             vec![Location::new(0.0, 0.0)],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0].into()]));
+        assert_eq!(solve(&problem), Solution::from_routes([vec![0]]));
     }
 
     #[test]
@@ -134,7 +131,7 @@ mod tests {
             ],
         );
 
-        assert_eq!(solve(&problem), Solution::new(vec![vec![0, 2, 1].into()]));
+        assert_eq!(solve(&problem), Solution::from_routes([vec![0, 2, 1]]));
     }
 
     #[test]
@@ -163,7 +160,7 @@ mod tests {
 
         assert_eq!(
             solve(&problem),
-            Solution::new(vec![vec![0, 1, 2].into(), vec![3, 4, 5].into()])
+            Solution::from_routes([vec![0, 1, 2], vec![3, 4, 5]])
         );
     }
 
@@ -191,7 +188,7 @@ mod tests {
 
         assert_eq!(
             solve(&problem),
-            Solution::new(vec![vec![0, 1, 2].into(), vec![3, 4].into()])
+            Solution::from_routes([vec![0, 1, 2], vec![3, 4]])
         );
     }
 }
