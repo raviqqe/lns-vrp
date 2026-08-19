@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 ahash = { version = "0.8.11", default-features = false }
-allocator-api2 = { version = "0.2.21", features = ["serde"] }
+allocator-api2 = { version = "0.4.0", features = ["serde"] }
 bumpalo = { version = "3.20.3", features = ["allocator-api2"] }
 core = { package = "lns-vrp-core", path = "../core" }
 geo = "0.33.1"
